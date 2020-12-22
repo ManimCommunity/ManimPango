@@ -8,7 +8,7 @@ docs/_build
 *.c
 # C extensions
 *.so
-text2svg/*.dll
+manimpango/*.dll
 # Distribution / packaging
 .Python
 build/

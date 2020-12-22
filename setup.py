@@ -71,7 +71,7 @@ setup(
     long_description=long_description,
     zip_safe=False,
     long_description_content_type="text/markdown",
-    packages=find_packages(),
+    packages=["manimpango"],
     python_requires=">=3.6",
     ext_modules=cythonize(
         ext_modules,

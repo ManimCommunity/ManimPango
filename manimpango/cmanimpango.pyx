@@ -1,4 +1,4 @@
-cimport pango
+cimport cmanimpango
 import re
 import warnings
 from enum import Enum
