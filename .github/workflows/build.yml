@@ -69,10 +69,10 @@ jobs:
         if: runner.os != 'windows'
         run: |
           python -m cibuildwheel --output-dir wheelhouse
-          7z a wheels.zip wheelhouse/*.whl
+
       - uses: actions/upload-artifact@v2
         with:
-          path: wheels.zip
+          path: ./wheelhouse/*.whl
           name: wheels-${{ runner.os }}
       - name: Publish (Release)
         if: ${{  github.event_name== 'release' && runner.os == 'Linux' }}
