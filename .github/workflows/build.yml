@@ -1,0 +1,95 @@
+name: Build Wheels
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+  release:
+    types: [created]
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-18.04, macos-latest, windows-2016]
+    env:
+      CIBW_BUILD: "cp37-* cp36-* cp38-* cp39-*"
+      CIBW_SKIP: "pp* cp35"
+      CIBW_BEFORE_BUILD_LINUX: "yum install -y pkgconfig && yum install -y cairo-devel && yum install -y pango-devel && pip install ."
+      CIBW_BEFORE_BUILD_MACOS: "brew install pango && brew install cairo && pip install ."
+      CIBW_BEFORE_BUILD_WINDOWS: "pip install cython && python windll/download_dlls.py && pkg-config --libs pango"
+      CIBW_TEST_REQUIRES: Cython
+      CIBW_ENVIRONMENT_WINDOWS: "PKG_CONFIG_PATH='C:\\cibw\\vendor\\lib\\pkgconfig'"
+      CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: python windll/inject-dlls.py {wheel} {dest_dir} C:\cibw\vendor\bin
+      CIBW_MANYLINUX_X86_64_IMAGE: quay.io/pypa/manylinux2010_x86_64:latest
+      CIBW_MANYLINUX_I686_IMAGE: quay.io/pypa/manylinux2010_i686:latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: "3.7"
+
+      - name: Install cibuildwheel
+        env:
+          event_name: ${{ github.event_name }}
+        continue-on-error: true
+        shell: bash
+        run: |
+          python -m pip install cibuildwheel==1.6.4
+          echo "$event_name"
+
+      - name: Install External Dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          pip install setuptools wheel twine Cython setuptools
+          sudo apt install libcairo2-dev pkg-config python3-dev
+          sudo apt-get install libpango1.0-dev
+
+      - name: Install External Dependencies (MacOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install pango
+          brew install cairo
+
+      - name: Build wheels(Windows)
+        if: runner.os == 'windows'
+        run: |
+          $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin"
+          $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
+          python -m cibuildwheel --output-dir wheelhouse
+
+      - name: Build wheels (Non-Windows)
+        if: runner.os != 'windows'
+        run: |
+          python -m cibuildwheel --output-dir wheelhouse
+          7z a wheels.zip wheelhouse/*.whl
+      - uses: actions/upload-artifact@v2
+        with:
+          path: wheels.zip
+          name: wheels-${{ runner.os }}
+      - name: Publish (Release)
+        if: ${{  github.event_name== 'release' && runner.os == 'Linux' }}
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: |
+          pip install twine
+          python setup.py sdist
+          twine upload dist/*
+      - name: Publish (Release)
+        if: github.event_name == 'release'
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: |
+          pip install twine
+          twine upload wheelhouse/*.whl
+          twine upload wheelhouse/*.whl
+          twine upload wheelhouse/*.whl
