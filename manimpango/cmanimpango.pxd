@@ -109,7 +109,9 @@ cdef extern from "pango/pango.h":
     PangoAttribute* pango_attr_foreground_new (guint16 red, guint16 green, guint16 blue)
     void pango_layout_set_wrap (PangoLayout *layout,PangoWrapMode wrap)
     void pango_layout_set_markup (PangoLayout *layout,const char *markup,int length)
+    void pango_layout_get_size(PangoLayout* layout,int* width,int* height)
 
 cdef extern from "pango/pango-types.h":
     int PANGO_SCALE
     int pango_units_from_double(double d)
+    double pango_units_to_double (int i)

@@ -149,6 +149,7 @@ class PangoUtils:
         content = re.sub(r'Z M [^A-Za-z]*? "\/>', 'Z "/>', content)
         with open(file_name, "w") as fpw:
             fpw.write(content)
+
 class TextSetting(object):
     def __init__(self, start:int, end:int, font:str, slant, weight, line_num=-1):
         self.start = start
@@ -178,6 +179,7 @@ def text2svg(
     cdef double width_layout = width
     cdef double font_size_c = size
     cdef cairo_status_t status
+    cdef int temp_width
     surface = cairo_svg_surface_create(file_name_bytes,width,height)
     if surface == NULL:
         raise MemoryError("Cairo.SVGSurface can't be created.")
@@ -195,6 +197,7 @@ def text2svg(
     cairo_move_to(cr,START_X,START_Y)
     offset_x = 0
     last_line_num = 0
+
     layout = pango_cairo_create_layout(cr)
     if layout==NULL:
         cairo_destroy(cr)
@@ -232,7 +235,9 @@ def text2svg(
             pango_layout_set_markup(layout, text, -1)
         else:
             pango_layout_set_text(layout,text,-1)
-    pango_cairo_show_layout(cr, layout)
+        pango_cairo_show_layout(cr, layout)
+        pango_layout_get_size(layout,&temp_width,NULL)
+        offset_x += pango_units_to_double(temp_width)
 
     status = cairo_status(cr)
     if cr == NULL or status == CAIRO_STATUS_NO_MEMORY:
