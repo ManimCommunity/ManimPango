@@ -1,2 +1,1 @@
-include windll/LICENSE.win32 *.md
-recursive-include text2svg *.pyx *.pxd
+global-include *.pyx

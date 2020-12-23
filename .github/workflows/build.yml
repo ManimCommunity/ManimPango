@@ -63,6 +63,8 @@ jobs:
         run: |
           $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin"
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
+          Copy-Item windll/LICENSE.bin .
+          Rename-Item LICENSE.bin LICENSE.win32
           python -m cibuildwheel --output-dir wheelhouse
 
       - name: Build wheels (Non-Windows)
@@ -81,6 +83,8 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
           pip install twine
+          pip install cython
+          python setup.py build_ext -i
           python setup.py sdist
           twine upload dist/*
       - name: Publish (Release)

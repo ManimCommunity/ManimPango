@@ -4,9 +4,12 @@ import shlex
 from pathlib import Path
 from shlex import quote
 from subprocess import PIPE, Popen
-
-from Cython.Build import cythonize
-from setuptools import Extension, find_packages, setup
+try:
+    from Cython.Build import cythonize
+    USE_CYTHON = True
+except ImportError:
+    USE_CYTHON = False
+from setuptools import Extension, setup
 
 _cflag_parser = argparse.ArgumentParser(add_help=False)
 _cflag_parser.add_argument("-I", dest="include_dirs", action="append")
@@ -52,31 +55,48 @@ def get_library_config(name):
         )
     return known
 
+ext = '.pyx' if USE_CYTHON else '.c'
 base_file = Path(__file__).parent / "manimpango"
 returns = get_library_config("pangocairo")
 ext_modules = [
     Extension(
         "manimpango.cmanimpango",
-        [str(base_file / "cmanimpango.pyx")],
+        [str(base_file / ("cmanimpango"+ext))],
         **returns,
     ),
 ]
-
+if USE_CYTHON:
+    ext_modules = cythonize(
+        ext_modules,
+        language_level=3,
+        include_path=["manimpango"]
+    )
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
     name="manimpango",
     version="0.1.0",
+    author="The Manim Community Developers",
+    maintainer="The Manim Community Developers",
+    url="https://github.com/ManimCommunity/manimpango",
+    description="Bindings for Pango for using with Manim.",
     long_description=long_description,
     zip_safe=False,
     long_description_content_type="text/markdown",
     packages=["manimpango"],
     python_requires=">=3.6",
-    ext_modules=cythonize(
-        ext_modules,
-        language_level=3,
-        include_path=["manimpango"],
-        build_dir=str(Path(__file__).parent / "build"),
-    )    
+    platforms=["Linux", "macOS", "Windows"],
+    keywords=["cython", "pango", "cairo", "svg", "manim"],
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "Development Status :: 3 - Alpha",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Operating System :: OS Independent",
+        "Programming Language :: Cython",
+    ],
+    ext_modules=ext_modules,
+    package_data = {
+        'manimpango': ['*.pxd'],
+    }
 )

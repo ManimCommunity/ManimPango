@@ -1,10 +1,13 @@
 cimport cmanimpango
+
 import re
 import warnings
 from enum import Enum
 from pathlib import Path
 from typing import Optional
 from xml.sax.saxutils import escape
+
+
 class Style(Enum):
     """
     An enumeration specifying the various slant styles possible for a font.
