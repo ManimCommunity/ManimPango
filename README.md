@@ -1,3 +1,3 @@
 # ManimPango
 
-Pango binding for Manim.
+Small binding using Cython for Pango. Used internally with Manim.
