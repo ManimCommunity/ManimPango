@@ -259,32 +259,38 @@ def text2svg(
 class MarkupUtils:
     @staticmethod
     def text2svg(
-        text:str,
-        font:str,
+        text: str,
+        font: str,
         slant: str,
         weight: str,
-        size:int,
-        line_spacing:int,
-        disable_liga:bool,
-        file_name:str,
-        START_X:int,
-        START_Y:int,
-        width:int,
-        height:int,
+        size: int,
+        line_spacing: int,
+        disable_liga: bool,
+        file_name: str,
+        START_X: int,
+        START_Y: int,
+        width: int,
+        height: int,
     ) -> int:
         file_name_bytes = file_name.encode("utf-8")
+
+        cdef cairo_surface_t* surface
+        cdef cairo_t* context
+        cdef PangoFontDescription* font_desc
+        cdef PangoLayout* layout
+        cdef cairo_status_t status
+        cdef double width_layout = width
+        cdef double font_size = size
+
         if disable_liga:
             text_bytes = f"<span font_features='liga=0,dlig=0,clig=0,hlig=0'>{text}</span>".encode("utf-8")
         else:
             text_bytes = text.encode("utf-8")
 
-        cdef cairo_surface_t* surface
         surface = cairo_svg_surface_create(file_name_bytes,width,height)
         if surface == NULL:
             raise MemoryError("Cairo.SVGSurface can't be created.")
-        cdef cairo_t* context
         context = cairo_create(surface)
-        cdef cairo_status_t status
         status = cairo_status(context)
         if context == NULL or status == CAIRO_STATUS_NO_MEMORY:
             cairo_destroy(context)
@@ -296,8 +302,6 @@ class MarkupUtils:
             raise Exception(cairo_status_to_string(status))
 
         cairo_move_to(context,START_X,START_Y)
-        cdef PangoLayout* layout
-        cdef double width_layout = width
         layout = pango_cairo_create_layout(context)
         if layout==NULL:
             cairo_destroy(context)
@@ -305,14 +309,12 @@ class MarkupUtils:
             raise MemoryError("Pango.Layout can't be created from Cairo Context.")
         pango_layout_set_width(layout, pango_units_from_double(width_layout))
 
-        cdef PangoFontDescription* font_desc
         font_desc = pango_font_description_new()
         if font_desc==NULL:
             cairo_destroy(context)
             cairo_surface_destroy(surface)
             g_object_unref(layout)
             raise MemoryError("Pango.FontDesc can't be created.")
-        cdef double font_size = size
         pango_font_description_set_size(font_desc, pango_units_from_double(font_size))
         if font:
             pango_font_description_set_family(font_desc, font.encode("utf-8"))
