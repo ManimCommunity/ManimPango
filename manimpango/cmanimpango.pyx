@@ -272,8 +272,6 @@ class MarkupUtils:
         width: int,
         height: int,
     ) -> int:
-        file_name_bytes = file_name.encode("utf-8")
-
         cdef cairo_surface_t* surface
         cdef cairo_t* context
         cdef PangoFontDescription* font_desc
@@ -281,6 +279,8 @@ class MarkupUtils:
         cdef cairo_status_t status
         cdef double width_layout = width
         cdef double font_size = size
+        
+        file_name_bytes = file_name.encode("utf-8")
 
         if disable_liga:
             text_bytes = f"<span font_features='liga=0,dlig=0,clig=0,hlig=0'>{text}</span>".encode("utf-8")
