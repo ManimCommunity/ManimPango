@@ -79,7 +79,7 @@ jobs:
           python setup.py sdist
           python -m pip install dist/*
   msvc:
-    name: Test on ${{matrix.os}}
+    name: ${{matrix.os}} - ${{matrix.python-version}}
     runs-on: windows-latest
     strategy:
       matrix:
@@ -129,4 +129,3 @@ jobs:
           $env:PATH="C:\cibw\vendor\bin;$env:PATH"
           tree /A C:\cibw\vendor\bin
           pytest tests -s
-
