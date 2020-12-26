@@ -106,7 +106,7 @@ jobs:
           python setup.py build_ext -i
           python setup.py install --root="$(pwd)"/_root_abs
           $env:PATH="C:\cibw\vendor\bin;$env:PATH"
-          tree C:\cibw\vendor\bin
+          tree /A C:\cibw\vendor\bin
           pytest tests -s
 
       - name: Set up Python ${{ matrix.python-version }} for x86
@@ -127,6 +127,6 @@ jobs:
           python setup.py build_ext -i
           python setup.py install --root="$(pwd)"/_root_abs
           $env:PATH="C:\cibw\vendor\bin;$env:PATH"
-          tree C:\cibw\vendor\bin
+          tree /A C:\cibw\vendor\bin
           pytest tests -s
 
