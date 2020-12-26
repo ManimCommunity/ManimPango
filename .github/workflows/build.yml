@@ -2,7 +2,6 @@ name: Build Wheels
 
 on:
   push:
-  pull_request:
     branches:
       - main
   release:
