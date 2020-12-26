@@ -104,7 +104,6 @@ jobs:
           pytest -s
           python setup.py sdist
           python setup.py install --root="$(pwd)"/_root_abs
-          python -m pip install dist/*
 
       - name: Set up Python ${{ matrix.python-version }} for x86
         uses: actions/setup-python@v2
@@ -123,4 +122,4 @@ jobs:
           pytest -s
           python setup.py sdist
           python setup.py install --root="$(pwd)"/_root_abs
-          python -m pip install dist/*
+
