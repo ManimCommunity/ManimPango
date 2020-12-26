@@ -103,8 +103,9 @@ jobs:
           pip install cython pytest
           pip install .
           python setup.py sdist
+          python setup.py build_ext -i
           python setup.py install --root="$(pwd)"/_root_abs
-          pytest -s
+          pytest tests -s
 
       - name: Set up Python ${{ matrix.python-version }} for x86
         uses: actions/setup-python@v2
@@ -122,6 +123,7 @@ jobs:
           pip install cython pytest
           pip install .
           python setup.py sdist
+          python setup.py build_ext -i
           python setup.py install --root="$(pwd)"/_root_abs
-          pytest -s
+          pytest tests -s
 
