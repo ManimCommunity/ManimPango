@@ -170,8 +170,6 @@ def text2svg(
     height:int,
     orig_text:str
 ) -> int:
-    file_name_bytes = file_name.encode("utf-8")
-
     cdef cairo_surface_t* surface
     cdef cairo_t* cr
     cdef PangoFontDescription* font_desc
@@ -180,11 +178,16 @@ def text2svg(
     cdef double font_size_c = size
     cdef cairo_status_t status
     cdef int temp_width
+
+    file_name_bytes = file_name.encode("utf-8")
     surface = cairo_svg_surface_create(file_name_bytes,width,height)
+    
     if surface == NULL:
         raise MemoryError("Cairo.SVGSurface can't be created.")
+    
     cr = cairo_create(surface)
     status = cairo_status(cr)
+    
     if cr == NULL or status == CAIRO_STATUS_NO_MEMORY:
         cairo_destroy(cr)
         cairo_surface_destroy(surface)
@@ -199,6 +202,7 @@ def text2svg(
     last_line_num = 0
 
     layout = pango_cairo_create_layout(cr)
+
     if layout==NULL:
         cairo_destroy(cr)
         cairo_surface_destroy(surface)
@@ -240,6 +244,7 @@ def text2svg(
         offset_x += pango_units_to_double(temp_width)
 
     status = cairo_status(cr)
+
     if cr == NULL or status == CAIRO_STATUS_NO_MEMORY:
         cairo_destroy(cr)
         cairo_surface_destroy(surface)
@@ -343,3 +348,9 @@ class MarkupUtils:
         cairo_surface_destroy(surface)
         g_object_unref(layout)
         return file_name
+
+cpdef str pango_version():
+    return pango_version_string().decode('utf-8')
+
+cpdef str cairo_version():
+    return cairo_version_string().decode('utf-8')
