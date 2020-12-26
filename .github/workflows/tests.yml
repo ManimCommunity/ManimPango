@@ -97,7 +97,7 @@ jobs:
           python windll/download_dlls.py
       - name: Test x64
         run: |
-          $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin"
+          $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin;C:\cibw\vendor\bin"
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
           pip install cython pytest
           pip install .
@@ -115,7 +115,7 @@ jobs:
           python windll/download_dlls.py
       - name: Build x86 Build
         run: |
-          $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin"
+          $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin;C:\cibw\vendor\bin"
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
           pip install cython pytest
           pip install .
