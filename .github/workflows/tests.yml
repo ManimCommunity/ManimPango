@@ -97,13 +97,14 @@ jobs:
           python windll/download_dlls.py
       - name: Test x64
         run: |
-          $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin;C:\cibw\vendor\bin"
+          $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin"
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
+          $env:PATH="C:\cibw\vendor\bin;$env:PATH"
           pip install cython pytest
           pip install .
-          pytest -s
           python setup.py sdist
           python setup.py install --root="$(pwd)"/_root_abs
+          pytest -s
 
       - name: Set up Python ${{ matrix.python-version }} for x86
         uses: actions/setup-python@v2
@@ -117,9 +118,10 @@ jobs:
         run: |
           $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin;C:\cibw\vendor\bin"
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
+          $env:PATH="C:\cibw\vendor\bin;$env:PATH"
           pip install cython pytest
           pip install .
-          pytest -s
           python setup.py sdist
           python setup.py install --root="$(pwd)"/_root_abs
+          pytest -s
 
