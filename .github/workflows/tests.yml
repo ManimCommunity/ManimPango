@@ -105,6 +105,8 @@ jobs:
           python setup.py sdist
           python setup.py build_ext -i
           python setup.py install --root="$(pwd)"/_root_abs
+          $env:PATH="C:\cibw\vendor\bin;$env:PATH"
+          tree C:\cibw\vendor\bin
           pytest tests -s
 
       - name: Set up Python ${{ matrix.python-version }} for x86
@@ -119,11 +121,12 @@ jobs:
         run: |
           $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin;C:\cibw\vendor\bin"
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
-          $env:PATH="C:\cibw\vendor\bin;$env:PATH"
           pip install cython pytest
           pip install .
           python setup.py sdist
           python setup.py build_ext -i
           python setup.py install --root="$(pwd)"/_root_abs
+          $env:PATH="C:\cibw\vendor\bin;$env:PATH"
+          tree C:\cibw\vendor\bin
           pytest tests -s
 
