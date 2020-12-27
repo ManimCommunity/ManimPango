@@ -181,13 +181,13 @@ def text2svg(
 
     file_name_bytes = file_name.encode("utf-8")
     surface = cairo_svg_surface_create(file_name_bytes,width,height)
-    
+
     if surface == NULL:
         raise MemoryError("Cairo.SVGSurface can't be created.")
-    
+
     cr = cairo_create(surface)
     status = cairo_status(cr)
-    
+
     if cr == NULL or status == CAIRO_STATUS_NO_MEMORY:
         cairo_destroy(cr)
         cairo_surface_destroy(surface)
@@ -284,7 +284,7 @@ class MarkupUtils:
         cdef cairo_status_t status
         cdef double width_layout = width
         cdef double font_size = size
-        
+
         file_name_bytes = file_name.encode("utf-8")
 
         if disable_liga:

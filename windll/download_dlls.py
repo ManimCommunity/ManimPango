@@ -35,12 +35,12 @@ logging.info(f"Download complete. Saved to {download_file}.")
 logging.info(f"Extracting {download_file} to {download_location}...")
 with zipfile.ZipFile(
     download_file, mode="r", compression=zipfile.ZIP_DEFLATED
-) as file:  # noqa :E501
+) as file:  # :E501
     file.extractall(download_location)
 os.remove(download_file)
 shutil.move(
     str(download_location / "build" / "pkg-config"), str(final_location)
-)  # noqa E501
+)  # E501
 logging.info("Completed Extracting.")
 plat = get_platform()
 logging.debug(f"Found Platform as {plat}")
