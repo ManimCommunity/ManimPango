@@ -1,22 +1,32 @@
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.3.0
     hooks:
-    -   id: check-yaml
-    -   id: end-of-file-fixer
-    -   id: trailing-whitespace
-    -   id: check-added-large-files
-    -   id: fix-encoding-pragma
-    -   id: mixed-line-ending
--   repo: https://github.com/psf/black
-    rev: 20.8b1
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: fix-encoding-pragma
+      - id: mixed-line-ending
+      - id: check-merge-conflict
+  - repo: https://github.com/psf/black
+    rev: e66be67b9b6811913470f70c28b4d50f94d05b22 # frozen: 20.8b1
     hooks:
-    -   id: black
--   repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.4
+      - id: black
+        args: ["--target-version", "py38"]
+        files: \.py$
+        types: []
+  - repo: https://github.com/PyCQA/isort
+    rev: 377d260ffa6f746693f97b46d95025afc4bd8275  # frozen: 5.4.2
     hooks:
-    -   id: flake8
--   repo: https://github.com/PyCQA/isort
-    rev: 5.6.4
+      - id: isort
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: 05f6544aef321e2fee03a1277ce2eef8880fb927  # frozen: 3.8.3
     hooks:
-    -    id: isort
+      - id: flake8
+        additional_dependencies: [flake8-2020, flake8-implicit-str-concat]
+
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: eae6397e4c259ed3d057511f6dd5330b92867e62  # frozen: v1.6.0
+    hooks:
+      - id: python-check-blanket-noqa
+      - id: rst-backticks

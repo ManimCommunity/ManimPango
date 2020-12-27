@@ -1,0 +1,146 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: ${{ matrix.os }} - ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: [3.7, 3.8, 3.9]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest Cython
+
+      - name: Install System Dependency (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get install libpango1.0-dev
+          sudo apt install libcairo2-dev pkg-config python3-dev
+
+      - name: Install System Dependency (MacOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install pango
+          brew install cairo
+      - name: Run Tests
+        run: |
+          python setup.py build_ext -i
+          python setup.py sdist
+          pip install .
+          pytest
+  msys:
+    name: Test on Msys2
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - msystem: MINGW64
+            arch: x86_64
+          - msystem: MINGW32
+            arch: i686
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: setup-msys2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: ${{ matrix.msystem }}
+          update: true
+          install: >-
+            mingw-w64-${{ matrix.arch }}-cairo
+            mingw-w64-${{ matrix.arch }}-python
+            mingw-w64-${{ matrix.arch }}-python-pip
+            mingw-w64-${{ matrix.arch }}-toolchain
+            mingw-w64-${{ matrix.arch }}-pango
+
+      - name: Install dependencies
+        shell: msys2 {0}
+        run: |
+          python -m pip install Cython pytest
+      - name: Run tests
+        shell: msys2 {0}
+        run: |
+          pip install .
+          python setup.py build_ext -i
+          python setup.py sdist
+          python -m pip install dist/*
+          pytest tests -s
+  msvc:
+    name: ${{matrix.os}} - ${{matrix.python-version}}
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [windows-latest, windows-2016]
+        python-version: [3.7, 3.8, 3.9]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }} for x64
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: "x64"
+      - name: Download Binary
+        run: |
+          python windll/download_dlls.py
+      - name: Test x64
+        run: |
+          $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin"
+          $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
+          $env:PATH="C:\cibw\vendor\bin;$env:PATH"
+          pip install cython pytest
+          pip install .
+          python setup.py sdist
+          python setup.py build_ext -i
+          python setup.py install --root="$(pwd)"/_root_abs
+          $env:PATH="C:\cibw\vendor\bin;$env:PATH"
+          pytest tests -s
+
+      - name: Set up Python ${{ matrix.python-version }} for x86
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: "x86"
+      - name: Download Binary
+        run: |
+          python windll/download_dlls.py
+      - name: Build x86 Build
+        run: |
+          $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin;C:\cibw\vendor\bin"
+          $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
+          pip install cython pytest
+          pip install .
+          python setup.py sdist
+          python setup.py build_ext -i
+          python setup.py install --root="$(pwd)"/_root_abs
+          $env:PATH="C:\cibw\vendor\bin;$env:PATH"
+          pytest tests -s
+  success-win:
+    needs: [msvc, msys]
+    runs-on: ubuntu-latest
+    name: Windows Test Successful
+    steps:
+      - name: Success
+        run: echo Windows Test Successful
+  success-all:
+    needs: [test]
+    runs-on: ubuntu-latest
+    name: Mac and Linux Test Successful
+    steps:
+      - name: Success
+        run: echo Mac and Linux Test Successful

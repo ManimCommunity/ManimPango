@@ -4,8 +4,10 @@ import shlex
 from pathlib import Path
 from shlex import quote
 from subprocess import PIPE, Popen
+
 try:
     from Cython.Build import cythonize
+
     USE_CYTHON = True
 except ImportError:
     USE_CYTHON = False
@@ -55,13 +57,14 @@ def get_library_config(name):
         )
     return known
 
-ext = '.pyx' if USE_CYTHON else '.c'
+
+ext = ".pyx" if USE_CYTHON else ".c"
 base_file = Path(__file__).parent / "manimpango"
 returns = get_library_config("pangocairo")
 ext_modules = [
     Extension(
         "manimpango.cmanimpango",
-        [str(base_file / ("cmanimpango"+ext))],
+        [str(base_file / ("cmanimpango" + ext))],
         **returns,
     ),
 ]
@@ -69,7 +72,7 @@ if USE_CYTHON:
     ext_modules = cythonize(
         ext_modules,
         language_level=3,
-        include_path=["manimpango"]
+        include_path=["manimpango"],
     )
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -96,7 +99,7 @@ setup(
         "Programming Language :: Cython",
     ],
     ext_modules=ext_modules,
-    package_data = {
-        'manimpango': ['*.pxd'],
-    }
+    package_data={
+        "manimpango": ["*.pxd"],
+    },
 )
