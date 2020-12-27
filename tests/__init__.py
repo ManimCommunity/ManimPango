@@ -8,7 +8,7 @@ def set_dll_search_path():
     # everything in PATH manually.
     if (
         os.name != "nt"
-        or "GCC" not in platform.python_compiler()
+        or "GCC" not platform.python_compiler()
         or not hasattr(os, "add_dll_directory")
     ):
         return
