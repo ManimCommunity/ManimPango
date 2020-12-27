@@ -95,3 +95,10 @@ jobs:
           twine upload wheelhouse/*.whl
           twine upload wheelhouse/*.whl
           twine upload wheelhouse/*.whl
+  success:
+    needs: [build_wheels]
+    runs-on: ubuntu-latest
+    name: Build Wheels Sucessfully
+    steps:
+      - name: Success
+        run: echo Build Wheels Sucessfully
