@@ -42,7 +42,7 @@ jobs:
           python setup.py sdist
           pip install .
           pytest
-  msys2:
+  msys:
     name: Test on Msys2
     runs-on: windows-latest
     strategy:
@@ -79,7 +79,7 @@ jobs:
           pip install .
           python setup.py sdist
           python -m pip install dist/*
-          pytest
+          pytest tests -s
   msvc:
     name: ${{matrix.os}} - ${{matrix.python-version}}
     runs-on: windows-latest
@@ -129,3 +129,17 @@ jobs:
           python setup.py install --root="$(pwd)"/_root_abs
           $env:PATH="C:\cibw\vendor\bin;$env:PATH"
           pytest tests -s
+  success-win:
+    needs: [msvc, msys]
+    runs-on: ubuntu-latest
+    name: Windows Test Successful
+    steps:
+      - name: Success
+        run: echo Windows Test Successful
+  success-all:
+    needs: [test]
+    runs-on: ubuntu-latest
+    name: Mac and Linux Test Successful
+    steps:
+      - name: Success
+        run: echo Mac and Linux Test Successful
