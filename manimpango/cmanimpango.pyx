@@ -378,7 +378,7 @@ IF UNAME_SYSNAME == "Linux":
             Font is missing.
         """
         a=Path(font_path)
-        assert a.exists(), f"font doesn't exists at {a.absolute()}"
+        assert a.exists(), f"font doesn't exist at {a.absolute()}"
         font_path = str(a.absolute())
         font_path_bytes=font_path.encode('ascii')
         cdef const unsigned char* fontPath = font_path_bytes
