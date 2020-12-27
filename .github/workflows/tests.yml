@@ -38,6 +38,8 @@ jobs:
           brew install cairo
       - name: Run Tests
         run: |
+          python setup.py build_ext -i
+          python setup.py sdist
           pip install .
           pytest
   msys2:
@@ -75,9 +77,9 @@ jobs:
         shell: msys2 {0}
         run: |
           pip install .
-          pytest
           python setup.py sdist
           python -m pip install dist/*
+          pytest
   msvc:
     name: ${{matrix.os}} - ${{matrix.python-version}}
     runs-on: windows-latest
@@ -106,7 +108,6 @@ jobs:
           python setup.py build_ext -i
           python setup.py install --root="$(pwd)"/_root_abs
           $env:PATH="C:\cibw\vendor\bin;$env:PATH"
-          tree /A C:\cibw\vendor\bin
           pytest tests -s
 
       - name: Set up Python ${{ matrix.python-version }} for x86
@@ -127,5 +128,4 @@ jobs:
           python setup.py build_ext -i
           python setup.py install --root="$(pwd)"/_root_abs
           $env:PATH="C:\cibw\vendor\bin;$env:PATH"
-          tree /A C:\cibw\vendor\bin
           pytest tests -s
