@@ -62,6 +62,7 @@ jobs:
       - name: Build wheels (Non-Windows)
         if: runner.os != 'windows'
         run: |
+          cp packing/LICENSE.bin .
           python -m cibuildwheel --output-dir wheelhouse
           7z a wheels.zip wheelhouse/*.whl
 
