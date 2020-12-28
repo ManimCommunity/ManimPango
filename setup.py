@@ -86,7 +86,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="manimpango",
-    version="0.1.2",
+    version="0.1.3",
     author="The Manim Community Developers",
     maintainer="The Manim Community Developers",
     url="https://github.com/ManimCommunity/manimpango",
