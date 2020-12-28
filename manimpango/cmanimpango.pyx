@@ -367,7 +367,7 @@ IF UNAME_SYSNAME == "Linux":
         =======
         :class:`bool`
                 True means it worked without any error.
-                False means there is a Unknow Error
+                False means there was an unknown error
         Examples
         --------
         >>> register_font("/home/roboto.tff")
