@@ -227,12 +227,12 @@ def text2svg(
         pango_font_description_set_style(font_desc, style.value)
         pango_font_description_set_weight(font_desc, weight.value)
         pango_layout_set_font_description(layout, font_desc)
-        
+
         if setting.line_num != last_line_num:
                 offset_x = 0
                 last_line_num = setting.line_num
         cairo_move_to(cr,START_X + offset_x,START_Y + line_spacing * setting.line_num)
-        
+
         pango_cairo_update_layout(cr,layout)
         if disable_liga:
             text = escape(text)

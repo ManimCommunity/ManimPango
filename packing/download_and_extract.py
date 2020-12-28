@@ -1,12 +1,14 @@
- #!/usr/bin/python
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+import argparse
+import logging
+import shutil
+import tarfile
+import tempfile
+from pathlib import Path
 
 import requests
-import argparse
-import tempfile
-import tarfile
-import shutil
-from pathlib import Path
-import logging
 
 logging.basicConfig(format="%(levelname)s - %(message)s", level=logging.INFO)
 parser = argparse.ArgumentParser(description="Download things.")
@@ -29,6 +31,10 @@ with tempfile.TemporaryDirectory() as tmpdirname:
         logging.info(f"Extracting {tmpdirname / fname} to {tmpdirname}")
         tar.extractall(tmpdirname)
     logging.info(
-        f"Moving {str(tmpdirname / Path(Path(args.url).stem).stem)} to {str(args.folder)}"
+        f"Moving {str(tmpdirname / Path(Path(args.url).stem).stem)}",
+        f"to {str(args.folder)}",
     )
-    shutil.move(str(tmpdirname / Path(Path(args.url).stem).stem), str(args.folder))
+    shutil.move(
+        str(tmpdirname / Path(Path(args.url).stem).stem),
+        str(args.folder),
+    )

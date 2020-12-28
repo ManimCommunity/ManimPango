@@ -97,7 +97,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        container: ["python:3.6", "python:3.7", "python:3.8", python:3.9']
+        container: ["python:3.6", "python:3.7", "python:3.8", "python:3.9"]
     name: Test Wheels Using Docker Images
     container: ${{matrix.container}}
     steps:
@@ -110,7 +110,7 @@ jobs:
           python -c "import manimpango"
 
   success:
-    needs: [build_wheels,test_wheels_linux]
+    needs: [build_wheels, test_wheels_linux]
     runs-on: ubuntu-latest
     name: Build Wheels Sucessfully
     steps:
