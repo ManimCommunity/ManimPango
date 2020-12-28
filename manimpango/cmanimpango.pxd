@@ -128,3 +128,13 @@ cdef extern from "pango/pangocairo.h":
         int* height
     )
     const char* pango_version_string()
+IF UNAME_SYSNAME == "Linux":
+    cdef extern from "fontconfig/fontconfig.h":
+        ctypedef int FcBool
+        ctypedef struct FcConfig:
+            pass
+        FcBool FcConfigAppFontAddFile(
+            FcConfig* config,
+            const unsigned char* file_name
+        )
+        FcConfig* FcConfigGetCurrent()

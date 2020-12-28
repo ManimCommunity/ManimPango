@@ -354,3 +354,36 @@ cpdef str pango_version():
 
 cpdef str cairo_version():
     return cairo_version_string().decode('utf-8')
+
+IF UNAME_SYSNAME == "Linux":
+    cpdef bint register_font(str font_path):
+        """This function registers the font file using ``fontconfig`` so that
+        it is available for use by Pango.
+        Parameters
+        ==========
+        font_path : :class:`str`
+            Relative or absolute path to font file.
+        Returns
+        =======
+        :class:`bool`
+                True means it worked without any error.
+                False means there was an unknown error
+        Examples
+        --------
+        >>> register_font("/home/roboto.tff")
+        1
+        Raises
+        ------
+        AssertionError
+            Font is missing.
+        """
+        a=Path(font_path)
+        assert a.exists(), f"font doesn't exist at {a.absolute()}"
+        font_path = str(a.absolute())
+        font_path_bytes=font_path.encode('ascii')
+        cdef const unsigned char* fontPath = font_path_bytes
+        fontAddStatus = FcConfigAppFontAddFile(FcConfigGetCurrent(), fontPath)
+        if fontAddStatus:
+            return True
+        else:
+            return False

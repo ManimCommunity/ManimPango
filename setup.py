@@ -58,9 +58,16 @@ def get_library_config(name):
     return known
 
 
+def update_dict(dict1, dict2):
+    for key in dict2:
+        dict2[key] = list(set(dict1[key] + dict2[key]))
+    return dict2
+
+
 ext = ".pyx" if USE_CYTHON else ".c"
 base_file = Path(__file__).parent / "manimpango"
 returns = get_library_config("pangocairo")
+returns = update_dict(returns, get_library_config("pangofc"))
 ext_modules = [
     Extension(
         "manimpango.cmanimpango",
