@@ -235,8 +235,10 @@ def text2svg(
 
         pango_cairo_update_layout(cr,layout)
         if disable_liga:
-            text = escape(text)
-            pango_layout_set_markup(layout, text, -1)
+            text_bytes = escape(text.decode('utf-8'))
+            markup = f"<span font_features='liga=0,dlig=0,clig=0,hlig=0'>{text_bytes}</span>"
+            markup_bytes = markup.encode('utf-8')
+            pango_layout_set_markup(layout, markup_bytes, -1)
         else:
             pango_layout_set_text(layout,text,-1)
         pango_cairo_show_layout(cr, layout)
