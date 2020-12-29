@@ -16,14 +16,30 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-18.04, macos-latest, windows-2016]
+        bitness: [32, 64]
         include:
+          # Run 32 and 64 bit version in parallel for Linux and Windows
+          - os: windows-2016
+            bitness: 64
+            platform_id: win_amd64
+          - os: windows-2016
+            bitness: 32
+            platform_id: win32
           - os: ubuntu-18.04
-            arch: x86_64
+            bitness: 64
+            platform_id: manylinux_x86_64
           - os: ubuntu-18.04
-            arch: i686
+            bitness: 32
+            platform_id: manylinux_i686
+          - os: macos-latest
+            bitness: 64
+            platform_id: macosx_x86_64
+        exclude:
+          - os: macos-latest
+            bitness: 32
     env:
-      CIBW_BUILD: "cp36-* cp37-* cp38-* cp39-*"
-      CIBW_SKIP: pp* cp35 *manylinux_${{ matrix.arch }}
+      CIBW_BUILD: cp36-${{ matrix.platform_id }} cp37-${{ matrix.platform_id }} cp38-${{ matrix.platform_id }} cp39-${{ matrix.platform_id }}
+      CIBW_SKIP: pp* cp35
       CIBW_BEFORE_BUILD_LINUX: "source packing/build_pango.sh && pip install cython && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pip install ."
       CIBW_BEFORE_BUILD_MACOS: "brew reinstall pango && brew reinstall cairo && pip install cython && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pip install ."
       CIBW_BEFORE_BUILD_WINDOWS: "pip install cython && python packing/download_dlls.py && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pkg-config --libs pango && pip install ."
