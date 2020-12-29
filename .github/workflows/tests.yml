@@ -97,7 +97,7 @@ jobs:
           architecture: "x64"
       - name: Download Binary
         run: |
-          python windll/download_dlls.py
+          python packing/download_dlls.py
       - name: Test x64
         run: |
           $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin"
@@ -118,7 +118,7 @@ jobs:
           architecture: "x86"
       - name: Download Binary
         run: |
-          python windll/download_dlls.py
+          python packing/download_dlls.py
       - name: Build x86 Build
         run: |
           $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin;C:\cibw\vendor\bin"

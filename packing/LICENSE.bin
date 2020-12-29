@@ -4,7 +4,7 @@ This binary distribution of ManimPango also bundles the following software:
 
 
 Name: Cairo
-Files: cairo*.dll
+Files: *cairo*.*
 Description: bundled as a dynamically linked library
 Availability: https://gitlab.freedesktop.org/cairo/cairo
 License: LGPL-2.1 + MPL-1.1
@@ -1028,7 +1028,7 @@ EXHIBIT A -Mozilla Public License.
 
 
 Name: Pango
-Files: pango*.dll
+Files: *pango*.*
 Description: bundled as a dynamically linked library
 Availability: https://gitlab.gnome.org/GNOME/pango
 License: GNU Lesser Public License (LGPL)
@@ -1518,7 +1518,7 @@ That's all there is to it!
 
 
 Name: Expat
-Files: expat*.dll
+Files: *expat*.*
 Description: bundled as a dynamically linked library
 Availability: https://github.com/libexpat/libexpat
 License: MIT
@@ -1547,7 +1547,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 Name: libffi
-Files: ffi*.dll
+Files: *ffi*.*
 Description: bundled as a dynamically linked library
 Availability: https://github.com/libffi/libffi
 License: MIT
@@ -1576,7 +1576,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 Name: fontconfig
-Files: fontconfig*.dll
+Files: *fontconfig*.*
 Description: bundled as a dynamically linked library
 Availability: https://gitlab.freedesktop.org/fontconfig/fontconfig
 License: MIT
@@ -1777,7 +1777,7 @@ fontconfig/src/ftglue.[ch]
  */
 
 Name: FreeType
-Files: freetype*.dll
+Files: *freetype*.*
 Description: bundled as a dynamically linked library
 Availability: https://www.freetype.org/
 License: The FreeType Project LICENSE
@@ -1951,7 +1951,7 @@ Legal Terms
 
 
 Name: fribidi
-Files: fribidi*.dll
+Files: *fribidi*.*
 Description: bundled as a dynamically linked library
 Availability: https://github.com/fribidi/fribidi
 License: GNU Lesser General Public License v2.1
@@ -2461,7 +2461,7 @@ That's all there is to it!
 
 
 Name: glib
-Files: g*.dll
+Files: *g*.*
 Description: bundled as a dynamically linked library
 Availability: https://gitlab.gnome.org/GNOME/glib
 License:  LGPL-2.1 License
@@ -2971,7 +2971,7 @@ That's all there is to it!
 
 
 Name: harfbuzz
-Files: harfbuzz*.dll
+Files: *harfbuzz*.*
 Description: bundled as a dynamically linked library
 Availability:  https://harfbuzz.github.io/
 License: Old MIT
@@ -3017,7 +3017,7 @@ PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 
 Name: pixman
-Files: pixman*.dll
+Files: *pixman*.*
 Description: bundled as a dynamically linked library
 Availability:  https://gitlab.freedesktop.org/pixman/pixman
 License: MIT license
@@ -3067,7 +3067,7 @@ possible. They may also add themselves to the list below.
 
 
 Name: libpng
-Files: png*.dll
+Files: *png*.*
 Description: bundled as a dynamically linked library
 Availability:  http://www.libpng.org/pub/png/libpng.html
 License: libpng License
