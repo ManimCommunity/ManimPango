@@ -23,7 +23,7 @@ jobs:
             arch: i686
     env:
       CIBW_BUILD: "cp36-* cp37-* cp38-* cp39-*"
-      CIBW_SKIP: pp* cp35 *manylinux_${{matix.arch}}
+      CIBW_SKIP: pp* cp35 *manylinux_${{ matrix.arch }}
       CIBW_BEFORE_BUILD_LINUX: "source packing/build_pango.sh && pip install cython && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pip install ."
       CIBW_BEFORE_BUILD_MACOS: "brew reinstall pango && brew reinstall cairo && pip install cython && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pip install ."
       CIBW_BEFORE_BUILD_WINDOWS: "pip install cython && python packing/download_dlls.py && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pkg-config --libs pango && pip install ."
