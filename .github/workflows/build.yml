@@ -119,7 +119,7 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: wheels-Linux-manylinux_x86_64
-          path: "."
+          path: "wheelhouse"
       - run: |
           ls wheelhouse
           python -m pip install --no-index --find-links wheelhouse manimpango
