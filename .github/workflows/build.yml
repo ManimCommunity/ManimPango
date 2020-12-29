@@ -74,19 +74,17 @@ jobs:
           Copy-Item packing/LICENSE.bin .
           Rename-Item LICENSE.bin LICENSE.win32
           python -m cibuildwheel --output-dir wheelhouse
-          7z a wheels.zip wheelhouse/*.whl
 
       - name: Build wheels (Non-Windows)
         if: runner.os != 'windows'
         run: |
           cp packing/LICENSE.bin .
           python -m cibuildwheel --output-dir wheelhouse
-          7z a wheels.zip wheelhouse/*.whl
 
       - uses: actions/upload-artifact@v2
         with:
-          path: ./wheels.zip
-          name: wheels-${{ runner.os }}
+          path: ./wheelhouse/*.whl
+          name: wheels-${{ runner.os }}-${{ matrix.platform_id }}
       - name: Publish (Release)
         if: ${{  github.event_name== 'release' && runner.os == 'Linux' }}
         env:
@@ -120,13 +118,11 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: wheels-Linux
+          name: wheels-Linux-manylinux_x86_64
           path: "."
       - run: |
-          python -m zipfile -e wheels.zip build
-          ls build
-          ls build/wheelhouse
-          python -m pip install --no-index --find-links build/wheelhouse manimpango
+          ls wheelhouse
+          python -m pip install --no-index --find-links wheelhouse manimpango
           python -c "import manimpango"
 
   success:
