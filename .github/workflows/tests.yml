@@ -63,11 +63,11 @@ jobs:
           msystem: ${{ matrix.msystem }}
           update: true
           install: >-
-            mingw-w64-${{ matrix.arch }}-cairo
+            mingw-w64-${{ matrix.arch }}-pango
             mingw-w64-${{ matrix.arch }}-python
             mingw-w64-${{ matrix.arch }}-python-pip
             mingw-w64-${{ matrix.arch }}-toolchain
-            mingw-w64-${{ matrix.arch }}-pango
+            mingw-w64-${{ matrix.arch }}-cairo
 
       - name: Install dependencies
         shell: msys2 {0}
