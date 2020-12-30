@@ -10,7 +10,7 @@
     <img src="https://github.com/ManimCommunity/manimpango/workflows/Build%20Wheels/badge.svg">
 </p>
 
-**ManimPango** is a C binding for [Pango](https://pango.gnome.org/) using [Cython](https://cython.org/), which is internally used in [Manim](https://www.manim.community) to render **Text**. 
+**ManimPango** is a C binding for [Pango](https://pango.gnome.org/) using [Cython](https://cython.org/), which is internally used in [Manim](https://www.manim.community) to render **Text**.
 
 
 
@@ -60,7 +60,7 @@ Or similar in your system's package manager.
 
 ##### Using `tar` archives
 
-If you don't want to contribute to this Repository, you can use the tar archives published in PyPi, or just use pip to install using 
+If you don't want to contribute to this Repository, you can use the tar archives published in PyPi, or just use pip to install using
 
 ```sh
 pip install manimpango --no-binary :all:
@@ -116,7 +116,7 @@ pacman -S mingw-w64-x86_64-ffmpeg
 ```
 4. Install Manim using pip inside the same shell.
 5. Finally, get your clone of **ManimPango** and `cd` into that directory and then run `pip install -e .`.
-**Note** You can't use it with Python provided on `python.org`. It will cause weird errors if you do so. For working with **ManimPango**, you would need to be inside the `MSYS2 MINGW64 shell`. 
+**Note** You can't use it with Python provided on `python.org`. It will cause weird errors if you do so. For working with **ManimPango**, you would need to be inside the `MSYS2 MINGW64 shell`.
 6. You can then use `manim` inside that shell, to run manim.
 **TIP**: If you want to try around python interactively, you can open `idle` using `python -m idlelib` command inside that shell.
 
@@ -124,11 +124,11 @@ pacman -S mingw-w64-x86_64-ffmpeg
 
 First, install Visual Studio as specified in https://wiki.python.org/moin/WindowsCompilers. Possibly Visual Studio Build Tools 2019 with Windows10 SDK.
 
-Then run the script at `packing/download_dlls.py`, that will get a Pango build along with `pkg-config`, and install it at `C:\cibw\vendor`. Add `C:\cibw\vendor\bin` and `C:\cibw\vendor\pkg-config\bin`  to PATH. 
+Then run the script at `packing/download_dlls.py`, that will get a Pango build along with `pkg-config`, and install it at `C:\cibw\vendor`. Add `C:\cibw\vendor\bin` and `C:\cibw\vendor\pkg-config\bin`  to PATH.
 
 **Note:** You can change the install location by editing line 24 on `packing/download_dlls.py`, to where you want to.
 
-Then set an environment variable `PKG_CONFIG_PATH`=`C:\cibw\vendor\lib\pkgconfig`. 
+Then set an environment variable `PKG_CONFIG_PATH`=`C:\cibw\vendor\lib\pkgconfig`.
 
 Then you can install Cython using
 
@@ -148,4 +148,3 @@ pip install .
 import os
 os.add_dll_directory('C:\cibw\vendor\bin')
 ```
-
