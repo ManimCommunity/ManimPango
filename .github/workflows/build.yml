@@ -100,7 +100,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name== 'release'
     steps:
-      - name: Checkout scikit-learn
+      - name: Checkout
         uses: actions/checkout@v1
 
       - name: Setup Python
