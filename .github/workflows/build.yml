@@ -4,21 +4,42 @@ on:
   push:
     branches:
       - main
-      - fix-wheel
+      - parallel
   release:
     types: [created]
 
 jobs:
   build_wheels:
-    name: Build wheels on ${{ matrix.os }}
+    name: Build wheels on ${{ matrix.os }}-${{ matrix.platform_id }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-18.04, macos-latest, windows-2016]
+        bitness: [32, 64]
+        include:
+          # Run 32 and 64 bit version in parallel for Linux and Windows
+          - os: windows-2016
+            bitness: 64
+            platform_id: win_amd64
+          - os: windows-2016
+            bitness: 32
+            platform_id: win32
+          - os: ubuntu-18.04
+            bitness: 64
+            platform_id: manylinux_x86_64
+          - os: ubuntu-18.04
+            bitness: 32
+            platform_id: manylinux_i686
+          - os: macos-latest
+            bitness: 64
+            platform_id: macosx_x86_64
+        exclude:
+          - os: macos-latest
+            bitness: 32
     env:
-      CIBW_BUILD: "cp36-* cp37-* cp38-* cp39-*"
-      CIBW_SKIP: "pp* cp35"
+      CIBW_BUILD: cp36-${{ matrix.platform_id }} cp37-${{ matrix.platform_id }} cp38-${{ matrix.platform_id }} cp39-${{ matrix.platform_id }}
+      CIBW_SKIP: pp* cp35
       CIBW_BEFORE_BUILD_LINUX: "source packing/build_pango.sh && pip install cython && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pip install ."
       CIBW_BEFORE_BUILD_MACOS: "brew reinstall pango && brew reinstall cairo && pip install cython && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pip install ."
       CIBW_BEFORE_BUILD_WINDOWS: "pip install cython && python packing/download_dlls.py && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pkg-config --libs pango && pip install ."
@@ -53,19 +74,17 @@ jobs:
           Copy-Item packing/LICENSE.bin .
           Rename-Item LICENSE.bin LICENSE.win32
           python -m cibuildwheel --output-dir wheelhouse
-          7z a wheels.zip wheelhouse/*.whl
 
       - name: Build wheels (Non-Windows)
         if: runner.os != 'windows'
         run: |
           cp packing/LICENSE.bin .
           python -m cibuildwheel --output-dir wheelhouse
-          7z a wheels.zip wheelhouse/*.whl
 
       - uses: actions/upload-artifact@v2
         with:
-          path: ./wheels.zip
-          name: wheels-${{ runner.os }}
+          path: ./wheelhouse/*.whl
+          name: wheels-${{ runner.os }}-${{ matrix.platform_id }}
       - name: Publish (Release)
         if: ${{  github.event_name== 'release' && runner.os == 'Linux' }}
         env:
@@ -99,13 +118,11 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: wheels-Linux
-          path: "."
+          name: wheels-Linux-manylinux_x86_64
+          path: "wheelhouse"
       - run: |
-          python -m zipfile -e wheels.zip build
-          ls build
-          ls build/wheelhouse
-          python -m pip install --no-index --find-links build/wheelhouse manimpango
+          ls wheelhouse
+          python -m pip install --no-index --find-links wheelhouse manimpango
           python -c "import manimpango"
 
   success:
