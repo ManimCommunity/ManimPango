@@ -86,17 +86,6 @@ jobs:
           path: ./wheelhouse/*.whl
           name: wheels-${{ runner.os }}-${{ matrix.platform_id }}
       - name: Publish (Release)
-        if: ${{  github.event_name== 'release' && runner.os == 'Linux' }}
-        env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-        run: |
-          pip install twine
-          pip install cython
-          python setup.py build_ext -i
-          python setup.py sdist
-          twine upload dist/*
-      - name: Publish (Release)
         if: github.event_name == 'release'
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
@@ -106,6 +95,36 @@ jobs:
           twine upload wheelhouse/*.whl
           twine upload wheelhouse/*.whl
           twine upload wheelhouse/*.whl
+  build_sdist:
+    name: Source distribution
+    runs-on: ubuntu-latest
+    if: github.event_name== 'release'
+    steps:
+      - name: Checkout scikit-learn
+        uses: actions/checkout@v1
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+
+      - name: Build Source Distribution
+        if: ${{  github.event_name== 'release' && runner.os == 'Linux' }}
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: |
+          sudo apt install libcairo2-dev pkg-config python3-dev
+          sudo apt-get install libpango1.0-dev
+          pip install twine
+          pip install cython
+          python setup.py build_ext -i
+          python setup.py sdist
+          twine upload dist/*
+
+      - name: Store artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          path: dist/*.tar.gz
+          name: manimpango.tar.gz
   test_wheels_linux: # TODO: Check for i386 builds also
     needs: [build_wheels]
     runs-on: ubuntu-latest
