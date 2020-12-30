@@ -105,7 +105,7 @@ As Windows does not include a C compiler by default, you will first need to inst
 #### MinGW/Msys2
 
 1. Download **MSYS2** from the download link provided on their page https://www.msys2.org/#installation and install it according to their instructions.
-2. Open, a `MSYS2 MINGW64 shell`, and not anything else. Small hint, it has a blue color logo.
+2. Once you have **MSYS2** installed,  it offers you three different shells: the **MinGW32** shell, the **MinGW64** shell and **MSYS** shell. In order for the following steps to work, you have to open the **MSYS2 MinGW64** shell (you can search for this). Small hint: it has a blue color logo.
 3. Run the following commands to install Python, Pango, Cython, Numpy, Scipy, Pillow, Pycairo and ffmpeg
 ```sh
 pacman -S mingw-w64-x86_64-python
