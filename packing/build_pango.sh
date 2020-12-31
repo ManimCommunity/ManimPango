@@ -29,7 +29,7 @@ fi
 
 mkdir pango
 cd pango
-echo "Downloading Pango"
+echo "::group::Downloading Files"
 
 python -m pip install requests
 python $FILE_PATH/packing/download_and_extract.py "http://download.gnome.org/sources/pango/${PANGO_VERSION%.*}/pango-${PANGO_VERSION}.tar.xz" pango
@@ -45,80 +45,99 @@ python $FILE_PATH/packing/download_and_extract.py "https://downloads.sourceforge
 python $FILE_PATH/packing/download_and_extract.py "https://github.com/harfbuzz/harfbuzz/releases/download/${HARFBUZZ_VERSION}/harfbuzz-${HARFBUZZ_VERSION}.tar.xz" harfbuzz
 python $FILE_PATH/packing/download_and_extract.py "https://zlib.net/fossils/zlib-${ZLIB_VERSION}.tar.gz" zlib
 python -m pip uninstall -y requests
+
+echo "::endgroup::"
+
+
+echo "::group::Install Meson"
 echo "Installing Meson and Ninja"
 pip3 install -U meson ninja
+echo "::endgroup::"
 
-echo "Building and Install Zlib"
+echo "::group::Building and Install Zlib"
 cd zlib
 ./configure
 make
 make install
 cd ..
+echo "::endgroup::"
 
-echo "Building and Install Glib"
+echo "::group::Building and Install Glib"
 meson setup --prefix=/usr --buildtype=release -Dselinux=disabled -Dlibmount=false glib_builddir glib
 meson compile -C glib_builddir
 meson install -C glib_builddir
+echo "::endgroup::"
 
-echo "Building and Install Fribidi"
+echo "::group::Building and Install Fribidi"
 meson setup --prefix=/usr --buildtype=release fribidi_builddir fribidi
 meson compile -C fribidi_builddir
 meson install -C fribidi_builddir
+echo "::endgroup::"
 
-echo "Building and Installing Gperf"
+echo "::group::Building and Installing Gperf"
 cd gperf
 ./configure
 make
 make install
 cd ..
+echo "::endgroup::"
 
-echo "Building and Installing Expat"
+echo "::group::Building and Installing Expat"
 cd expat
 ./configure
 make
 make install
 cd ..
+echo "::endgroup::"
 
-echo "Building and Installing Freetype"
+echo "::group::Building and Installing Freetype"
 cd freetype
 ./configure --without-harfbuzz
 make
 make install
 cd ..
+echo "::endgroup::"
 
-echo "Building and Install Fontconfig"
+echo "::group::Building and Install Fontconfig"
 meson setup --prefix=/usr --buildtype=release -Ddoc=disabled -Dtests=disabled -Dtools=disabled fontconfig_builddir fontconfig
 meson compile -C fontconfig_builddir
 meson install -C fontconfig_builddir
+echo "::endgroup::"
 
-echo "Building and Install Libpng"
+echo "::group::Building and Install Libpng"
 cd libpng
 ./configure
 make
 make install
 cd ..
-echo "Building and Installing Pixman"
+echo "::endgroup::"
+
+echo "::group::Building and Installing Pixman"
 cd pixman
 ./configure
 make
 make install
 cd ..
+echo "::endgroup::"
 
-echo "Building and Installing Cairo"
+echo "::group::Building and Installing Cairo"
 cd cairo
 ./configure --enable-fontconfig --enable-freetype
 make
 make install
 cd ..
+echo "::endgroup::"
 
-echo "Building and Installing Harfbuzz"
+echo "::group::Building and Installing Harfbuzz"
 meson setup --prefix=/usr --buildtype=release -Dtests=disabled -Ddocs=disabled harfbuzz_builddir harfbuzz
 meson compile -C harfbuzz_builddir
 meson install -C harfbuzz_builddir
+echo "::endgroup::"
 
-echo "Buildling and Installing Pango"
+echo "::group::Buildling and Installing Pango"
 meson setup --prefix=/usr --buildtype=release -Dintrospection=false pango_builddir pango
 meson compile -C pango_builddir
 meson install -C pango_builddir
+echo "::endgroup::"
 
 cd $FILE_PATH
