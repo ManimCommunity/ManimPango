@@ -227,10 +227,10 @@ def text2svg(
         pango_font_description_set_style(font_desc, style.value)
         pango_font_description_set_weight(font_desc, weight.value)
         pango_layout_set_font_description(layout, font_desc)
-
+        pango_font_description_free(font_desc)
         if setting.line_num != last_line_num:
-                offset_x = 0
-                last_line_num = setting.line_num
+            offset_x = 0
+            last_line_num = setting.line_num
         cairo_move_to(cr,START_X + offset_x,START_Y + line_spacing * setting.line_num)
 
         pango_cairo_update_layout(cr,layout)
@@ -328,6 +328,7 @@ class MarkupUtils:
         pango_font_description_set_style(font_desc, PangoUtils.str2style(slant).value)
         pango_font_description_set_weight(font_desc, PangoUtils.str2weight(weight).value)
         pango_layout_set_font_description(layout, font_desc)
+        pango_font_description_free(font_desc)
 
         cairo_move_to(context,START_X,START_Y)
         pango_cairo_update_layout(context,layout)
