@@ -1,4 +1,4 @@
-cimport cmanimpango
+cimport _dep_cmanimpango
 
 import re
 import warnings
@@ -389,3 +389,4 @@ IF UNAME_SYSNAME == "Linux":
             return True
         else:
             return False
+
