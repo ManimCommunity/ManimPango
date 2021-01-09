@@ -86,7 +86,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="manimpango",
-    version="0.1.4",
+    version="0.1.5",
     author="The Manim Community Developers",
     maintainer="The Manim Community Developers",
     url="https://github.com/ManimCommunity/manimpango",
@@ -97,7 +97,7 @@ setup(
     packages=["manimpango"],
     python_requires=">=3.6",
     platforms=["Linux", "macOS", "Windows"],
-    keywords=["cython", "pango", "cairo", "svg", "manim"],
+    keywords=["cython", "pango", "cairo", "manim"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
