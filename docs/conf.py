@@ -39,6 +39,7 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
+    "sphinxext.opengraph",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -75,3 +76,7 @@ intersphinx_mapping = {
     "manim": ("https://docs.manim.community/en/v0.2.0", None),
     "python": ("https://docs.python.org/3", None),
 }
+
+ogp_image = "https://www.manim.community/logo.png"
+ogp_site_name = "Manim Pango | Documentation"
+ogp_site_url = "https://manimpango.manim.community/"
