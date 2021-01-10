@@ -6,6 +6,7 @@ dependencies:
   - ca-certificates=2020.12.8=h06a4308_0
   - cairo=1.14.12=h8948797_3
   - certifi=2020.12.5=py37h06a4308_0
+  - cython=0.29.21
   - fontconfig=2.13.0=h9420a91_0
   - freetype=2.10.4=h5ab3b9f_0
   - fribidi=1.0.10=h7b6447c_0
