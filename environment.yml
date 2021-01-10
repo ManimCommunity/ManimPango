@@ -6,7 +6,6 @@ dependencies:
   - ca-certificates=2020.12.8=h06a4308_0
   - cairo=1.14.12=h8948797_3
   - certifi=2020.12.5=py37h06a4308_0
-  - cython=0.29.21=py37h2531618_0
   - fontconfig=2.13.0=h9420a91_0
   - freetype=2.10.4=h5ab3b9f_0
   - fribidi=1.0.10=h7b6447c_0
@@ -29,7 +28,6 @@ dependencies:
   - pcre=8.44=he6710b0_0
   - pip=20.3.3=py37h06a4308_0
   - pixman=0.40.0=h7b6447c_0
-  - pkg-config=0.29.2=h1bed415_8
   - python=3.7.9=h7579374_0
   - readline=8.0=h7b6447c_0
   - setuptools=51.0.0=py37h06a4308_2
@@ -38,3 +36,30 @@ dependencies:
   - wheel=0.36.2=pyhd3eb1b0_0
   - xz=5.2.5=h7b6447c_0
   - zlib=1.2.11=h7b6447c_3
+  - pip:
+    - alabaster==0.7.12
+    - babel==2.9.0
+    - beautifulsoup4==4.9.3
+    - chardet==4.0.0
+    - cython==0.29.21
+    - docutils==0.16
+    - furo==2020.12.30b24
+    - idna==2.10
+    - imagesize==1.2.0
+    - jinja2==2.11.2
+    - markupsafe==1.1.1
+    - packaging==20.8
+    - pygments==2.7.3
+    - pyparsing==2.4.7
+    - pytz==2020.5
+    - requests==2.25.1
+    - snowballstemmer==2.0.0
+    - soupsieve==2.1
+    - sphinx==3.4.1
+    - sphinxcontrib-applehelp==1.0.2
+    - sphinxcontrib-devhelp==1.0.2
+    - sphinxcontrib-htmlhelp==1.0.3
+    - sphinxcontrib-jsmath==1.0.1
+    - sphinxcontrib-qthelp==1.0.3
+    - sphinxcontrib-serializinghtml==1.1.4
+    - urllib3==1.26.2
