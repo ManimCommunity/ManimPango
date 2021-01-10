@@ -3,7 +3,7 @@ def test_good_markup():
     import manimpango  # noqa: F401
 
     assert manimpango.MarkupUtils.validate(
-        "foo"  # just to trigger check
+        "foo"
     ), '"foo" should not fail validation'
     assert manimpango.MarkupUtils.validate(
         "<b>bar</b>"
