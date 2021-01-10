@@ -39,7 +39,6 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
-    "sphinxext.opengraph",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -71,11 +70,6 @@ autoclass_content = "both"
 # controls whether functions documented by the autofunction directive
 # appear with their full module names
 add_module_names = False
-
-
-ogp_image = "https://www.manim.community/logo.png"
-ogp_site_name = "Manim Pango | Documentation"
-ogp_site_url = "https://manimpango.manim.community/"
 
 intersphinx_mapping = {
     "manim": ("https://docs.manim.community/en/v0.2.0", None),

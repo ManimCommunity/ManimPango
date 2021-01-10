@@ -1,4 +1,3 @@
 furo
 sphinx==3.4.1
 cython
-sphinxext-opengraph
