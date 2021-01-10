@@ -1,0 +1,2 @@
+furo
+sphinx==3.4.1
