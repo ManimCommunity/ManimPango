@@ -6,7 +6,7 @@ dependencies:
   - ca-certificates=2020.12.8=h06a4308_0
   - cairo=1.14.12=h8948797_3
   - certifi=2020.12.5=py37h06a4308_0
-  - cython=0.29.21
+  - cython=0.29.21=py37h2531618_0
   - fontconfig=2.13.0=h9420a91_0
   - freetype=2.10.4=h5ab3b9f_0
   - fribidi=1.0.10=h7b6447c_0
@@ -29,6 +29,7 @@ dependencies:
   - pcre=8.44=he6710b0_0
   - pip=20.3.3=py37h06a4308_0
   - pixman=0.40.0=h7b6447c_0
+  - pkg-config=0.29.2=h1bed415_8
   - python=3.7.9=h7579374_0
   - readline=8.0=h7b6447c_0
   - setuptools=51.0.0=py37h06a4308_2
