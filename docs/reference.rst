@@ -17,4 +17,3 @@ Enums
    manimpango.Style
    manimpango.Weight
    manimpango.Variant
-   

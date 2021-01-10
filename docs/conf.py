@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -12,7 +13,8 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
+
+sys.path.insert(0, os.path.abspath(".."))
 
 
 # -- Project information -----------------------------------------------------
@@ -32,13 +34,12 @@ release = "v0.1.5"
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
-    "sphinx_copybutton",
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
     "sphinx.ext.doctest",
     "sphinx.ext.extlinks",
-    "sphinxext.opengraph",
     "sphinx.ext.intersphinx",
+    "sphinxext.opengraph",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -74,9 +75,9 @@ add_module_names = False
 
 ogp_image = "https://www.manim.community/logo.png"
 ogp_site_name = "Manim Pango | Documentation"
-ogp_site_url = "https://docs.manim.community/"
+ogp_site_url = "https://manimpango.manim.community/"
 
 intersphinx_mapping = {
     "manim": ("https://docs.manim.community/en/v0.2.0", None),
-    'python': ('https://docs.python.org/3', None)
+    "python": ("https://docs.python.org/3", None),
 }
