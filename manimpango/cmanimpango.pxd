@@ -2,9 +2,17 @@ cdef extern from "glib.h":
     ctypedef void* gpointer
     ctypedef int gint
     ctypedef unsigned int guint
+    ctypedef unsigned int guint32
     ctypedef gint gboolean
     ctypedef unsigned short guint16
     void g_object_unref(gpointer object)
+
+cdef extern from "glib/gunicode.h":
+    ctypedef guint32 gunichar;
+
+cdef extern from "glib/gerror.h":
+    ctypedef struct GError:
+       pass
 
 cdef extern from "cairo.h":
     ctypedef struct cairo_surface_t:
@@ -32,6 +40,20 @@ cdef extern from "cairo-svg.h":
         const char* filename,
         double	width_in_points,
         double	height_in_points
+    )
+
+cdef extern from "pango/pango-attributes.h":
+    ctypedef struct PangoAttrList:
+        pass
+
+    gboolean pango_parse_markup(
+       const char *markup_text,
+       int length,
+       gunichar accel_marker,
+       PangoAttrList **attr_list,
+       char **text,
+       gunichar *accel_char,
+       GError **error
     )
 
 cdef extern from "pango/pangocairo.h":
