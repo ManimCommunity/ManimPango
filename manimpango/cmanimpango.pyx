@@ -172,7 +172,7 @@ def text2svg(
     height:int,
     orig_text:str
 ) -> int:
-    """Main function called from Manim to render an SVG file from a 
+    """Main function called from Manim to render an SVG file from a
     :py:class:`manim.mobject.svg.text_mobject.Text` object.
     """
     cdef cairo_surface_t* surface
@@ -289,7 +289,7 @@ class MarkupUtils:
         width: int,
         height: int,
     ) -> int:
-        """Main function called from Manim, to render an SVG file from a 
+        """Main function called from Manim, to render an SVG file from a
         :py:class:`manim.mobject.svg.text_mobject.MarkupText` object.
         """
         cdef cairo_surface_t* surface
