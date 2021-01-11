@@ -131,6 +131,15 @@ cdef extern from "pango/pangocairo.h":
     void pango_font_description_free(
         PangoFontDescription *desc
     )
+    gboolean pango_parse_markup(
+       const char *markup_text,
+       int length,
+       void* accel_marker,
+       void* attr_list,
+       void* text,
+       void* accel_char,
+       void* error
+    )
 IF UNAME_SYSNAME == "Linux":
     cdef extern from "fontconfig/fontconfig.h":
         ctypedef int FcBool
