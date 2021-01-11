@@ -35,17 +35,6 @@ cdef extern from "cairo-svg.h":
         double	height_in_points
     )
 
-cdef extern from "pango/pango-attributes.h":
-    gboolean pango_parse_markup(
-       const char *markup_text,
-       int length,
-       void* accel_marker,
-       void* attr_list,
-       void* text,
-       void* accel_char,
-       void* error
-    )
-
 cdef extern from "pango/pangocairo.h":
     int PANGO_SCALE
     int pango_units_from_double(double d)
@@ -142,6 +131,15 @@ cdef extern from "pango/pangocairo.h":
     const char* pango_version_string()
     void pango_font_description_free(
         PangoFontDescription *desc
+    )
+    gboolean pango_parse_markup(
+       const char *markup_text,
+       int length,
+       void* accel_marker,
+       void* attr_list,
+       void* text,
+       void* accel_char,
+       void* error
     )
 IF UNAME_SYSNAME == "Linux":
     cdef extern from "fontconfig/fontconfig.h":
