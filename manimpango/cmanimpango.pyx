@@ -144,6 +144,7 @@ class PangoUtils:
 
     @staticmethod
     def remove_last_M(file_name: str) -> None:
+        """Remove element from the SVG file in order to allow comparison."""
         with open(file_name, "r") as fpr:
             content = fpr.read()
         content = re.sub(r'Z M [^A-Za-z]*? "\/>', 'Z "/>', content)
@@ -151,6 +152,7 @@ class PangoUtils:
             fpw.write(content)
 
 class TextSetting(object):
+    """Formatting for slices of a :class:`manim.mobject.svg.text_mobject.Text` object."""
     def __init__(self, start:int, end:int, font:str, slant, weight, line_num=-1):
         self.start = start
         self.end = end
@@ -170,6 +172,7 @@ def text2svg(
     height:int,
     orig_text:str
 ) -> int:
+    """Render an SVG file from a :class:`manim.mobject.svg.text_mobject.Text` object."""
     cdef cairo_surface_t* surface
     cdef cairo_t* cr
     cdef PangoFontDescription* font_desc
@@ -284,6 +287,7 @@ class MarkupUtils:
         width: int,
         height: int,
     ) -> int:
+        """Render an SVG file from a :class:`manim.mobject.svg.text_mobject.MarkupText` object."""
         cdef cairo_surface_t* surface
         cdef cairo_t* context
         cdef PangoFontDescription* font_desc
