@@ -152,7 +152,7 @@ class PangoUtils:
             fpw.write(content)
 
 class TextSetting(object):
-    """Formatting for slices of a :py:class:`manim.mobject.svg.text_mobject.Text` object."""
+    """Formatting for slices of a :class:`manim.mobject.svg.text_mobject.Text` object."""
     def __init__(self, start:int, end:int, font:str, slant, weight, line_num=-1):
         self.start = start
         self.end = end
@@ -172,9 +172,7 @@ def text2svg(
     height:int,
     orig_text:str
 ) -> int:
-    """Main function called from Manim to render an SVG file from a
-    :py:class:`manim.mobject.svg.text_mobject.Text` object.
-    """
+    """Render an SVG file from a :class:`manim.mobject.svg.text_mobject.Text` object."""
     cdef cairo_surface_t* surface
     cdef cairo_t* cr
     cdef PangoFontDescription* font_desc
@@ -289,9 +287,7 @@ class MarkupUtils:
         width: int,
         height: int,
     ) -> int:
-        """Main function called from Manim, to render an SVG file from a
-        :py:class:`manim.mobject.svg.text_mobject.MarkupText` object.
-        """
+        """Render an SVG file from a :class:`manim.mobject.svg.text_mobject.MarkupText` object."""
         cdef cairo_surface_t* surface
         cdef cairo_t* context
         cdef PangoFontDescription* font_desc
