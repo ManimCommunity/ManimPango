@@ -399,7 +399,7 @@ IF UNAME_SYSNAME == "Linux":
             return True
         else:
             return False
-    cpdef void* unregister_font():
+    cpdef unregister_font():
         """This function unregisters(removes) the font file using
         ``fontconfig``. It is mostly optional to call this.
         Mainly used in tests.
