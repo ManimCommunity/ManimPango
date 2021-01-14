@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 import sys
 from pathlib import Path
 
 import manim
-import manimpango
 import pytest
+
+import manimpango
 
 if sys.platform.startswith("darwin"):
     pytest.skip(allow_module_level=True)
@@ -61,6 +63,7 @@ def test_fail_just_unregister():
         assert not manimpango.unregister_font(
             str(font_name)
         ), "Failed to unregister the font"
+
 
 @pytest.mark.skipif(
     sys.platform.startswith("win32"), reason="unsupported api for linux"
