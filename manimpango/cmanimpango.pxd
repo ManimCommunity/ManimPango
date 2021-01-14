@@ -150,6 +150,7 @@ IF UNAME_SYSNAME == "Linux":
             const unsigned char* file_name
         )
         FcConfig* FcConfigGetCurrent()
+        void FcConfigAppFontClear()
 ELIF UNAME_SYSNAME == "Windows":
     cdef extern from "windows.h":
         ctypedef const char* LPCSTR
@@ -159,4 +160,9 @@ ELIF UNAME_SYSNAME == "Windows":
             LPCSTR name,
             DWORD fl,
             unsigned int res
+        )
+        bint RemoveFontResourceExA(
+            LPCSTR name,
+            DWORD  fl,
+            unsigned int pdv
         )

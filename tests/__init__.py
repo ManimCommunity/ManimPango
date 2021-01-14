@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 import platform
-
-
+from pathlib import Path
+import shutil
 def set_dll_search_path():
     # Python 3.8 no longer searches for DLLs in PATH, so we have to add
     # everything in PATH manually.
@@ -17,6 +17,11 @@ def set_dll_search_path():
             os.add_dll_directory(p)
         except OSError:
             pass
+def delete_media_dir():
+    a=Path('media') #absolute to the running dir
+    if a.exists():
+        shutil.rmtree(a)
 
 
 set_dll_search_path()
+delete_media_dir()
