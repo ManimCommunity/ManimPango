@@ -70,6 +70,10 @@ jobs:
             mingw-w64-${{ matrix.arch }}-python-pip
             mingw-w64-${{ matrix.arch }}-cairo
             mingw-w64-${{ matrix.arch }}-cython
+            mingw-w64-${{ matrix.arch }}-python-numpy
+            mingw-w64-${{ matrix.arch }}-python-pillow
+            mingw-w64-${{ matrix.arch }}-python-scipy
+            mingw-w64-${{ matrix.arch }}-python-cairo
 
       - name: Install dependencies
         shell: msys2 {0}
