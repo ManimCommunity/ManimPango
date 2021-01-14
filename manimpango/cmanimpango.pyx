@@ -406,7 +406,7 @@ IF UNAME_SYSNAME == "Linux":
         Note:
         The API for Windows is different that this.
         """
-        FcConfigAppFontClear()
+        FcConfigAppFontClear(NULL)
 IF UNAME_SYSNAME == "Windows":
     cpdef bint register_font(str font_path):
         """This function registers the font file using native windows API
