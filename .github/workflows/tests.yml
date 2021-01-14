@@ -23,7 +23,7 @@ jobs:
       - name: Install python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest Cython
+          pip install pytest Cython manim
 
       - name: Install System Dependency (Linux)
         if: runner.os == 'Linux'
@@ -78,6 +78,7 @@ jobs:
         shell: msys2 {0}
         run: |
           pip install .
+          pip install manim
           python setup.py build_ext -i
           python setup.py sdist
           python -m pip install dist/*
@@ -104,7 +105,7 @@ jobs:
           $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin"
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
           $env:PATH="C:\cibw\vendor\bin;$env:PATH"
-          pip install cython pytest
+          pip install cython pytest manim
           pip install .
           python setup.py sdist
           python setup.py build_ext -i
@@ -124,7 +125,7 @@ jobs:
         run: |
           $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin;C:\cibw\vendor\bin"
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
-          pip install cython pytest
+          pip install cython pytest manim
           pip install .
           python setup.py sdist
           python setup.py build_ext -i
