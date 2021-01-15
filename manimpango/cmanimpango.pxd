@@ -134,7 +134,7 @@ cdef extern from "pango/pangocairo.h":
     gboolean pango_parse_markup(
        const char *markup_text,
        int length,
-       void* accel_marker,
+       unsigned int accel_marker,
        void* attr_list,
        void* text,
        void* accel_char,
@@ -150,3 +150,19 @@ IF UNAME_SYSNAME == "Linux":
             const unsigned char* file_name
         )
         FcConfig* FcConfigGetCurrent()
+        void FcConfigAppFontClear(void*)
+ELIF UNAME_SYSNAME == "Windows":
+    cdef extern from "windows.h":
+        ctypedef const char* LPCSTR
+        ctypedef enum DWORD:
+            FR_PRIVATE
+        int AddFontResourceExA(
+            LPCSTR name,
+            DWORD fl,
+            unsigned int res
+        )
+        bint RemoveFontResourceExA(
+            LPCSTR name,
+            DWORD  fl,
+            unsigned int pdv
+        )

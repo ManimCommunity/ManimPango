@@ -270,7 +270,7 @@ class MarkupUtils:
     @staticmethod
     def validate(text: str) -> bool:
        text_bytes = text.encode("utf-8")
-       return pango_parse_markup(text_bytes, len(text_bytes), NULL, NULL, NULL, NULL, NULL)
+       return pango_parse_markup(text_bytes, <int>len(text_bytes), 0, NULL, NULL, NULL, NULL)
 
     @staticmethod
     def text2svg(
@@ -399,3 +399,76 @@ IF UNAME_SYSNAME == "Linux":
             return True
         else:
             return False
+    cpdef unregister_font():
+        """This function unregisters(removes) the font file using
+        ``fontconfig``. It is mostly optional to call this.
+        Mainly used in tests.
+        Note:
+        The API for Windows is different that this.
+        """
+        FcConfigAppFontClear(NULL)
+IF UNAME_SYSNAME == "Windows":
+    cpdef bint register_font(str font_path):
+        """This function registers the font file using native windows API
+        so that it is available for use by Pango.
+
+        Parameters
+        ==========
+        font_path : :class:`str`
+            Relative or absolute path to font file.
+        Returns
+        =======
+        :class:`bool`
+                True means it worked without any error.
+                False means there was an unknown error
+        Examples
+        --------
+        >>> register_font("/home/roboto.tff")
+        1
+        Raises
+        ------
+        AssertionError
+            Font is missing.
+        """
+        a=Path(font_path)
+        assert a.exists(), f"font doesn't exist at {a.absolute()}"
+        font_path = str(a.absolute())
+        font_path_bytes=font_path.encode('ascii')
+        cdef LPCSTR fontPath = font_path_bytes
+        fontAddStatus = AddFontResourceExA(
+            font_path_bytes,
+            FR_PRIVATE,
+            0
+        )
+        if fontAddStatus > 0:
+            return True
+        else:
+            return False
+    cpdef bint unregister_font(str font_path):
+        """This function unregisters(removes) the font file using
+        native Windows API. It is mostly optional to call this.
+        Mainly used in tests.
+        Parameters
+        ==========
+        font_path : :class:`str`
+            Relative or absolute path to font file.
+        Returns
+        =======
+        :class:`bool`
+                True means it worked without any error.
+                False means there was an unknown error
+        Raises
+        ------
+        AssertionError
+            Font is missing.
+        """
+        a=Path(font_path)
+        assert a.exists(), f"font doesn't exist at {a.absolute()}"
+        font_path = str(a.absolute())
+        font_path_bytes=font_path.encode('ascii')
+        cdef LPCSTR fontPath = font_path_bytes
+        return RemoveFontResourceExA(
+            font_path_bytes,
+            FR_PRIVATE,
+            0
+        )

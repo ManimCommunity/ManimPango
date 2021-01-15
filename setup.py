@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import argparse
 import shlex
+import sys
 from pathlib import Path
 from shlex import quote
 from subprocess import PIPE, Popen
@@ -68,6 +69,8 @@ ext = ".pyx" if USE_CYTHON else ".c"
 base_file = Path(__file__).parent / "manimpango"
 returns = get_library_config("pangocairo")
 returns = update_dict(returns, get_library_config("pangofc"))
+if sys.platform == "win32":
+    returns["libraries"] += ["Gdi32"]
 ext_modules = [
     Extension(
         "manimpango.cmanimpango",
