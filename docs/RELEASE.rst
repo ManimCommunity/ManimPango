@@ -2,13 +2,13 @@ Release Procedure
 =================
 
 This is the **maintainer** note on how to Release.
-All versioning is in accordance to 
+All versioning is in accordance to
 `Semantic Versioning 2.0.0 <https://semver.org/>`_.
 This means older version would have a backport of bugs fixes.
 
 1. Check whether the test suite passes on the main branch.
 
-2. Revert any changes which seems to be not working, and check 
+2. Revert any changes which seems to be not working, and check
    for the milestone if PR are merged accordingly.
 
 3. Check whether the `Wheels Build`_,
@@ -20,7 +20,7 @@ This means older version would have a backport of bugs fixes.
 
 6. Make a commit with the changes done, as ``Release v<version here>``
 
-7. Create a tag, locally with 
+7. Create a tag, locally with
 
 .. code-block:: sh
 
@@ -29,7 +29,7 @@ This means older version would have a backport of bugs fixes.
 .. note::
 
     Here, ``-s`` is used to sign the tag with gpg so that users
-    can later verify it, and a tag shouldn't be created with 
+    can later verify it, and a tag shouldn't be created with
     signing because Github shows it unverified.
 .. important::
 
