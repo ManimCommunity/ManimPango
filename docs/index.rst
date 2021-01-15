@@ -6,7 +6,7 @@ ManimPango's documentation!
    :caption: Contents:
 
    reference
-
+   RELEASE
 
 Indices and tables
 ==================
