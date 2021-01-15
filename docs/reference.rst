@@ -8,6 +8,8 @@ Manimpango Reference
    manimpango.PangoUtils
    manimpango.text2svg
    manimpango.MarkupUtils
+   manimpango.register_font
+   manimpango.unregister_font
 
 Enums
 =====
