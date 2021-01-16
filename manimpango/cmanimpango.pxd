@@ -5,6 +5,7 @@ cdef extern from "glib.h":
     ctypedef gint gboolean
     ctypedef unsigned short guint16
     void g_object_unref(gpointer object)
+    void g_free(gpointer mem)
 
 cdef extern from "cairo.h":
     ctypedef struct cairo_surface_t:
@@ -45,6 +46,8 @@ cdef extern from "pango/pangocairo.h":
     ctypedef struct PangoFontMap:
         pass
     ctypedef struct PangoFontDescription:
+        pass
+    ctypedef struct PangoFontFamily:
         pass
     ctypedef enum PangoStyle:
         PANGO_STYLE_NORMAL
@@ -139,6 +142,19 @@ cdef extern from "pango/pangocairo.h":
        void* text,
        void* accel_char,
        void* error
+    )
+    PangoFontMap* pango_cairo_font_map_new()
+    void pango_font_map_list_families(
+        PangoFontMap *fontmap,
+        PangoFontFamily ***families,
+        int *n_families
+    )
+    PangoFontFamily* pango_font_map_get_family(
+        PangoFontMap *fontmap,
+        const char *name
+    )
+    const char* pango_font_family_get_name(
+        PangoFontFamily *family
     )
 IF UNAME_SYSNAME == "Linux":
     cdef extern from "fontconfig/fontconfig.h":

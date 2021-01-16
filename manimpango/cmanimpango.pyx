@@ -6,7 +6,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional
 from xml.sax.saxutils import escape
-
+import copy
 
 class Style(Enum):
     """
@@ -366,6 +366,42 @@ cpdef str pango_version():
 
 cpdef str cairo_version():
     return cairo_version_string().decode('utf-8')
+
+cpdef list list_fonts():
+    """Lists the fonts available to Pango.
+    This is usually same as system fonts but it also
+    includes the fonts added through :func:`register_font`.
+
+    Returns
+    -------
+
+    :class:`list` :
+        List of fonts sorted alphabetically.
+    """
+    cdef PangoFontMap* fontmap=pango_cairo_font_map_new()
+    if fontmap == NULL:
+        raise MemoryError("Pango.FontMap can't be created.")
+    cdef int n_families=0
+    cdef PangoFontFamily** families=NULL
+    pango_font_map_list_families(
+        fontmap,
+        &families,
+        &n_families
+    )
+    if families is NULL or n_families==0:
+        raise MemoryError("Pango returned unexpected length on families.")
+    family_list=[]
+    for i in range(n_families):
+        name = copy.deepcopy(pango_font_family_get_name(families[i]).decode('utf-8'))
+        # according to pango's docs, the `char *` returned from
+        # `pango_font_family_get_name`is owned by pango, and python
+        # shouldn't interfere with it. So, rather we are making a
+        # deepcopy so that we don't worry about it.
+        family_list.append(name)
+    g_free(families)
+    g_object_unref(fontmap)
+    family_list.sort()
+    return family_list
 
 IF UNAME_SYSNAME == "Linux":
     cpdef bint register_font(str font_path):
