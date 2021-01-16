@@ -68,7 +68,7 @@ jobs:
         if: runner.os == 'windows'
         run: |
           $ErrorActionPreference = 'Stop'
-          $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin"
+          $env:PATH="$env:PATH;C:\cibw\pkg-config\bin"
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
           Copy-Item packing/LICENSE.bin .
           Rename-Item LICENSE.bin LICENSE.win32

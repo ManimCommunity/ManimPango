@@ -102,14 +102,22 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: "x64"
+      - name: Cache Windows
+        id: cache-windows
+        uses: actions/cache@v2
+        with:
+          path: C:\cibw\pkg-config
+          key: ${{ hashFiles('packing/download_dlls.py') }}-${{ hashFiles('packing/build_pkgconfig.ps1') }}
       - name: Download Binary
         run: |
           python packing/download_dlls.py
+      - name: Set Path
+        run: |
+          $env:Path = "C:\cibw\pkg-config\bin;C:\cibw\vendor\bin;$($env:PATH)"
+          echo "$env:Path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Test x64
         run: |
-          $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin"
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
-          $env:PATH="C:\cibw\vendor\bin;$env:PATH"
           pip install cython pytest
           pip install .
           pip install manim
