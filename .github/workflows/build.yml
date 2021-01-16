@@ -147,15 +147,16 @@ jobs:
           c = requests.get(url,headers=headers)
           upload_url=c.json()['upload_url']
           print(f"::set-output name=upload_url::{upload_url}")
+          print(f"::set-output name=tag_name::{ref_tag[1:]}")
       - name: Upload Release Asset
         id: upload-release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: dist/*.tar.gz
-          asset_name: manim-${{ steps.tag.outputs.tag }}.tar.gz
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/manimpango-${{ steps.create_release.outputs.tag_name }}.tar.gz
+          asset_name: manimpango-${{ steps.create_release.outputs.tag_name }}.tar.gz
           asset_content_type: application/gzip
   test_wheels_linux: # TODO: Check for i386 builds also
     needs: [build_wheels]
