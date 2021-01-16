@@ -368,6 +368,16 @@ cpdef str cairo_version():
     return cairo_version_string().decode('utf-8')
 
 cpdef list list_fonts():
+    """Lists the fonts available to Pango.
+    This is usually same as system fonts but it also
+    includes the fonts added through :func:`register_font`.
+
+    Returns
+    -------
+
+    :class:`list` :
+        List of fonts sorted alphabetically.
+    """
     cdef PangoFontMap* fontmap=pango_cairo_font_map_new()
     if fontmap == NULL:
         raise MemoryError("Pango.FontMap can't be created.")
