@@ -1,4 +1,4 @@
-cimport _dep_cmanimpango
+from _dep_cmanimpango cimport *
 
 import re
 import warnings

@@ -71,12 +71,33 @@ returns = get_library_config("pangocairo")
 returns = update_dict(returns, get_library_config("pangofc"))
 if sys.platform == "win32":
     returns["libraries"] += ["Gdi32"]
+
 ext_modules = [
-    Extension(
-        "manimpango.cmanimpango",
-        [str(base_file / ("cmanimpango" + ext))],
-        **returns,
-    ),
+        Extension(
+            "manimpango.cmanimpango",
+            [str(base_file / ("_dep_cmanimpango" + ext))],
+            **returns,
+        ),
+        Extension(
+            "manimpango._manimpango",
+            [str(base_file / ("_manimpango" + ext))],
+            **returns,
+        ),
+        Extension(
+            "manimpango._color",
+            [str(base_file / ("color" + ext))],
+            **returns,
+        ),
+        Extension(
+            "manimpango._enums",
+            [str(base_file / ("enums" + ext))],
+            **returns,
+        ),
+        Extension(
+            "manimpango._attributes",
+            [str(base_file / ("attributes" + ext))],
+            **returns,
+        )
 ]
 if USE_CYTHON:
     ext_modules = cythonize(

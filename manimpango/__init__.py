@@ -8,6 +8,8 @@ if os.name == "nt":
         f"{os.environ['PATH']}"
     )
 try:
-    from .cmanimpango import *  # noqa: F403,F401
+    from ._dep_cmanimpango import *  # noqa: F403,F401
+    from ._color import * # noqa: F403,F401
+    from ._enums import *
 except ImportError:
     raise ImportError("Couldn't load the necessary Shared Libraries.")
