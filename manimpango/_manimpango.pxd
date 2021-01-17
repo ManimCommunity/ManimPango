@@ -75,6 +75,8 @@ cdef extern from "pango/pangocairo.h":
         PANGO_SHOW_SPACES
         PANGO_SHOW_LINE_BREAKS
         PANGO_SHOW_IGNORABLES
+    ctypedef struct PangoAttrList:
+        guint ref_count
     PangoItem* pango_item_new()
     PangoFontDescription* pango_font_description_from_string(
         const char *str
@@ -86,4 +88,13 @@ cdef extern from "pango/pangocairo.h":
     )
     gchar* pango_color_to_string(
         const PangoColor *color
+    )
+    PangoAttrList* pango_attr_list_new()
+    PangoAttrList* pango_attr_list_ref(
+        PangoAttrList *list
+    )
+    void pango_attr_list_unref(PangoAttrList *list)
+    void pango_attr_list_insert(
+        PangoAttrList *list,
+        PangoAttribute *attr
     )
