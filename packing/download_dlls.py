@@ -3,34 +3,45 @@
 import logging
 import os
 import re
+import shlex
 import shutil
 import struct
+import subprocess
 import tempfile
 import zipfile
 from pathlib import Path
 from urllib.request import urlretrieve as download
 
+PANGO_VERSION = "1.48.0"
+
 
 def get_platform():
     if (struct.calcsize("P") * 8) == 32:
-        return "x86"
+        return "86"
     else:
-        return "amd64"
+        return "64"
 
 
-download_url = "https://ci.appveyor.com/api/projects/naveen521kk/pango-cairo-build/artifacts/pango-cairo-build.zip?job=image:%20Visual%20Studio%202017"  # noqa: E501
 logging.basicConfig(format="%(levelname)s - %(message)s", level=logging.DEBUG)
 
+
+plat = get_platform()
+logging.debug(f"Found Platform as {plat}")
+
+download_url = (
+    "https://github.com/naveen521kk/pango-build/releases"
+    f"/download/v{PANGO_VERSION}/pango-build-win{plat}.zip"
+)
 final_location = Path(r"C:\cibw\vendor")
 download_location = Path(tempfile.mkdtemp())
 if final_location.exists():
     logging.info("Final Location already exists clearing it...")
     shutil.rmtree(str(final_location))
-
 os.makedirs(final_location)
 download_file = download_location / "build.zip"
 logging.info("Downloading Pango and Cairo Binaries for Windows...")
 download(url=download_url, filename=download_file)
+logging.info("Url:%s", download_url)
 logging.info(f"Download complete. Saved to {download_file}.")
 logging.info(f"Extracting {download_file} to {download_location}...")
 with zipfile.ZipFile(
@@ -38,14 +49,10 @@ with zipfile.ZipFile(
 ) as file:  # noqa: E501
     file.extractall(download_location)
 os.remove(download_file)
-shutil.move(
-    str(download_location / "build" / "pkg-config"), str(final_location)
-)  # noqa: E501
 logging.info("Completed Extracting.")
-plat = get_platform()
-logging.debug(f"Found Platform as {plat}")
 logging.info("Moving Files accordingly.")
-plat_location = download_location / "build" / plat
+
+plat_location = download_location
 for src_file in plat_location.glob("*"):
     logging.debug(f"Moving {src_file} to {final_location}...")
     shutil.move(str(src_file), str(final_location))
@@ -68,3 +75,13 @@ for i in pc_files.glob("*.pc"):
         final = rex.sub(new_place, content)
     with open(i, "w") as f:
         f.write(final)
+
+logging.info("Building pkg-config")
+
+pkg_config_log = r"C:\cibw\pkg-config"
+build_file_loc = str(
+    (Path(__file__).parent.resolve() / "build_pkgconfig.ps1").absolute()
+)
+command = f'powershell -nologo -noexit -file "{build_file_loc}" "{pkg_config_log}"'
+print(command)
+subprocess.check_call(shlex.split(command), shell=True)

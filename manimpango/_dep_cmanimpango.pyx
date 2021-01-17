@@ -6,7 +6,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Optional
 from xml.sax.saxutils import escape
-
+import copy
 
 class Style(Enum):
     """
@@ -144,6 +144,7 @@ class PangoUtils:
 
     @staticmethod
     def remove_last_M(file_name: str) -> None:
+        """Remove element from the SVG file in order to allow comparison."""
         with open(file_name, "r") as fpr:
             content = fpr.read()
         content = re.sub(r'Z M [^A-Za-z]*? "\/>', 'Z "/>', content)
@@ -151,6 +152,7 @@ class PangoUtils:
             fpw.write(content)
 
 class TextSetting(object):
+    """Formatting for slices of a :class:`manim.mobject.svg.text_mobject.Text` object."""
     def __init__(self, start:int, end:int, font:str, slant, weight, line_num=-1):
         self.start = start
         self.end = end
@@ -170,6 +172,7 @@ def text2svg(
     height:int,
     orig_text:str
 ) -> int:
+    """Render an SVG file from a :class:`manim.mobject.svg.text_mobject.Text` object."""
     cdef cairo_surface_t* surface
     cdef cairo_t* cr
     cdef PangoFontDescription* font_desc
@@ -227,10 +230,10 @@ def text2svg(
         pango_font_description_set_style(font_desc, style.value)
         pango_font_description_set_weight(font_desc, weight.value)
         pango_layout_set_font_description(layout, font_desc)
-
+        pango_font_description_free(font_desc)
         if setting.line_num != last_line_num:
-                offset_x = 0
-                last_line_num = setting.line_num
+            offset_x = 0
+            last_line_num = setting.line_num
         cairo_move_to(cr,START_X + offset_x,START_Y + line_spacing * setting.line_num)
 
         pango_cairo_update_layout(cr,layout)
@@ -265,6 +268,11 @@ def text2svg(
 
 class MarkupUtils:
     @staticmethod
+    def validate(text: str) -> bool:
+       text_bytes = text.encode("utf-8")
+       return pango_parse_markup(text_bytes, <int>len(text_bytes), 0, NULL, NULL, NULL, NULL)
+
+    @staticmethod
     def text2svg(
         text: str,
         font: str,
@@ -279,6 +287,7 @@ class MarkupUtils:
         width: int,
         height: int,
     ) -> int:
+        """Render an SVG file from a :class:`manim.mobject.svg.text_mobject.MarkupText` object."""
         cdef cairo_surface_t* surface
         cdef cairo_t* context
         cdef PangoFontDescription* font_desc
@@ -328,6 +337,7 @@ class MarkupUtils:
         pango_font_description_set_style(font_desc, PangoUtils.str2style(slant).value)
         pango_font_description_set_weight(font_desc, PangoUtils.str2weight(weight).value)
         pango_layout_set_font_description(layout, font_desc)
+        pango_font_description_free(font_desc)
 
         cairo_move_to(context,START_X,START_Y)
         pango_cairo_update_layout(context,layout)
@@ -356,6 +366,42 @@ cpdef str pango_version():
 
 cpdef str cairo_version():
     return cairo_version_string().decode('utf-8')
+
+cpdef list list_fonts():
+    """Lists the fonts available to Pango.
+    This is usually same as system fonts but it also
+    includes the fonts added through :func:`register_font`.
+
+    Returns
+    -------
+
+    :class:`list` :
+        List of fonts sorted alphabetically.
+    """
+    cdef PangoFontMap* fontmap=pango_cairo_font_map_new()
+    if fontmap == NULL:
+        raise MemoryError("Pango.FontMap can't be created.")
+    cdef int n_families=0
+    cdef PangoFontFamily** families=NULL
+    pango_font_map_list_families(
+        fontmap,
+        &families,
+        &n_families
+    )
+    if families is NULL or n_families==0:
+        raise MemoryError("Pango returned unexpected length on families.")
+    family_list=[]
+    for i in range(n_families):
+        name = copy.deepcopy(pango_font_family_get_name(families[i]).decode('utf-8'))
+        # according to pango's docs, the `char *` returned from
+        # `pango_font_family_get_name`is owned by pango, and python
+        # shouldn't interfere with it. So, rather we are making a
+        # deepcopy so that we don't worry about it.
+        family_list.append(name)
+    g_free(families)
+    g_object_unref(fontmap)
+    family_list.sort()
+    return family_list
 
 IF UNAME_SYSNAME == "Linux":
     cpdef bint register_font(str font_path):
@@ -389,4 +435,76 @@ IF UNAME_SYSNAME == "Linux":
             return True
         else:
             return False
+    cpdef unregister_font():
+        """This function unregisters(removes) the font file using
+        ``fontconfig``. It is mostly optional to call this.
+        Mainly used in tests.
+        Note:
+        The API for Windows is different that this.
+        """
+        FcConfigAppFontClear(NULL)
+IF UNAME_SYSNAME == "Windows":
+    cpdef bint register_font(str font_path):
+        """This function registers the font file using native windows API
+        so that it is available for use by Pango.
 
+        Parameters
+        ==========
+        font_path : :class:`str`
+            Relative or absolute path to font file.
+        Returns
+        =======
+        :class:`bool`
+                True means it worked without any error.
+                False means there was an unknown error
+        Examples
+        --------
+        >>> register_font("/home/roboto.tff")
+        1
+        Raises
+        ------
+        AssertionError
+            Font is missing.
+        """
+        a=Path(font_path)
+        assert a.exists(), f"font doesn't exist at {a.absolute()}"
+        font_path = str(a.absolute())
+        font_path_bytes=font_path.encode('ascii')
+        cdef LPCSTR fontPath = font_path_bytes
+        fontAddStatus = AddFontResourceExA(
+            font_path_bytes,
+            FR_PRIVATE,
+            0
+        )
+        if fontAddStatus > 0:
+            return True
+        else:
+            return False
+    cpdef bint unregister_font(str font_path):
+        """This function unregisters(removes) the font file using
+        native Windows API. It is mostly optional to call this.
+        Mainly used in tests.
+        Parameters
+        ==========
+        font_path : :class:`str`
+            Relative or absolute path to font file.
+        Returns
+        =======
+        :class:`bool`
+                True means it worked without any error.
+                False means there was an unknown error
+        Raises
+        ------
+        AssertionError
+            Font is missing.
+        """
+        a=Path(font_path)
+        assert a.exists(), f"font doesn't exist at {a.absolute()}"
+        font_path = str(a.absolute())
+        font_path_bytes=font_path.encode('ascii')
+        cdef LPCSTR fontPath = font_path_bytes
+        return RemoveFontResourceExA(
+            font_path_bytes,
+            FR_PRIVATE,
+            0
+        )

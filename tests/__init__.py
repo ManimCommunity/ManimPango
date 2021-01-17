@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 import platform
+import shutil
+from pathlib import Path
 
 
 def set_dll_search_path():
@@ -19,4 +21,11 @@ def set_dll_search_path():
             pass
 
 
+def delete_media_dir():
+    a = Path("media")  # absolute to the running dir
+    if a.exists():
+        shutil.rmtree(a)
+
+
 set_dll_search_path()
+delete_media_dir()

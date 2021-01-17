@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import argparse
 import shlex
+import sys
 from pathlib import Path
 from shlex import quote
 from subprocess import PIPE, Popen
@@ -68,6 +69,8 @@ ext = ".pyx" if USE_CYTHON else ".c"
 base_file = Path(__file__).parent / "manimpango"
 returns = get_library_config("pangocairo")
 returns = update_dict(returns, get_library_config("pangofc"))
+if sys.platform == "win32":
+    returns["libraries"] += ["Gdi32"]
 ext_modules = [
     Extension(
         "manimpango.cmanimpango",
@@ -86,7 +89,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="manimpango",
-    version="0.1.4",
+    version="0.1.7",
     author="The Manim Community Developers",
     maintainer="The Manim Community Developers",
     url="https://github.com/ManimCommunity/manimpango",
@@ -97,7 +100,7 @@ setup(
     packages=["manimpango"],
     python_requires=">=3.6",
     platforms=["Linux", "macOS", "Windows"],
-    keywords=["cython", "pango", "cairo", "svg", "manim"],
+    keywords=["cython", "pango", "cairo", "manim"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",

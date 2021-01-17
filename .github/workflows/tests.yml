@@ -41,6 +41,7 @@ jobs:
           python setup.py build_ext -i
           python setup.py sdist
           pip install .
+          pip install manim
           pytest
   msys:
     name: Test on Msys2
@@ -69,6 +70,10 @@ jobs:
             mingw-w64-${{ matrix.arch }}-python-pip
             mingw-w64-${{ matrix.arch }}-cairo
             mingw-w64-${{ matrix.arch }}-cython
+            mingw-w64-${{ matrix.arch }}-python-numpy
+            mingw-w64-${{ matrix.arch }}-python-pillow
+            mingw-w64-${{ matrix.arch }}-python-scipy
+            mingw-w64-${{ matrix.arch }}-python-cairo
 
       - name: Install dependencies
         shell: msys2 {0}
@@ -78,6 +83,7 @@ jobs:
         shell: msys2 {0}
         run: |
           pip install .
+          pip install manim
           python setup.py build_ext -i
           python setup.py sdist
           python -m pip install dist/*
@@ -96,16 +102,25 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: "x64"
+      - name: Cache Windows
+        id: cache-windows
+        uses: actions/cache@v2
+        with:
+          path: C:\cibw\pkg-config
+          key: ${{ hashFiles('packing/download_dlls.py') }}-${{ hashFiles('packing/build_pkgconfig.ps1') }}
       - name: Download Binary
         run: |
           python packing/download_dlls.py
+      - name: Set Path
+        run: |
+          $env:Path = "C:\cibw\pkg-config\bin;C:\cibw\vendor\bin;$($env:PATH)"
+          echo "$env:Path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Test x64
         run: |
-          $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin"
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
-          $env:PATH="C:\cibw\vendor\bin;$env:PATH"
           pip install cython pytest
           pip install .
+          pip install manim
           python setup.py sdist
           python setup.py build_ext -i
           python setup.py install --root="$(pwd)"/_root_abs
@@ -124,7 +139,7 @@ jobs:
         run: |
           $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin;C:\cibw\vendor\bin"
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
-          pip install cython pytest
+          pip install cython pytest manim
           pip install .
           python setup.py sdist
           python setup.py build_ext -i

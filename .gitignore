@@ -1,7 +1,7 @@
 # Prerequisites
 # Byte-compiled / optimized / DLL files
 __pycache__/
-docs/source/reference
+docs/reference
 docs/_build
 *.py[cod]
 *$py.class
