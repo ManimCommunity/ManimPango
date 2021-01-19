@@ -153,3 +153,7 @@ pip install .
 import os
 os.add_dll_directory('C:\cibw\vendor\bin')
 ```
+
+## Code of Conduct
+
+Our full code of conduct, and how we enforce it, can be read on [our website](https://docs.manim.community/en/latest/conduct.html).
