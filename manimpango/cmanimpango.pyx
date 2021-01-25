@@ -435,7 +435,7 @@ IF UNAME_SYSNAME == "Linux":
             return True
         else:
             return False
-    cpdef unregister_font(str font_path):
+    cpdef bint unregister_font(str font_path):
         """This function unregisters(removes) the font file using
         ``fontconfig``. It is mostly optional to call this.
         Mainly used in tests.
@@ -443,12 +443,20 @@ IF UNAME_SYSNAME == "Linux":
         The API for Windows is different that this.
         
         Parameters
-        ----------
+        ==========
 
         font_path: :class:`str`
             For compatibility with the windows function.
+
+        Returns
+        =======
+        :class:`bool`
+                True means it worked without any error.
+                False means there was an unknown error
+
         """
         FcConfigAppFontClear(NULL)
+        return True
 IF UNAME_SYSNAME == "Windows":
     cpdef bint register_font(str font_path):
         """This function registers the font file using native windows API
