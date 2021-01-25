@@ -441,7 +441,7 @@ IF UNAME_SYSNAME == "Linux":
         Mainly used in tests.
         Note:
         The API for Windows is different that this.
-        
+
         Parameters
         ==========
 
