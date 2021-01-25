@@ -23,7 +23,7 @@ copyright = "2021, The Manim Community Dev Team"
 author = "The Manim Community Dev Team"
 
 # The full version, including alpha/beta/rc tags
-release = "v0.1.7"
+release = "v0.2.0"
 
 
 # -- General configuration ---------------------------------------------------
