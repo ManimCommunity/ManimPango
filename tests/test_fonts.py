@@ -69,4 +69,4 @@ def test_fail_just_unregister():
     sys.platform.startswith("win32"), reason="unsupported api for linux"
 )
 def test_unregister_linux():
-    manimpango.unregister_font()
+    manimpango.unregister_font("random")
