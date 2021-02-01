@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04, macos-10.13, windows-2016]
+        os: [ubuntu-18.04, macos-latest, windows-2016]
         bitness: [32, 64]
         include:
           # Run 32 and 64 bit version in parallel for Linux and Windows
@@ -31,11 +31,11 @@ jobs:
           - os: ubuntu-18.04
             bitness: 32
             platform_id: manylinux_i686
-          - os: macos-10.13
+          - os: macos-latest
             bitness: 64
             platform_id: macosx_x86_64
         exclude:
-          - os: macos-10.13
+          - os: macos-latest
             bitness: 32
     env:
       CIBW_BUILD: cp36-${{ matrix.platform_id }} cp37-${{ matrix.platform_id }} cp38-${{ matrix.platform_id }} cp39-${{ matrix.platform_id }}
