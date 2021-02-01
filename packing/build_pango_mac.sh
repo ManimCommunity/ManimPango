@@ -14,6 +14,7 @@ GPERF_VERSION=3.1
 LIBPNG_VERSION=1.6.37
 HARFBUZZ_VERSION=2.7.3
 ZLIB_VERSION=1.2.11
+INTLTOOL_VERSION=0.51.0
 
 FILE_PATH=$PWD
 
@@ -40,6 +41,7 @@ python $FILE_PATH/packing/download_and_extract.py "https://mirrors.kernel.org/gn
 python $FILE_PATH/packing/download_and_extract.py "https://downloads.sourceforge.net/project/libpng/libpng16/${LIBPNG_VERSION}/libpng-${LIBPNG_VERSION}.tar.xz" libpng
 python $FILE_PATH/packing/download_and_extract.py "https://github.com/harfbuzz/harfbuzz/releases/download/${HARFBUZZ_VERSION}/harfbuzz-${HARFBUZZ_VERSION}.tar.xz" harfbuzz
 python $FILE_PATH/packing/download_and_extract.py "https://zlib.net/fossils/zlib-${ZLIB_VERSION}.tar.gz" zlib
+python $FILE_PATH/packing/download_and_extract.py "https://launchpad.net/intltool/trunk/${INTLTOOL_VERSION}/+download/intltool-${INTLTOOL_VERSION}.tar.gz" intltool
 python -m pip uninstall -y requests
 
 echo "::endgroup::"
@@ -53,6 +55,14 @@ echo "::endgroup::"
 echo "::group::Building and Install Zlib"
 cd zlib
 ./configure
+make
+make install
+cd ..
+echo "::endgroup::"
+
+echo "::group::Building and Install IntlTool"
+cd intltool
+./configure --disable-silent-rules
 make
 make install
 cd ..
