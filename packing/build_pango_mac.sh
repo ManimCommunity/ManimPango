@@ -15,11 +15,7 @@ LIBPNG_VERSION=1.6.37
 HARFBUZZ_VERSION=2.7.3
 ZLIB_VERSION=1.2.11
 
-FILE_PATH="`dirname \"$0\"`"
-FILE_PATH="`( cd \"$FILE_PATH\" && pwd )`"
-if [ -z "$FILE_PATH" ] ; then
-  exit 1
-fi
+FILE_PATH=$PWD
 
 cd $TMP
 if [ -d "$PWD/pango" ] ; then
