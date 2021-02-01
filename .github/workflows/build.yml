@@ -16,27 +16,27 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest]
-        bitness: [32, 64]
-        include:
-          # Run 32 and 64 bit version in parallel for Linux and Windows
-          - os: windows-2016
-            bitness: 64
-            platform_id: win_amd64
-          - os: windows-2016
-            bitness: 32
-            platform_id: win32
-          - os: ubuntu-18.04
-            bitness: 64
-            platform_id: manylinux_x86_64
-          - os: ubuntu-18.04
-            bitness: 32
-            platform_id: manylinux_i686
-          - os: macos-latest
-            bitness: 64
-            platform_id: macosx_x86_64
-        exclude:
-          - os: macos-latest
-            bitness: 32
+        bitness: [64]
+        # include:
+        #   # Run 32 and 64 bit version in parallel for Linux and Windows
+        #   - os: windows-2016
+        #     bitness: 64
+        #     platform_id: win_amd64
+        #   - os: windows-2016
+        #     bitness: 32
+        #     platform_id: win32
+        #   - os: ubuntu-18.04
+        #     bitness: 64
+        #     platform_id: manylinux_x86_64
+        #   - os: ubuntu-18.04
+        #     bitness: 32
+        #     platform_id: manylinux_i686
+        #   - os: macos-latest
+        #     bitness: 64
+        #     platform_id: macosx_x86_64
+        # exclude:
+        #   - os: macos-latest
+        #     bitness: 32
     env:
       CIBW_BUILD: cp36-${{ matrix.platform_id }} cp37-${{ matrix.platform_id }} cp38-${{ matrix.platform_id }} cp39-${{ matrix.platform_id }}
       CIBW_SKIP: pp* cp35
