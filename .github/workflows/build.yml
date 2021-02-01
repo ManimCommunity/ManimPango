@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04, macos-latest, windows-2016]
+        os: [ubuntu-18.04, macos-10.13, windows-2016]
         bitness: [32, 64]
         include:
           # Run 32 and 64 bit version in parallel for Linux and Windows
