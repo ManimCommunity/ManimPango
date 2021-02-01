@@ -59,7 +59,7 @@ cd ..
 echo "::endgroup::"
 
 echo "::group::Building and Install Glib"
-meson setup --prefix=/usr --buildtype=release -Dselinux=disabled -Dlibmount=false glib_builddir glib
+meson setup --prefix=/usr --buildtype=release -Dselinux=disabled -Dlibmount=enabled glib_builddir glib
 meson compile -C glib_builddir
 meson install -C glib_builddir
 echo "::endgroup::"
