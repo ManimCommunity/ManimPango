@@ -62,6 +62,8 @@ echo "::endgroup::"
 
 echo "::group::Building and Install IntlTool"
 cd intltool
+cpan App::cpanminus
+cpanm XML::Parser
 ./configure --disable-silent-rules
 make
 make install
