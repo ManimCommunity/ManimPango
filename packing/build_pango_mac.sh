@@ -52,14 +52,6 @@ echo "Installing Meson and Ninja"
 pip3 install -U meson ninja
 echo "::endgroup::"
 
-echo "::group::Building and Install Zlib"
-cd zlib
-./configure
-make
-make install
-cd ..
-echo "::endgroup::"
-
 echo "::group::Building and Install IntlTool"
 cd intltool
 cpan App::cpanminus
@@ -70,9 +62,17 @@ make install
 cd ..
 echo "::endgroup::"
 
+echo "::group::Building and Install Zlib"
+cd zlib
+./configure
+make
+make install
+cd ..
+echo "::endgroup::"
+
 echo "::group::Building and Install Glib"
 meson setup --prefix=/usr --buildtype=release -Dselinux=disabled -Dlibmount=enabled glib_builddir glib
-meson compile -C glib_builddir
+#meson compile -C glib_builddir
 meson install -C glib_builddir
 echo "::endgroup::"
 
