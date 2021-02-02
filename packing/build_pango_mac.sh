@@ -139,7 +139,7 @@ cd ..
 echo "::endgroup::"
 
 echo "::group::Building and Installing Harfbuzz"
-meson setup --buildtype=release -Dtests=disabled -Ddocs=disabled -Dgobject=disabled harfbuzz_builddir harfbuzz
+meson setup --buildtype=release -Dtests=disabled -Ddocs=disabled -Dgobject=disabled -Dcoretext=enabled -Dfreetype=enabled -Dglib=enabled harfbuzz_builddir harfbuzz
 meson compile -C harfbuzz_builddir
 meson install -C harfbuzz_builddir
 echo "::endgroup::"
