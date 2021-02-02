@@ -18,7 +18,7 @@ INTLTOOL_VERSION=0.51.0
 
 FILE_PATH=$PWD
 
-cd $TEMP
+cd $TMPDIR
 if [ -d "$PWD/pango" ] ; then
   echo "Skipping Build"
   exit 0
