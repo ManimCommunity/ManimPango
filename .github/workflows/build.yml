@@ -50,7 +50,7 @@ jobs:
       CIBW_TEST_REQUIRES: pytest Cython
       CIBW_TEST_COMMAND: "bash {project}/packing/test_wheels.sh {project}"
       CIBW_BUILD_VERBOSITY: 2
-      CIBW_REPAIR_WHEEL_COMMAND: delocate-listdeps {wheel} && delocate-wheel --require-archs x86_64 -v -w {dest_dir} {wheel}
+      CIBW_REPAIR_WHEEL_COMMAND_MACOS: delocate-listdeps {wheel} && delocate-wheel --require-archs x86_64 -v -w {dest_dir} {wheel}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
