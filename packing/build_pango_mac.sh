@@ -52,14 +52,12 @@ echo "Installing Meson and Ninja"
 pip3 install -U meson ninja
 echo "::endgroup::"
 
-export PKG_CONFIG_PATH=$HOME/pango/lib/pkgconfig
-export LD_LIBRARY_PATH=$HOME/pango/lib
 
 echo "::group::Building and Install IntlTool"
 cd intltool
 cpan App::cpanminus >> cpan.txt
 cpan XML::Parser >> cpan.txt
-./configure --disable-silent-rules --prefix=$HOME/pango
+./configure --disable-silent-rules
 make
 make install
 cd ..
@@ -67,27 +65,27 @@ echo "::endgroup::"
 
 echo "::group::Building and Install Zlib"
 cd zlib
-./configure --prefix=$HOME/pango
+./configure
 make
 make install
 cd ..
 echo "::endgroup::"
 
 echo "::group::Building and Install Glib"
-meson setup --prefix=$HOME/pango --buildtype=release -Dselinux=disabled -Dlibmount=enabled glib_builddir glib
+meson setup --buildtype=release -Dselinux=disabled -Dlibmount=enabled glib_builddir glib
 meson compile -C glib_builddir
 meson install -C glib_builddir
 echo "::endgroup::"
 
 echo "::group::Building and Install Fribidi"
-meson setup --prefix=$HOME/pango --buildtype=release fribidi_builddir fribidi
+meson setup --buildtype=release fribidi_builddir fribidi
 meson compile -C fribidi_builddir
 meson install -C fribidi_builddir
 echo "::endgroup::"
 
 echo "::group::Building and Installing Gperf"
 cd gperf
-./configure --prefix=$HOME/pango
+./configure
 make
 make install
 cd ..
@@ -95,7 +93,7 @@ echo "::endgroup::"
 
 echo "::group::Building and Installing Expat"
 cd expat
-./configure --prefix=$HOME/pango
+./configure
 make
 make install
 cd ..
@@ -103,14 +101,14 @@ echo "::endgroup::"
 
 echo "::group::Building and Installing Freetype"
 cd freetype
-./configure --without-harfbuzz --prefix=$HOME/pango
+./configure --without-harfbuzz
 make
 make install
 cd ..
 echo "::endgroup::"
 
 echo "::group::Building and Install Fontconfig"
-meson setup --prefix=$HOME/pango --buildtype=release -Ddoc=disabled -Dtests=disabled -Dtools=disabled fontconfig_builddir fontconfig
+meson setup --buildtype=release -Ddoc=disabled -Dtests=disabled -Dtools=disabled fontconfig_builddir fontconfig
 meson compile -C fontconfig_builddir
 meson install -C fontconfig_builddir
 echo "::endgroup::"
@@ -125,7 +123,7 @@ echo "::endgroup::"
 
 echo "::group::Building and Installing Pixman"
 cd pixman
-./configure --prefix=$HOME/pango
+./configure
 make
 make install
 cd ..
@@ -133,20 +131,20 @@ echo "::endgroup::"
 
 echo "::group::Building and Installing Cairo"
 cd cairo
-./configure --enable-fontconfig --enable-freetype --prefix=$HOME/pango
+./configure --enable-fontconfig --enable-freetype
 make
 make install
 cd ..
 echo "::endgroup::"
 
 echo "::group::Building and Installing Harfbuzz"
-meson setup --prefix=$HOME/pango --buildtype=release -Dtests=disabled -Ddocs=disabled harfbuzz_builddir harfbuzz
+meson setup --buildtype=release -Dtests=disabled -Ddocs=disabled -Dgobject=disabled harfbuzz_builddir harfbuzz
 meson compile -C harfbuzz_builddir
 meson install -C harfbuzz_builddir
 echo "::endgroup::"
 
 echo "::group::Buildling and Installing Pango"
-meson setup --prefix=$HOME/pango --buildtype=release -Dintrospection=false pango_builddir pango
+meson setup --buildtype=release -Dintrospection=disabled pango_builddir pango
 meson compile -C pango_builddir
 meson install -C pango_builddir
 echo "::endgroup::"
