@@ -109,7 +109,7 @@ echo "::endgroup::"
 
 echo "::group::Building and Install Fontconfig"
 rm -rf /usr/local/share/fontconfig/conf.avail
-meson setup --buildtype=release -Ddoc=disabled -Dtests=disabled -Dtools=disabled fontconfig_builddir fontconfig
+meson setup --buildtype=release --sysconfdir=$HOME -Ddoc=disabled -Dtests=disabled -Dtools=disabled fontconfig_builddir fontconfig
 meson compile -C fontconfig_builddir
 meson install -C fontconfig_builddir
 echo "::endgroup::"
