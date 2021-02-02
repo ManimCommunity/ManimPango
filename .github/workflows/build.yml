@@ -44,7 +44,6 @@ jobs:
       CIBW_BEFORE_BUILD_MACOS: "source packing/build_pango_mac.sh && pip install cython && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pip install ."
       CIBW_BEFORE_BUILD_WINDOWS: "pip install cython && python packing/download_dlls.py && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pkg-config --libs pango && pip install ."
       CIBW_ENVIRONMENT_WINDOWS: "PKG_CONFIG_PATH='C:\\cibw\\vendor\\lib\\pkgconfig'"
-      CIBW_REPAIR_WHEEL_COMMAND_MACOS: ''
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: python packing/inject-dlls.py {wheel} {dest_dir} C:\cibw\vendor\bin
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
       CIBW_MANYLINUX_I686_IMAGE: manylinux2014
