@@ -41,7 +41,9 @@ python $FILE_PATH/packing/download_and_extract.py "https://mirrors.kernel.org/gn
 python $FILE_PATH/packing/download_and_extract.py "https://downloads.sourceforge.net/project/libpng/libpng16/${LIBPNG_VERSION}/libpng-${LIBPNG_VERSION}.tar.xz" libpng
 python $FILE_PATH/packing/download_and_extract.py "https://github.com/harfbuzz/harfbuzz/releases/download/${HARFBUZZ_VERSION}/harfbuzz-${HARFBUZZ_VERSION}.tar.xz" harfbuzz
 python $FILE_PATH/packing/download_and_extract.py "https://zlib.net/fossils/zlib-${ZLIB_VERSION}.tar.gz" zlib
-python $FILE_PATH/packing/download_and_extract.py "https://github.com/frida/proxy-libintl/archive/0.1.tar.gz" proxy-libintl
+curl -L "https://github.com/frida/proxy-libintl/archive/0.1.tar.gz" -o 0.1.tar.gz
+tar -xf 0.1.tar.gz
+mv proxy-libintl-0.1 proxy-libintl
 python -m pip uninstall -y requests
 
 echo "::endgroup::"
