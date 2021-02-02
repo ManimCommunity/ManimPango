@@ -41,7 +41,7 @@ python $FILE_PATH/packing/download_and_extract.py "https://mirrors.kernel.org/gn
 python $FILE_PATH/packing/download_and_extract.py "https://downloads.sourceforge.net/project/libpng/libpng16/${LIBPNG_VERSION}/libpng-${LIBPNG_VERSION}.tar.xz" libpng
 python $FILE_PATH/packing/download_and_extract.py "https://github.com/harfbuzz/harfbuzz/releases/download/${HARFBUZZ_VERSION}/harfbuzz-${HARFBUZZ_VERSION}.tar.xz" harfbuzz
 python $FILE_PATH/packing/download_and_extract.py "https://zlib.net/fossils/zlib-${ZLIB_VERSION}.tar.gz" zlib
-python $FILE_PATH/packing/download_and_extract.py "https://launchpad.net/intltool/trunk/${INTLTOOL_VERSION}/+download/intltool-${INTLTOOL_VERSION}.tar.gz" intltool
+python $FILE_PATH/packing/download_and_extract.py "https://github.com/frida/proxy-libintl/archive/0.1.tar.gz" proxy-libintl
 python -m pip uninstall -y requests
 
 echo "::endgroup::"
@@ -53,14 +53,10 @@ pip3 install -U meson ninja
 echo "::endgroup::"
 
 
-echo "::group::Building and Install IntlTool"
-cd intltool
-cpan App::cpanminus >> cpan.txt
-cpan XML::Parser >> cpan.txt
-./configure --disable-silent-rules
-make
-make install
-cd ..
+echo "::group::Building and Install proxy-libintl"
+meson setup --buildtype=release libintlbuilddir proxy-libintl
+meson compile -C libintlbuilddir
+meson install -C libintlbuilddir
 echo "::endgroup::"
 
 echo "::group::Building and Install Zlib"
