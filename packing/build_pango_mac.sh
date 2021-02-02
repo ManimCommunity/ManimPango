@@ -52,13 +52,13 @@ echo "Installing Meson and Ninja"
 pip3 install -U meson ninja
 echo "::endgroup::"
 
-export PKG_CONFIG_PATH=/home/pango/lib/pkgconfig
-export LD_LIBRARY_PATH=/home/pango/lib
+export PKG_CONFIG_PATH=$HOME/pango/lib/pkgconfig
+export LD_LIBRARY_PATH=$HOME/pango/lib
 
 echo "::group::Building and Install IntlTool"
 cd intltool
-cpan App::cpanminus
-cpan XML::Parser
+cpan App::cpanminus >> cpan.txt
+cpan XML::Parser >> cpan.txt
 ./configure --disable-silent-rules --prefix=/home/pango
 make
 make install
