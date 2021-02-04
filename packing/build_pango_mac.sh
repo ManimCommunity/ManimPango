@@ -77,6 +77,7 @@ cd ..
 echo "::endgroup::"
 
 echo "::group::Building and Install PCRE"
+cd pcre
 ./configure \
       --prefix=$PREFIX \
       --enable-utf8 \
@@ -88,6 +89,7 @@ echo "::group::Building and Install PCRE"
       --enable-pcregrep-libbz2 \
 make
 make install
+cd ..
 echo "::endgroup::"
 
 echo "::group::Building and Install proxy-libintl"
