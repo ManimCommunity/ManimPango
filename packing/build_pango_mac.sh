@@ -48,6 +48,7 @@ python -m pip uninstall -y requests
 
 echo "::endgroup::"
 
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
 
 echo "::group::Install Meson"
 echo "Installing Meson and Ninja"
