@@ -17,9 +17,10 @@ ZLIB_VERSION=1.2.11
 INTLTOOL_VERSION=0.51.0
 
 FILE_PATH=$PWD
+PREFIX=$HOME/pangobuild
 
 cd $TMPDIR
-if [ -d "$PWD/pango" ] ; then
+if [ -d $PREFIX ] ; then
   echo "Skipping Build"
   exit 0
 fi
@@ -47,7 +48,7 @@ mv proxy-libintl-0.1 proxy-libintl
 python -m pip uninstall -y requests
 
 echo "::endgroup::"
-PREFIX=$HOME/pangobuild
+
 export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
 
 echo "::group::Install Meson"
