@@ -47,8 +47,8 @@ mv proxy-libintl-0.1 proxy-libintl
 python -m pip uninstall -y requests
 
 echo "::endgroup::"
-
-export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+PREFIX=$HOME/pangobuild
+export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
 
 echo "::group::Install Meson"
 echo "Installing Meson and Ninja"
@@ -64,27 +64,27 @@ echo "::endgroup::"
 
 echo "::group::Building and Install Zlib"
 cd zlib
-./configure
+./configure --prefix=$PREFIX
 make
 make install
 cd ..
 echo "::endgroup::"
 
 echo "::group::Building and Install Glib"
-meson setup --buildtype=release -Dselinux=disabled -Dlibmount=enabled glib_builddir glib
+meson setup --prefix=$PREFIX --buildtype=release -Dselinux=disabled -Dlibmount=enabled glib_builddir glib
 meson compile -C glib_builddir
 meson install -C glib_builddir
 echo "::endgroup::"
 
 echo "::group::Building and Install Fribidi"
-meson setup --buildtype=release fribidi_builddir fribidi
+meson setup --prefix=$PREFIX --buildtype=release fribidi_builddir fribidi
 meson compile -C fribidi_builddir
 meson install -C fribidi_builddir
 echo "::endgroup::"
 
 echo "::group::Building and Installing Gperf"
 cd gperf
-./configure
+./configure --prefix=$PREFIX
 make
 make install
 cd ..
@@ -92,7 +92,7 @@ echo "::endgroup::"
 
 echo "::group::Building and Installing Expat"
 cd expat
-./configure
+./configure --prefix=$PREFIX
 make
 make install
 cd ..
@@ -100,7 +100,7 @@ echo "::endgroup::"
 
 echo "::group::Building and Installing Freetype"
 cd freetype
-./configure --without-harfbuzz
+./configure --without-harfbuzz --prefix=$PREFIX
 make
 make install
 cd ..
@@ -108,14 +108,14 @@ echo "::endgroup::"
 
 echo "::group::Building and Install Fontconfig"
 rm -rf /usr/local/share/fontconfig/conf.avail
-meson setup --buildtype=release --sysconfdir=$HOME -Ddoc=disabled -Dtests=disabled -Dtools=disabled fontconfig_builddir fontconfig
+meson setup --buildtype=release --prefix=$PREFIX --sysconfdir=$HOME -Ddoc=disabled -Dtests=disabled -Dtools=disabled fontconfig_builddir fontconfig
 meson compile -C fontconfig_builddir
 meson install -C fontconfig_builddir
 echo "::endgroup::"
 
 echo "::group::Building and Install Libpng"
 cd libpng
-./configure
+./configure --prefix=$PREFIX
 make
 make install
 cd ..
@@ -123,7 +123,7 @@ echo "::endgroup::"
 
 echo "::group::Building and Installing Pixman"
 cd pixman
-./configure
+./configure --prefix=$PREFIX
 make
 make install
 cd ..
@@ -131,20 +131,20 @@ echo "::endgroup::"
 
 echo "::group::Building and Installing Cairo"
 cd cairo
-./configure --enable-fontconfig --enable-freetype
+./configure --prefix=$PREFIX --enable-fontconfig --enable-freetype
 make
 make install
 cd ..
 echo "::endgroup::"
 
 echo "::group::Building and Installing Harfbuzz"
-meson setup --buildtype=release -Dtests=disabled -Ddocs=disabled -Dgobject=disabled -Dcoretext=enabled -Dfreetype=enabled -Dglib=enabled harfbuzz_builddir harfbuzz
+meson setup --prefix=$PREFIX --buildtype=release -Dtests=disabled -Ddocs=disabled -Dgobject=disabled -Dcoretext=enabled -Dfreetype=enabled -Dglib=enabled harfbuzz_builddir harfbuzz
 meson compile -C harfbuzz_builddir
 meson install -C harfbuzz_builddir
 echo "::endgroup::"
 
 echo "::group::Buildling and Installing Pango"
-meson setup --buildtype=release -Dintrospection=disabled pango_builddir pango
+meson setup --prefix=$PREFIX --buildtype=release -Dintrospection=disabled pango_builddir pango
 meson compile -C pango_builddir
 meson install -C pango_builddir
 echo "::endgroup::"
