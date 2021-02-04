@@ -56,6 +56,7 @@ python -m pip uninstall -y requests
 echo "::endgroup::"
 
 export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
+export CMAKE_PREFIX_PATH=$PKG_CONFIG_PATH
 LIB_INSTALL_PREFIX=$PREFIX
 echo "::group::Install Meson"
 echo "Installing Meson and Ninja"
@@ -68,13 +69,13 @@ brew uninstall --ignore-dependencies pcre
 brew uninstall --ignore-dependencies libpng
 echo "::endgroup::"
 
-# echo "::group::Building and Install Brotoli"
-# cd brotli
-# cmake . -DCMAKE_INSTALL_PREFIX=${PREFIX}
-# make
-# make install
-# cd ..
-# echo "::endgroup::"
+echo "::group::Building and Install Brotoli"
+cd brotli
+cmake . -DCMAKE_INSTALL_PREFIX=${PREFIX}
+make
+make install
+cd ..
+echo "::endgroup::"
 
 echo "::group::Building and Install PCRE"
 cd pcre
