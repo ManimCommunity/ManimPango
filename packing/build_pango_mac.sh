@@ -76,42 +76,41 @@ cd pcre
       --enable-pcre32 \
       --enable-unicode-properties \
       --enable-pcregrep-libz \
-      --enable-pcregrep-libbz2 \
-      --enable-static
+      --enable-pcregrep-libbz2
 make
 make install
 cd ..
 echo "::endgroup::"
 
 echo "::group::Building and Install proxy-libintl"
-meson setup --buildtype=release --default-library=static libintlbuilddir proxy-libintl
+meson setup --buildtype=release libintlbuilddir proxy-libintl
 meson compile -C libintlbuilddir
 meson install -C libintlbuilddir
 echo "::endgroup::"
 
 echo "::group::Building and Install Zlib"
 cd zlib
-./configure --prefix=$PREFIX --enable-static
+./configure --prefix=$PREFIX
 make
 make install
 cd ..
 echo "::endgroup::"
 
 echo "::group::Building and Install Glib"
-meson setup --prefix=$PREFIX --default-library=static --buildtype=release -Dselinux=disabled -Dlibmount=enabled glib_builddir glib
+meson setup --prefix=$PREFIX --buildtype=release -Dselinux=disabled -Dlibmount=enabled glib_builddir glib
 meson compile -C glib_builddir
 meson install -C glib_builddir
 echo "::endgroup::"
 
 echo "::group::Building and Install Fribidi"
-meson setup --prefix=$PREFIX --default-library=static --buildtype=release fribidi_builddir fribidi
+meson setup --prefix=$PREFIX --buildtype=release fribidi_builddir fribidi
 meson compile -C fribidi_builddir
 meson install -C fribidi_builddir
 echo "::endgroup::"
 
 echo "::group::Building and Installing Gperf"
 cd gperf
-./configure --prefix=$PREFIX --enable-static
+./configure --prefix=$PREFIX
 make
 make install
 cd ..
@@ -119,7 +118,7 @@ echo "::endgroup::"
 
 echo "::group::Building and Installing Expat"
 cd expat
-./configure --prefix=$PREFIX --enable-static
+./configure --prefix=$PREFIX
 make
 make install
 cd ..
@@ -127,7 +126,7 @@ echo "::endgroup::"
 
 echo "::group::Building and Install Libpng"
 cd libpng
-./configure --prefix=$PREFIX --enable-static
+./configure --prefix=$PREFIX
 make
 make install
 cd ..
@@ -135,7 +134,7 @@ echo "::endgroup::"
 
 echo "::group::Building and Installing Freetype"
 cd freetype
-./configure --without-harfbuzz --prefix=$PREFIX --enable-static
+./configure --without-harfbuzz --prefix=$PREFIX
 make
 make install
 cd ..
@@ -143,7 +142,7 @@ echo "::endgroup::"
 
 echo "::group::Building and Install Fontconfig"
 rm -rf /usr/local/share/fontconfig/conf.avail
-meson setup --buildtype=release --default-library=static --prefix=$PREFIX --sysconfdir=$HOME -Ddoc=disabled -Dtests=disabled -Dtools=disabled fontconfig_builddir fontconfig
+meson setup --buildtype=release --prefix=$PREFIX --sysconfdir=$HOME -Ddoc=disabled -Dtests=disabled -Dtools=disabled fontconfig_builddir fontconfig
 meson compile -C fontconfig_builddir
 meson install -C fontconfig_builddir
 echo "::endgroup::"
@@ -151,7 +150,7 @@ echo "::endgroup::"
 
 echo "::group::Building and Installing Pixman"
 cd pixman
-./configure --prefix=$PREFIX --enable-static
+./configure --prefix=$PREFIX
 make
 make install
 cd ..
@@ -159,7 +158,7 @@ echo "::endgroup::"
 
 echo "::group::Building and Installing Cairo"
 cd cairo
-./configure --prefix=$PREFIX --enable-static --enable-fontconfig --enable-freetype
+./configure --prefix=$PREFIX --enable-fontconfig --enable-freetype
 make
 make install
 cd ..
@@ -171,13 +170,13 @@ cd ..
 echo "::endgroup::"
 
 echo "::group::Building and Installing Harfbuzz"
-meson setup --prefix=$PREFIX --default-library=static --buildtype=release -Dtests=disabled -Ddocs=disabled -Dgobject=disabled -Dcoretext=enabled -Dfreetype=enabled -Dglib=enabled harfbuzz_builddir harfbuzz
+meson setup --prefix=$PREFIX --buildtype=release -Dtests=disabled -Ddocs=disabled -Dgobject=disabled -Dcoretext=enabled -Dfreetype=enabled -Dglib=enabled harfbuzz_builddir harfbuzz
 meson compile -C harfbuzz_builddir
 meson install -C harfbuzz_builddir
 echo "::endgroup::"
 
 echo "::group::Buildling and Installing Pango"
-meson setup --prefix=$PREFIX --default-library=static --buildtype=release -Dintrospection=disabled pango_builddir pango
+meson setup --prefix=$PREFIX --buildtype=release -Dintrospection=disabled pango_builddir pango
 meson compile -C pango_builddir
 meson install -C pango_builddir
 echo "::endgroup::"

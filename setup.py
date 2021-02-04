@@ -39,7 +39,7 @@ def get_library_config(name):
     """
     try:
         proc = Popen(
-            ["pkg-config", "--cflags", "--libs", "--static", name],
+            ["pkg-config", "--cflags", "--libs", name],
             stdout=PIPE,
             stderr=PIPE,
         )
