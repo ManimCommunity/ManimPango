@@ -86,7 +86,7 @@ cd pcre
       --enable-pcre32 \
       --enable-unicode-properties \
       --enable-pcregrep-libz \
-      --enable-pcregrep-libbz2 \
+      --enable-pcregrep-libbz2
 make
 make install
 cd ..
