@@ -48,9 +48,6 @@ python $FILE_PATH/packing/download_and_extract.py "https://ftp.pcre.org/pub/pcre
 curl -L "https://github.com/frida/proxy-libintl/archive/0.1.tar.gz" -o 0.1.tar.gz
 tar -xf 0.1.tar.gz
 mv proxy-libintl-0.1 proxy-libintl
-curl -L "https://github.com/google/brotli/archive/v${BROTLI_VERSION}.tar.gz" -o brotli${BROTLI_VERSION}.tar.gz
-tar -xf brotli${BROTLI_VERSION}.tar.gz
-mv brotli-${BROTLI_VERSION} brotli
 python -m pip uninstall -y requests
 
 echo "::endgroup::"
@@ -67,14 +64,6 @@ echo "::group::Removing the things from brew"
 brew uninstall --ignore-dependencies brotli
 brew uninstall --ignore-dependencies pcre
 brew uninstall --ignore-dependencies libpng
-echo "::endgroup::"
-
-echo "::group::Building and Install Brotoli"
-cd brotli
-cmake . -DCMAKE_INSTALL_PREFIX=${PREFIX}
-make
-make install
-cd ..
 echo "::endgroup::"
 
 echo "::group::Building and Install PCRE"
