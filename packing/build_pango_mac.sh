@@ -91,7 +91,7 @@ echo "::endgroup::"
 
 echo "::group::Building and Install Zlib"
 cd zlib
-./configure --prefix=$PREFIX --enable-static
+./configure --prefix=$PREFIX
 make
 make install
 cd ..
