@@ -131,11 +131,16 @@ cd ..
 echo "::endgroup::"
 
 echo "::group::Building and Installing Cairo"
-cd cairo
-./configure --prefix=$PREFIX --enable-fontconfig --enable-freetype
-make
-make install
-cd ..
+#cd cairo
+#./configure --prefix=$PREFIX --enable-fontconfig --enable-freetype
+#make
+#make install
+#cd ..
+
+#try using meson to see if things are fixed.
+meson setup --prefix=$PREFIX --buildtype=release -Dfontconfig=enabled -Dfreetype=enabled -Dtests=disabled cairo_builddir cairo
+meson compile -C cairo_builddir
+meson install -C cairo_builddir
 echo "::endgroup::"
 
 echo "::group::Building and Installing Harfbuzz"
