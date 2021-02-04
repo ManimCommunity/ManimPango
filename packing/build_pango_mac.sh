@@ -68,13 +68,13 @@ brew uninstall --ignore-dependencies pcre
 brew uninstall --ignore-dependencies libpng
 echo "::endgroup::"
 
-echo "::group::Building and Install Brotoli"
-cd brotli
-cmake . -DCMAKE_INSTALL_PREFIX=${PREFIX}
-make
-make install
-cd ..
-echo "::endgroup::"
+# echo "::group::Building and Install Brotoli"
+# cd brotli
+# cmake . -DCMAKE_INSTALL_PREFIX=${PREFIX}
+# make
+# make install
+# cd ..
+# echo "::endgroup::"
 
 echo "::group::Building and Install PCRE"
 cd pcre
