@@ -41,7 +41,7 @@ jobs:
       CIBW_BUILD: cp36-${{ matrix.platform_id }} cp37-${{ matrix.platform_id }} cp38-${{ matrix.platform_id }} cp39-${{ matrix.platform_id }}
       CIBW_SKIP: pp* cp35
       CIBW_BEFORE_BUILD_LINUX: "source packing/build_pango.sh && pip install cython && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pip install ."
-      CIBW_BEFORE_BUILD_MACOS: "source packing/build_pango_mac.sh && pip install cython && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pip install . && pkg-config --libs pango"
+      CIBW_BEFORE_BUILD_MACOS: "brew list && source packing/build_pango_mac.sh && pip install cython && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pip install . && pkg-config --libs pango"
       CIBW_BEFORE_BUILD_WINDOWS: "pip install cython && python packing/download_dlls.py && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pkg-config --libs pango && pip install ."
       CIBW_ENVIRONMENT_WINDOWS: "PKG_CONFIG_PATH='C:\\cibw\\vendor\\lib\\pkgconfig'"
       CIBW_ENVIRONMENT_MACOS: "PKG_CONFIG_PATH='/Users/runner/pangobuild/lib/pkgconfig'"
