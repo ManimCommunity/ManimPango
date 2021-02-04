@@ -57,8 +57,9 @@ pip3 install -U meson ninja
 echo "::endgroup::"
 
 echo "::group::Removing the things from brew"
-brew uninstall brotli
-brew uninstall pcre
+brew uninstall --ignore-dependencies brotli
+brew uninstall --ignore-dependencies pcre
+brew uninstall --ignore-dependencies libpng
 echo "::endgroup::"
 
 echo "::group::Building and Install proxy-libintl"
