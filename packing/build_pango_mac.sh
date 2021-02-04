@@ -56,6 +56,10 @@ echo "Installing Meson and Ninja"
 pip3 install -U meson ninja
 echo "::endgroup::"
 
+echo "::group::Removing the things from brew"
+brew uninstall brotli
+brew uninstall pcre
+echo "::endgroup::"
 
 echo "::group::Building and Install proxy-libintl"
 meson setup --buildtype=release libintlbuilddir proxy-libintl
@@ -99,6 +103,14 @@ make install
 cd ..
 echo "::endgroup::"
 
+echo "::group::Building and Install Libpng"
+cd libpng
+./configure --prefix=$PREFIX
+make
+make install
+cd ..
+echo "::endgroup::"
+
 echo "::group::Building and Installing Freetype"
 cd freetype
 ./configure --without-harfbuzz --prefix=$PREFIX
@@ -114,13 +126,6 @@ meson compile -C fontconfig_builddir
 meson install -C fontconfig_builddir
 echo "::endgroup::"
 
-echo "::group::Building and Install Libpng"
-cd libpng
-./configure --prefix=$PREFIX
-make
-make install
-cd ..
-echo "::endgroup::"
 
 echo "::group::Building and Installing Pixman"
 cd pixman
