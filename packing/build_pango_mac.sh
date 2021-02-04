@@ -50,7 +50,7 @@ python -m pip uninstall -y requests
 echo "::endgroup::"
 
 export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
-
+LIB_INSTALL_PREFIX=$PREFIX
 echo "::group::Install Meson"
 echo "Installing Meson and Ninja"
 pip3 install -U meson ninja
