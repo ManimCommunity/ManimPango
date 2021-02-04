@@ -48,7 +48,7 @@ mv proxy-libintl-0.1 proxy-libintl
 python -m pip uninstall -y requests
 
 echo "::endgroup::"
-
+rm -rf /usr/local
 export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
 LIB_INSTALL_PREFIX=$PREFIX
 echo "::group::Install Meson"
