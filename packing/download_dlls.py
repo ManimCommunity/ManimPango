@@ -40,8 +40,8 @@ if final_location.exists():
 os.makedirs(final_location)
 download_file = download_location / "build.zip"
 logging.info("Downloading Pango and Cairo Binaries for Windows...")
-download(url=download_url, filename=download_file)
 logging.info("Url:%s", download_url)
+download(url=download_url, filename=download_file)
 logging.info(f"Download complete. Saved to {download_file}.")
 logging.info(f"Extracting {download_file} to {download_location}...")
 with zipfile.ZipFile(
