@@ -17,7 +17,7 @@ PANGO_VERSION = "1.48.1"
 
 def get_platform():
     if (struct.calcsize("P") * 8) == 32:
-        return "86"
+        return "32"
     else:
         return "64"
 
