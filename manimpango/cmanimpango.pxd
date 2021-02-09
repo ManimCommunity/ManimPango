@@ -169,16 +169,17 @@ IF UNAME_SYSNAME == "Linux":
         void FcConfigAppFontClear(void*)
 ELIF UNAME_SYSNAME == "Windows":
     cdef extern from "windows.h":
-        ctypedef const char* LPCSTR
+        ctypedef Py_UNICODE WCHAR
+        ctypedef const WCHAR* LPCWSTR
         ctypedef enum DWORD:
             FR_PRIVATE
-        int AddFontResourceExA(
-            LPCSTR name,
+        int AddFontResourceExW(
+            LPCWSTR name,
             DWORD fl,
             unsigned int res
         )
-        bint RemoveFontResourceExA(
-            LPCSTR name,
+        bint RemoveFontResourceExW(
+            LPCWSTR name,
             DWORD  fl,
             unsigned int pdv
         )

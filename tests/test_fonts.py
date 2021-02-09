@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 from pathlib import Path
+from shutil import copyfile
 
 import manim
 import pytest
@@ -18,6 +19,13 @@ font_lists = {
     ).absolute(): "Bungee Color Regular",
     (FONT_DIR / "NotoNastaliqUrdu-Regular.ttf").absolute(): "Noto Nastaliq Urdu",
 }
+
+
+def test_unicode_font_name(tmpdir):
+    final_font = str(Path(tmpdir, "庞门正.ttf").absolute())
+    copyfile(FONT_DIR / "AdobeVFPrototype.ttf", final_font)
+    assert manimpango.register_font(final_font)
+    assert manimpango.unregister_font(final_font)
 
 
 def test_register_font():
