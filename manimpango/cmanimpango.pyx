@@ -428,7 +428,7 @@ IF UNAME_SYSNAME == "Linux":
         a=Path(font_path)
         assert a.exists(), f"font doesn't exist at {a.absolute()}"
         font_path = str(a.absolute())
-        font_path_bytes=font_path.encode('ascii')
+        font_path_bytes=font_path.encode('utf-8')
         cdef const unsigned char* fontPath = font_path_bytes
         fontAddStatus = FcConfigAppFontAddFile(FcConfigGetCurrent(), fontPath)
         if fontAddStatus:
@@ -473,7 +473,7 @@ IF UNAME_SYSNAME == "Windows":
                 False means there was an unknown error
         Examples
         --------
-        >>> register_font("/home/roboto.tff")
+        >>> register_font("C:/home/roboto.tff")
         1
         Raises
         ------
@@ -483,10 +483,8 @@ IF UNAME_SYSNAME == "Windows":
         a=Path(font_path)
         assert a.exists(), f"font doesn't exist at {a.absolute()}"
         font_path = str(a.absolute())
-        font_path_bytes=font_path.encode('ascii')
-        cdef LPCSTR fontPath = font_path_bytes
-        fontAddStatus = AddFontResourceExA(
-            font_path_bytes,
+        fontAddStatus = AddFontResourceExW(
+            <bytes>font_path,
             FR_PRIVATE,
             0
         )
@@ -515,10 +513,8 @@ IF UNAME_SYSNAME == "Windows":
         a=Path(font_path)
         assert a.exists(), f"font doesn't exist at {a.absolute()}"
         font_path = str(a.absolute())
-        font_path_bytes=font_path.encode('ascii')
-        cdef LPCSTR fontPath = font_path_bytes
-        return RemoveFontResourceExA(
-            font_path_bytes,
+        return RemoveFontResourceExW(
+            <bytes>font_path,
             FR_PRIVATE,
             0
         )
