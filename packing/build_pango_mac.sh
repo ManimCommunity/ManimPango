@@ -1,4 +1,4 @@
-#!#!/bin/bash
+#!/bin/bash
 # build and install pango
 set -e
 
