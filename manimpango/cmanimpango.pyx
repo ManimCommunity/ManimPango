@@ -269,8 +269,9 @@ def text2svg(
 class MarkupUtils:
     @staticmethod
     def validate(text: str) -> bool:
-       text_bytes = text.encode("utf-8")
-       return pango_parse_markup(text_bytes, <int>len(text_bytes), 0, NULL, NULL, NULL, NULL)
+        length = len(text)
+        text_bytes = text.encode("utf-8")
+        return pango_parse_markup(text_bytes, <int>length, 0, NULL, NULL, NULL, NULL)
 
     @staticmethod
     def text2svg(
