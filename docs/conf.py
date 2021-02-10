@@ -17,13 +17,14 @@
 
 
 # -- Project information -----------------------------------------------------
+from pkg_resources import get_distribution
 
 project = "ManimPango"
 copyright = "2021, The Manim Community Dev Team"
 author = "The Manim Community Dev Team"
 
-# The full version, including alpha/beta/rc tags
-release = "v0.2.0"
+release = get_distribution("ManimPango").version
+version = ".".join(release.split(".")[:2])
 
 
 # -- General configuration ---------------------------------------------------
