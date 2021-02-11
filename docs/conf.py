@@ -16,9 +16,10 @@
 # sys.path.insert(0, os.path.abspath(".."))
 
 
+from pathlib import Path
+
 # -- Project information -----------------------------------------------------
 from pkg_resources import get_distribution
-from pathlib import Path
 
 project = "ManimPango"
 copyright = "2021, The Manim Community Dev Team"
