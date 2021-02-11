@@ -157,8 +157,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/manimpango-${{ steps.create_release.outputs.tag_name }}.tar.gz
-          asset_name: manimpango-${{ steps.create_release.outputs.tag_name }}.tar.gz
+          asset_path: dist/ManimPango-${{ steps.create_release.outputs.tag_name }}.tar.gz
+          asset_name: ManimPango-${{ steps.create_release.outputs.tag_name }}.tar.gz
           asset_content_type: application/gzip
   test_wheels_linux: # TODO: Check for i386 builds also
     needs: [build_wheels]

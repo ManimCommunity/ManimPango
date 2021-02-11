@@ -16,7 +16,7 @@ This means older version would have a backport of bugs fixes.
 
 4. Clone the repository locally.
 
-5. Bump the version in `setup.py`_ and `conf.py`_ accordingly.
+5. Bump the version in `manimpango/_version`_ accordingly.
 
 6. Make a commit with the changes done, as ``Release v<version here>``
 
@@ -46,8 +46,7 @@ This means older version would have a backport of bugs fixes.
     it in a new virtual environment.
 
 .. _Wheels Build: https://github.com/ManimCommunity/ManimPango/actions?query=workflow%3A%22Build+Wheels%22
-.. _setup.py: https://github.com/ManimCommunity/ManimPango/blob/main/setup.py
-.. _conf.py: https://github.com/ManimCommunity/ManimPango/blob/main/docs/conf.py
+.. _manimpango/_version: https://github.com/ManimCommunity/ManimPango/blob/main/manimpango/_version.py
 .. _Github: https://github.com
 .. _draft a new release: https://docs.github.com/en/free-pro-team@latest/github/administering-a-repository/managing-releases-in-a-repository#creating-a-release
 .. _PyPi: https://pypi.org/project/manimpango/

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 
+from ._version import __version__  # noqa: F403,F401
+
 if os.name == "nt":
     os.environ["PATH"] = (
         f"{os.path.abspath(os.path.dirname(__file__))}"

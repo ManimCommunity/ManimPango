@@ -16,14 +16,17 @@
 # sys.path.insert(0, os.path.abspath(".."))
 
 
+from pathlib import Path
+
 # -- Project information -----------------------------------------------------
+from pkg_resources import get_distribution
 
 project = "ManimPango"
 copyright = "2021, The Manim Community Dev Team"
 author = "The Manim Community Dev Team"
 
-# The full version, including alpha/beta/rc tags
-release = "v0.2.0"
+release = get_distribution("ManimPango").version
+version = ".".join(release.split(".")[:2])
 
 
 # -- General configuration ---------------------------------------------------
@@ -61,6 +64,7 @@ html_theme = "furo"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+html_favicon = str(Path("_static/favicon.ico"))
 autosummary_generate = True
 
 # generate documentation from type hints
