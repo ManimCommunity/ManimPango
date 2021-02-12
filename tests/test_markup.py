@@ -10,7 +10,7 @@ def test_good_markup():
     ), '"<b>bar</b>" should not fail validation'
     assert manimpango.MarkupUtils.validate(
         "வணக்கம்",
-    ), '"வணக்கம்" should not fails'
+    ), '"வணக்கம்" should not fail'
 
 
 def test_bad_markup():
