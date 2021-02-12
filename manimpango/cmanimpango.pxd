@@ -183,3 +183,15 @@ ELIF UNAME_SYSNAME == "Windows":
             DWORD  fl,
             unsigned int pdv
         )
+ELIF UNAME_SYSNAME == "Darwin":
+    cdef extern from "Carbon/Carbon.h":
+        ctypedef struct CFURLRef:
+            pass
+        ctypedef enum CTFontManagerScope:
+            kCTFontManagerScopeProcess
+        ctypedef unsigned int UInt8
+        ctypedef long CFIndex
+        ctypedef unsigned int UInt32
+        ctypedef UInt32 CFStringEncoding
+        CFURLRef CFURLCreateWithBytes(void*, unsigned char *URLBytes, CFIndex length, CFStringEncoding encoding, void*);
+        bint CTFontManagerRegisterFontsForURL(CFURLRef fontURL, CTFontManagerScope scope, void* error)

@@ -518,3 +518,12 @@ IF UNAME_SYSNAME == "Windows":
             FR_PRIVATE,
             0
         )
+ELIF UNAME_SYSNAME == "Darwin":
+    cpdef bint register_font(str font_path):
+        a=Path(font_path)
+        assert a.exists(), f"font doesn't exist at {a.absolute()}"
+        font_path_bytes_py = str(a.absolute().as_uri()).encode('utf-8')
+        cdef unsigned char* font_path_bytes = <bytes>font_path_bytes_py
+        b=len(a.absolute().as_uri())
+        cdef CFURLRef cf_url = CFURLCreateWithBytes(NULL,font_path_bytes,b,0x08000100,NULL)
+        return CTFontManagerRegisterFontsForURL(cf_url,kCTFontManagerScopeProcess, NULL)
