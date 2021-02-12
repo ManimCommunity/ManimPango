@@ -332,7 +332,7 @@ class MarkupUtils:
             g_object_unref(layout)
             raise MemoryError("Pango.FontDesc can't be created.")
         pango_font_description_set_size(font_desc, pango_units_from_double(font_size))
-        if font:
+        if font is not None and len(font)!=0:
             pango_font_description_set_family(font_desc, font.encode("utf-8"))
         pango_font_description_set_style(font_desc, PangoUtils.str2style(slant).value)
         pango_font_description_set_weight(font_desc, PangoUtils.str2weight(weight).value)
