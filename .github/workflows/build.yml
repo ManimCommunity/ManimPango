@@ -118,8 +118,6 @@ jobs:
           sudo apt install libcairo2-dev pkg-config python3-dev
           sudo apt-get install libpango1.0-dev
           pip install twine
-          pip install cython
-          python setup.py build_ext -i
           python setup.py sdist
           twine upload dist/*
 
