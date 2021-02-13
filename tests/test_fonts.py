@@ -72,7 +72,8 @@ def test_fail_just_unregister():
 
 
 @pytest.mark.skipif(
-    sys.platform.startswith("win32"), reason="unsupported api for linux"
+    sys.platform.startswith("win32"), reason="unsupported api for win32"
 )
+@pytest.mark.skipif(sys.platform.startswith("darwin"), reason="unsupported api for mac")
 def test_unregister_linux():
     manimpango.unregister_font("random")
