@@ -8,9 +8,6 @@ import pytest
 
 import manimpango
 
-if sys.platform.startswith("darwin"):
-    pytest.skip(allow_module_level=True)
-
 FONT_DIR = Path(__file__).parent / "fonts"
 font_lists = {
     (FONT_DIR / "AdobeVFPrototype.ttf").absolute(): "Adobe Variable Font Prototype",

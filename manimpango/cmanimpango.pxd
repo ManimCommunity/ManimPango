@@ -193,5 +193,20 @@ ELIF UNAME_SYSNAME == "Darwin":
         ctypedef long CFIndex
         ctypedef unsigned int UInt32
         ctypedef UInt32 CFStringEncoding
-        CFURLRef CFURLCreateWithBytes(void*, unsigned char *URLBytes, CFIndex length, CFStringEncoding encoding, void*);
-        bint CTFontManagerRegisterFontsForURL(CFURLRef fontURL, CTFontManagerScope scope, void* error)
+        CFURLRef CFURLCreateWithBytes(
+            void*,
+            unsigned char *URLBytes,
+            CFIndex length,
+            CFStringEncoding encoding,
+            void*
+        )
+        bint CTFontManagerRegisterFontsForURL(
+            CFURLRef fontURL,
+            CTFontManagerScope scope,
+            void* error
+        )
+        bint CTFontManagerUnregisterFontsForURL(
+            CFURLRef fontURL,
+            CTFontManagerScope scope,
+            void* error
+        )
