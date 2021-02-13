@@ -22,7 +22,4 @@ def test_resgister_font_with_list():
         manimpango.register_font(str(i))
         a = manimpango.list_fonts()
         assert font_lists[i] in a
-        if sys.platform.startswith("win32"):
-            manimpango.unregister_font(str(i))
-        else:
-            manimpango.unregister_font()
+        manimpango.unregister_font(str(i))
