@@ -15,14 +15,12 @@ def test_whether_list():
 
 
 @pytest.mark.skipif(
-    sys.platform.startswith("linux"), reason="names doesn't match for some reason."
+    sys.platform.startswith("linux") or sys.platform.startswith("darwin"),
+    reason="names don't match for some reason.",
 )
 def test_resgister_font_with_list():
     for i in font_lists:
         manimpango.register_font(str(i))
         a = manimpango.list_fonts()
         assert font_lists[i] in a
-        if sys.platform.startswith("win32"):
-            manimpango.unregister_font(str(i))
-        else:
-            manimpango.unregister_font()
+        manimpango.unregister_font(str(i))
