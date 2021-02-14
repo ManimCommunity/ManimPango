@@ -61,9 +61,9 @@ def test_register_and_unregister_font():
 
 
 @pytest.mark.skipif(
-    sys.platform.startswith("linux"), reason="unsupported api for linux"
+    sys.platform.startswith("linux"), reason = "unsupported api for linux"
 )
-@pytest.mark.skipif(sys.platform.startswith("darwin"), reason="always return true")
+@pytest.mark.skipif(sys.platform.startswith("darwin"), reason = "always returns true")
 def test_fail_just_unregister():
     for font_name in font_lists:
         assert not manimpango.unregister_font(
@@ -72,8 +72,8 @@ def test_fail_just_unregister():
 
 
 @pytest.mark.skipif(
-    sys.platform.startswith("win32"), reason="unsupported api for win32"
+    sys.platform.startswith("win32"), reason = "unsupported api for win32"
 )
-@pytest.mark.skipif(sys.platform.startswith("darwin"), reason="unsupported api for mac")
+@pytest.mark.skipif(sys.platform.startswith("darwin"), reason = "unsupported api for mac")
 def test_unregister_linux():
     manimpango.unregister_font("random")

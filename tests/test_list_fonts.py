@@ -16,7 +16,7 @@ def test_whether_list():
 
 @pytest.mark.skipif(
     sys.platform.startswith("linux") or sys.platform.startswith("darwin"),
-    reason="names doesn't match for some reason.",
+    reason = "names don't match for some reason.",
 )
 def test_resgister_font_with_list():
     for i in font_lists:
