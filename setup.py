@@ -124,7 +124,7 @@ class PKG_CONFIG:
             check_call(command, stdout=subprocess.DEVNULL)
             return True
         except Exception:
-            raise RequiredDependencyException("{self.name} >= {version} is required")
+            raise RequiredDependencyException(f"{self.name} >= {version} is required")
 
     @property
     def libs(self):
