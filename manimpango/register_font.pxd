@@ -8,7 +8,7 @@ IF UNAME_SYSNAME == "Linux":
             const unsigned char* file_name
         )
         FcConfig* FcConfigGetCurrent()
-        void FcConfigAppFontClear()
+        void FcConfigAppFontClear(void *)
 ELIF UNAME_SYSNAME == "Windows":
     cdef extern from "windows.h":
         ctypedef Py_UNICODE WCHAR
