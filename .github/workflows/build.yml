@@ -17,7 +17,7 @@ jobs:
         os: [ubuntu-18.04, macos-latest, windows-2016]
         bitness: [32, 64]
         include:
-          # Run 32 and 64 bit version in parallel for Linux and Windows
+          # Run 32 and 64 bit version in parallel for Windows
           - os: windows-2016
             bitness: 64
             platform_id: win_amd64
@@ -27,14 +27,13 @@ jobs:
           - os: ubuntu-18.04
             bitness: 64
             platform_id: manylinux_x86_64
-          - os: ubuntu-18.04
-            bitness: 32
-            platform_id: manylinux_i686
           - os: macos-latest
             bitness: 64
             platform_id: macosx_x86_64
         exclude:
           - os: macos-latest
+            bitness: 32
+          - os: ubuntu-18.04
             bitness: 32
     env:
       CIBW_BUILD: cp36-${{ matrix.platform_id }} cp37-${{ matrix.platform_id }} cp38-${{ matrix.platform_id }} cp39-${{ matrix.platform_id }}
@@ -46,7 +45,6 @@ jobs:
       CIBW_ENVIRONMENT_MACOS: "PKG_CONFIG_PATH='/Users/runner/pangobuild/lib/pkgconfig'"
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: python packing/inject-dlls.py {wheel} {dest_dir} C:\cibw\vendor\bin
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-      CIBW_MANYLINUX_I686_IMAGE: manylinux2014
       CIBW_TEST_REQUIRES: pytest Cython
       CIBW_TEST_COMMAND: "bash {project}/packing/test_wheels.sh {project}"
       CIBW_BUILD_VERBOSITY: 1
@@ -86,16 +84,49 @@ jobs:
         with:
           path: ./wheelhouse/*.whl
           name: wheels-${{ runner.os }}-${{ matrix.platform_id }}
-      - name: Publish (Release)
-        if: github.event_name == 'release'
+      - name: Publish Non-Linux (Release)
+        if: github.event_name == 'release' && runner.os != 'Linux'
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
           pip install twine
           twine upload wheelhouse/*.whl
-          twine upload wheelhouse/*.whl
-          twine upload wheelhouse/*.whl
+      - name: Install Dependency
+        if: github.event_name == 'release' && runner.os == 'Linux'
+        run: pip install requests
+      - name: Get Upload URL
+        id: create_release
+        if: github.event_name == 'release' && runner.os == 'Linux'
+        shell: python
+        env:
+          access_token: ${{ secrets.GITHUB_TOKEN }}
+          tag_act: ${{ github.ref }}
+        run: |
+          import requests
+          import os
+          ref_tag = os.getenv('tag_act').split('/')[-1]
+          access_token = os.getenv('access_token')
+          headers = {
+              "Accept":"application/vnd.github.v3+json",
+              "Authorization": f"token {access_token}"
+          }
+          url = f"https://api.github.com/repos/ManimCommunity/manimpango/releases/tags/{ref_tag}"
+          c = requests.get(url,headers=headers)
+          upload_url=c.json()['upload_url']
+          print(f"::set-output name=upload_url::{upload_url}")
+          print(f"::set-output name=tag_name::{ref_tag[1:]}")
+      - name: Upload Release Asset
+        id: upload-release
+        if: github.event_name == 'release' && runner.os == 'Linux'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: wheelhouse/ManimPango-${{ steps.create_release.outputs.tag_name }}-cp38-cp38-manylinux2014_x86_64.whl
+          asset_name: ManimPango-${{ steps.create_release.outputs.tag_name }}-cp38-cp38-manylinux2014_x86_64.whl
+          asset_content_type: application/zip
   build_sdist:
     name: Source distribution
     runs-on: ubuntu-latest
@@ -164,7 +195,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        container: ["python:3.6", "python:3.7", "python:3.8", "python:3.9"]
+        container: ["python:3.8"]
     name: Test Wheels Using Docker Images
     container: ${{matrix.container}}
     steps:
