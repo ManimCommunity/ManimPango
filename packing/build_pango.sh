@@ -51,8 +51,7 @@ echo "::endgroup::"
 
 echo "::group::Install Meson"
 echo "Installing Meson and Ninja"
-pip3 install -U ninja
-pip3 install https://github.com/naveen521kk/meson/archive/patch-3.zip
+pip3 install -U meson ninja
 echo "::endgroup::"
 
 echo "::group::Building and Install Zlib"
