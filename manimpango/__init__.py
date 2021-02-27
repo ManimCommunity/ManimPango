@@ -11,5 +11,7 @@ if os.name == "nt":
     )
 try:
     from .cmanimpango import *  # noqa: F403,F401
+    from .register_font import * # noqa: F403,F401
+    from .enums import * # noqa: F403,F401
 except ImportError:
     raise ImportError("Couldn't load the necessary Shared Libraries.")

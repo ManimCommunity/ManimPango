@@ -204,6 +204,16 @@ ext_modules = [
         [str(base_file / ("cmanimpango" + ext))],
         **returns,
     ),
+    Extension(
+        "manimpango.enums",
+        [str(base_file / ("enums" + ext))],
+        **returns,
+    ),
+    Extension(
+        "manimpango.register_font",
+        [str(base_file / ("register_font" + ext))],
+        **returns,
+    ),
 ]
 if USE_CYTHON:
     ext_modules = cythonize(
