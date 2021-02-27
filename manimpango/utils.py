@@ -1,5 +1,8 @@
-from .enums import Style, Weight, Variant
+# -*- coding: utf-8 -*-
 import re
+
+from .enums import Style, Weight
+
 
 class PangoUtils:
     @staticmethod

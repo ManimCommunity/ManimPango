@@ -225,4 +225,3 @@ cpdef str pango_version():
 
 cpdef str cairo_version():
     return cairo_version_string().decode('utf-8')
-
