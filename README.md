@@ -23,17 +23,7 @@ Installing **ManimPango** is super easy, just use `pip`. It is [`manimpango`](ht
 pip install manimpango
 ```
 
-#### Note:
-
-For **Linux Users**, installing the binary wheel provided in PyPi may have unexpected side effects.
-
-For example, a folder named `fontconfig` might be created in the current working directory. That folder would then have a lot of cache files each time you run Manim. In order to avoid this, you will have to install **Manimpango** from source:.
-
-```sh
-pip install manimpango --no-binary :all:
-```
-
-Please note that for this kind of installation to work, you must have a C compiler as well as **Pango** and its dependencies along with the **Pango** development headers. See [BUILDING](#BUILDING ) for more information.
+For **Linux Users**, there are no Wheels. You must have a C compiler as well as **Pango** and its dependencies along with the **Pango** development headers. See [BUILDING](#BUILDING) for more information.
 
 ## BUILDING
 
