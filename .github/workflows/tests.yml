@@ -94,6 +94,7 @@ jobs:
           python -m pip install dist/*
           pytest
       - name: Coverage
+        shell: msys2 {0}
         run: |
           coverage report
           coverage html
