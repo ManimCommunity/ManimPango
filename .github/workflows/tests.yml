@@ -45,7 +45,6 @@ jobs:
           pytest
       - name: Coverage
         run: |
-          coverage combine
           coverage report
           coverage html
           coverage xml
@@ -99,7 +98,6 @@ jobs:
           pytest
       - name: Coverage
         run: |
-          coverage combine
           coverage report
           coverage html
           coverage xml
@@ -163,7 +161,6 @@ jobs:
           pytest
       - name: Coverage
         run: |
-          coverage combine
           coverage report
           coverage html
           coverage xml
