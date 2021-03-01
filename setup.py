@@ -19,6 +19,11 @@ try:
 except ImportError:
     USE_CYTHON = False
 
+coverage = False
+if sys.argv[-1] == "--coverage":
+    coverage = True
+    sys.argv.pop()
+
 
 def get_version():
     version_file = "manimpango/_version.py"
@@ -166,7 +171,6 @@ class PKG_CONFIG:
             known_cflags, unknown_cflags = self.parse_cflags(raw_cflags.decode("utf8"))
             if unknown_cflags:
                 known_cflags["extra_compile_args"] = unknown_cflags.split()
-            # return update_dict(known_cflags, known_libs)
             return known_cflags
         return dict()
 
@@ -197,6 +201,9 @@ if sys.platform == "win32":
         returns["define_macros"] += [("UNICODE", 1)]
     else:
         returns["define_macros"] = [("UNICODE", 1)]
+if coverage:
+    returns["define_macros"] += [("CYTHON_TRACE", 1)]
+    returns["define_macros"] += [("CYTHON_TRACE_NOGIL", 1)]
 
 ext_modules = [
     Extension(
@@ -221,6 +228,7 @@ if USE_CYTHON:
         language_level=3,
         include_path=["manimpango"],
         gdb_debug=DEBUG,
+        compiler_directives={"linetrace": coverage},
     )
 with open("README.md") as fh:
     long_description = fh.read()
@@ -259,6 +267,6 @@ setup(
     },
     ext_modules=ext_modules,
     package_data={
-        "manimpango": ["*.pxd"],
+        "manimpango": ["*.pxd", "*.pyx"],
     },
 )

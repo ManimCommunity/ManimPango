@@ -20,10 +20,6 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pytest Cython
 
       - name: Install System Dependency (Linux)
         if: runner.os == 'Linux'
@@ -36,13 +32,22 @@ jobs:
         run: |
           brew install pango
           brew install cairo
+      - name: Install python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
       - name: Run Tests
         run: |
-          python setup.py build_ext -i
+          python setup.py build_ext -i --coverage
           python setup.py sdist
           pip install .
           pip install manim
           pytest
+      - name: Coverage
+        run: |
+          coverage report
+          coverage html
+          coverage xml
   msys:
     name: Test on Msys2
     runs-on: windows-latest
@@ -78,16 +83,22 @@ jobs:
       - name: Install dependencies
         shell: msys2 {0}
         run: |
-          python -m pip install pytest
+          pip install -r requirements-dev.txt
       - name: Run tests
         shell: msys2 {0}
         run: |
           pip install .
           pip install manim
-          python setup.py build_ext -i
+          python setup.py build_ext -i --coverage
           python setup.py sdist
           python -m pip install dist/*
-          pytest tests -s
+          pytest
+      - name: Coverage
+        shell: msys2 {0}
+        run: |
+          coverage report
+          coverage html
+          coverage xml
   msvc:
     name: ${{matrix.os}} - ${{matrix.python-version}}
     runs-on: windows-latest
@@ -118,14 +129,12 @@ jobs:
       - name: Test x64
         run: |
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
-          pip install cython pytest
+          pip install -r requirements-dev.txt
           pip install .
-          pip install manim
           python setup.py sdist
-          python setup.py build_ext -i
-          python setup.py install --root="$(pwd)"/_root_abs
+          python setup.py build_ext -i --coverage
           $env:PATH="C:\cibw\vendor\bin;$env:PATH"
-          pytest tests -s
+          pytest
 
       - name: Set up Python ${{ matrix.python-version }} for x86
         uses: actions/setup-python@v2
@@ -139,13 +148,17 @@ jobs:
         run: |
           $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin;C:\cibw\vendor\bin"
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
-          pip install cython pytest manim
+          pip install -r requirements-dev.txt
           pip install .
           python setup.py sdist
-          python setup.py build_ext -i
-          python setup.py install --root="$(pwd)"/_root_abs
+          python setup.py build_ext -i --coverage
           $env:PATH="C:\cibw\vendor\bin;$env:PATH"
-          pytest tests -s
+          pytest
+      - name: Coverage
+        run: |
+          coverage report
+          coverage html
+          coverage xml
   success-win:
     needs: [msvc, msys]
     runs-on: ubuntu-latest

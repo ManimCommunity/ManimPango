@@ -1,0 +1,26 @@
+[run]
+plugins = Cython.Coverage
+omit =
+    tests
+data_file = .coverage/data
+source = manimpango
+
+[report]
+skip_empty = true
+ignore_errors = true
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if self.debug:
+    raise AssertionError
+    raise NotImplementedError
+    except Exception as e:
+
+[html]
+directory = .coverage/html
+
+[xml]
+output = .coverage/coverage.xml
+
+[json]
+output = .coverage/coverage.json
