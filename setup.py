@@ -24,6 +24,7 @@ if sys.argv[-1] == "--coverage":
     coverage = True
     sys.argv.pop()
 
+
 def get_version():
     version_file = "manimpango/_version.py"
     with open(version_file) as f:
@@ -201,8 +202,8 @@ if sys.platform == "win32":
     else:
         returns["define_macros"] = [("UNICODE", 1)]
 if coverage:
-    returns["define_macros"] += [("CYTHON_TRACE",1)]
-    returns["define_macros"] += [("CYTHON_TRACE_NOGIL",1)]
+    returns["define_macros"] += [("CYTHON_TRACE", 1)]
+    returns["define_macros"] += [("CYTHON_TRACE_NOGIL", 1)]
 
 ext_modules = [
     Extension(
@@ -227,7 +228,7 @@ if USE_CYTHON:
         language_level=3,
         include_path=["manimpango"],
         gdb_debug=DEBUG,
-        compiler_directives={"linetrace":coverage},
+        compiler_directives={"linetrace": coverage},
     )
 with open("README.md") as fh:
     long_description = fh.read()
@@ -266,6 +267,6 @@ setup(
     },
     ext_modules=ext_modules,
     package_data={
-        "manimpango": ["*.pxd","*.pyx"],
+        "manimpango": ["*.pxd", "*.pyx"],
     },
 )
