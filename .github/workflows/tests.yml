@@ -130,9 +130,9 @@ jobs:
         run: |
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
           pip install -r requirements-dev.txt
-          pip install .
-          python setup.py sdist
           python setup.py build_ext -i --coverage
+          python setup.py sdist
+          python -m pip install dist/*
           $env:PATH="C:\cibw\vendor\bin;$env:PATH"
           pytest
       - name: Coverage
@@ -153,9 +153,9 @@ jobs:
           $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin;C:\cibw\vendor\bin"
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
           pip install -r requirements-dev.txt
-          pip install .
-          python setup.py sdist
           python setup.py build_ext -i --coverage
+          python setup.py sdist
+          python -m pip install dist/*
           $env:PATH="C:\cibw\vendor\bin;$env:PATH"
           pytest
       - name: Coverage
