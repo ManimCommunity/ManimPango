@@ -3,7 +3,7 @@ import os
 
 from ._version import __version__  # noqa: F403,F401
 
-if os.name == "nt":
+if os.name == "nt":  # pragma: no cover
     os.environ["PATH"] = (
         f"{os.path.abspath(os.path.dirname(__file__))}"
         f"{os.pathsep}"
