@@ -101,10 +101,10 @@ jobs:
           coverage xml
   msvc:
     name: ${{matrix.os}} - ${{matrix.python-version}}
-    runs-on: windows-latest
+    runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        os: [windows-latest, windows-2016]
+        os: [windows-2016]
         python-version: [3.7, 3.8, 3.9]
     steps:
       - uses: actions/checkout@v2
@@ -118,7 +118,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: C:\cibw\pkg-config
-          key: ${{ hashFiles('packing/download_dlls.py') }}-${{ hashFiles('packing/build_pkgconfig.ps1') }}
+          key: ${{ hashFiles('packing/download_dlls.py') }}-${{ hashFiles('packing/build_pkgconfig.ps1') }}-1
       - name: Download Binary
         run: |
           python packing/download_dlls.py
@@ -135,7 +135,11 @@ jobs:
           python setup.py build_ext -i --coverage
           $env:PATH="C:\cibw\vendor\bin;$env:PATH"
           pytest
-
+      - name: Coverage
+        run: |
+          coverage report
+          coverage html
+          coverage xml
       - name: Set up Python ${{ matrix.python-version }} for x86
         uses: actions/setup-python@v2
         with:
