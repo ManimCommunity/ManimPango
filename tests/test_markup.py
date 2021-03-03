@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
+from manim import MarkupText
+
+import manimpango
+
+
 def test_good_markup():
-    import manimpango  # noqa: F401
 
     assert manimpango.MarkupUtils.validate(
         "foo",
@@ -14,7 +18,6 @@ def test_good_markup():
 
 
 def test_bad_markup():
-    import manimpango  # noqa: F401
 
     assert not manimpango.MarkupUtils.validate(
         "<b>foo"
@@ -22,3 +25,7 @@ def test_bad_markup():
     assert not manimpango.MarkupUtils.validate(
         "<xyz>foo</xyz>"
     ), '"<xyz>foo</xyz>" should fail validation (invalid tag)'
+
+
+def test_markup_text():
+    MarkupText("<span>Hello Manim</span>")
