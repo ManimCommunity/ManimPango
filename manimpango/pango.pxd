@@ -37,6 +37,11 @@ cdef extern from "pango/pangocairo.h":
         PANGO_WRAP_WORD
         PANGO_WRAP_CHAR
         PANGO_WRAP_WORD_CHAR
+    ctypedef enum PangoAlignment:
+        PANGO_ALIGN_LEFT
+        PANGO_ALIGN_CENTER
+        PANGO_ALIGN_RIGHT
+
     PangoLayout* pango_cairo_create_layout(cairo_t* cr)
     void pango_cairo_show_layout(
         cairo_t* cr,
@@ -120,4 +125,20 @@ cdef extern from "pango/pangocairo.h":
     )
     const char* pango_font_family_get_name(
         PangoFontFamily *family
+    )
+    void pango_layout_set_justify(
+        PangoLayout *layout,
+        gboolean justify
+    )
+    void pango_layout_set_indent(
+        PangoLayout *layout,
+        int indent
+    )
+    void pango_layout_set_line_spacing(
+        PangoLayout *layout,
+        float factor
+    )
+    void pango_layout_set_alignment(
+        PangoLayout *layout,
+        PangoAlignment alignment
     )
