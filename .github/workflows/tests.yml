@@ -48,6 +48,9 @@ jobs:
           coverage report
           coverage html
           coverage xml
+      - uses: codecov/codecov-action@v1
+        with:
+          file: ./.coverage/coverage.xml
   msys:
     name: Test on Msys2
     runs-on: windows-latest
@@ -99,6 +102,9 @@ jobs:
           coverage report
           coverage html
           coverage xml
+      - uses: codecov/codecov-action@v1
+        with:
+          file: ./.coverage/coverage.xml
   msvc:
     name: ${{matrix.os}} - ${{matrix.python-version}}
     runs-on: ${{matrix.os}}
@@ -163,6 +169,10 @@ jobs:
           coverage report
           coverage html
           coverage xml
+      - uses: codecov/codecov-action@v1
+        with:
+          file: ./.coverage/coverage.xml
+ 
   success-win:
     needs: [msvc, msys]
     runs-on: ubuntu-latest
