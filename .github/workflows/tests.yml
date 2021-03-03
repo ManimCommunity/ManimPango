@@ -172,7 +172,7 @@ jobs:
       - uses: codecov/codecov-action@v1
         with:
           file: ./.coverage/coverage.xml
- 
+
   success-win:
     needs: [msvc, msys]
     runs-on: ubuntu-latest
