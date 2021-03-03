@@ -2,3 +2,6 @@ global-include *.pyx *.pxd
 recursive-include tests *.py *.ttf LICENSE.txt
 recursive-include docs *.rst *.py make* _*/*
 prune docs/_build
+include *.md
+include *.txt
+include .coveragerc
