@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from manim import MarkupText
+
 import manimpango
 
 ipsum_text = (
@@ -13,6 +14,7 @@ ipsum_text = (
     "occaecat cupidatat non proident, sunt in culpa qui"
     "officia deserunt mollit anim id est laborum."
 )
+
 
 def test_good_markup():
 
