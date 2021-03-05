@@ -28,4 +28,4 @@ def test_bad_markup():
 
 
 def test_markup_text():
-    MarkupText("<span>Hello Manim</span>")
+    MarkupText('<span underline="error"><b><i>Hello Manim</i></b></span>')
