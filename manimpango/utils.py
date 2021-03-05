@@ -30,8 +30,6 @@ class PangoUtils:
             return Weight.ULTRALIGHT
         elif string == "LIGHT":
             return Weight.LIGHT
-        elif string == "SEMILIGHT":
-            return Weight.SEMILIGHT
         elif string == "BOOK":
             return Weight.BOOK
         elif string == "MEDIUM":
