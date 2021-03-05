@@ -1,6 +1,8 @@
 from xml.sax.saxutils import escape
 from .utils import *
 from .enums import Alignment
+import warnings
+
 class TextSetting:
     """Formatting for slices of a :class:`manim.mobject.svg.text_mobject.Text` object."""
     def __init__(
@@ -200,7 +202,16 @@ class MarkupUtils:
 
         if line_spacing:
             # Typical values are: 0, 1, 1.5, 2.
-            pango_layout_set_line_spacing(layout, line_spacing)
+            ret = set_line_width(layout, line_spacing)
+            if not ret:
+                # warn that line spacing don't work
+                # because of old Pango version they
+                # have
+                warnings.warn(
+                    "Pango Version<1.44 found."
+                    "Impossible to set line_spacing."
+                    "Expect Ugly Output."
+                )
 
         if alignment:
             pango_layout_set_alignment(layout, alignment.value)
