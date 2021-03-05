@@ -15,7 +15,7 @@ class MarkupText:
         text: str,
         *,
         size: int = 1,
-        line_spacing: int = -1,
+        line_spacing: int = None,
         font: str = None,
         slant: str = "NORMAL",
         weight: str = "NORMAL",
@@ -48,18 +48,11 @@ class MarkupText:
                 "Please check for typos, unmatched tags or unescaped "
                 "special chars like < and &."
             )
-
-        if self.line_spacing == -1:
-            self.line_spacing = self.size + self.size * 0.3
-        else:
-            self.line_spacing = self.size + self.size * self.line_spacing
-
         self.text2svg()
 
     def text2svg(self):
         """Convert the text to SVG using Pango."""
         size = self.size * 10
-        line_spacing = self.line_spacing * 10
         dir_name = Path(self.filename).parent
         disable_liga = self.disable_ligatures
         if not os.path.exists(dir_name):
@@ -71,7 +64,7 @@ class MarkupText:
             self.slant,
             self.weight,
             size,
-            line_spacing,
+            True,  # stray positional argument
             disable_liga,
             file_name,
             20,

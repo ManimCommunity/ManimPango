@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-from manim import MarkupText
+from pathlib import Path
 
 import manimpango
+
+from ._manim import MarkupText
 
 ipsum_text = (
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit,"
@@ -39,5 +41,44 @@ def test_bad_markup():
     ), '"<xyz>foo</xyz>" should fail validation (invalid tag)'
 
 
-def test_markup_text():
-    MarkupText('<span underline="error"><b><i>Hello Manim</i></b></span>')
+def test_markup_text(tmpdir):
+    loc = Path(tmpdir, "test.svg")
+    assert not loc.exists()
+    MarkupText(
+        '<span underline="error"><b><i>Hello Manim</i></b></span>', filename=str(loc)
+    )
+    assert loc.exists()
+
+
+def test_markup_justify(tmpdir):
+    # don't know how to verify this correctly
+    # it varies upon diffent system so, we are
+    # just check whether it runs
+    loc = Path(tmpdir, "test.svg")
+    assert not loc.exists()
+    MarkupText("<b><i>Hello Manim</i></b>", justify=True, filename=str(loc))
+    assert loc.exists()
+
+
+def test_markup_indent(tmpdir):
+    # don't know how to verify this correctly
+    # it varies upon diffent system so, we are
+    # just check whether it runs
+    loc = Path(tmpdir, "test.svg")
+    assert not loc.exists()
+    MarkupText("<b><i>Hello Manim</i></b>", indent=10, filename=str(loc))
+    assert loc.exists()
+
+
+def test_markup_alignment(tmpdir):
+    # don't know how to verify this correctly
+    # it varies upon diffent system so, we are
+    # just check whether it runs
+    loc = Path(tmpdir, "test.svg")
+    assert not loc.exists()
+    MarkupText(
+        "<b><i>Hello Manim</i></b>",
+        alignment=manimpango.Alignment.CENTER,
+        filename=str(loc),
+    )
+    assert loc.exists()
