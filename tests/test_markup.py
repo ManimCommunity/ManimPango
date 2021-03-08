@@ -6,9 +6,9 @@ import manimpango
 from ._manim import MarkupText
 
 ipsum_text = (
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit,"
+    "<b>Lorem ipsum dolor</b> sit amet, <i>consectetur</i> adipiscing elit,"
     "sed do eiusmod tempor incididunt ut labore et dolore"
-    "magna aliqua. Ut enim ad minim veniam, quis nostrud"
+    "magna aliqua. Ut enim <b>ad</b> minim veniam, quis nostrud"
     "exercitation ullamco laboris nisi ut aliquip"
     "ex ea commodo consequat. Duis aute irure dolor"
     "in reprehenderit in voluptate velit esse cillum"
@@ -56,7 +56,7 @@ def test_markup_justify(tmpdir):
     # just check whether it runs
     loc = Path(tmpdir, "test.svg")
     assert not loc.exists()
-    MarkupText("<b><i>Hello Manim</i></b>", justify=True, filename=str(loc))
+    MarkupText(ipsum_text, justify=True, filename=str(loc))
     assert loc.exists()
 
 
@@ -66,7 +66,7 @@ def test_markup_indent(tmpdir):
     # just check whether it runs
     loc = Path(tmpdir, "test.svg")
     assert not loc.exists()
-    MarkupText("<b><i>Hello Manim</i></b>", indent=10, filename=str(loc))
+    MarkupText(ipsum_text, indent=10, filename=str(loc))
     assert loc.exists()
 
 
@@ -77,7 +77,7 @@ def test_markup_alignment(tmpdir):
     loc = Path(tmpdir, "test.svg")
     assert not loc.exists()
     MarkupText(
-        "<b><i>Hello Manim</i></b>",
+        ipsum_text,
         alignment=manimpango.Alignment.CENTER,
         filename=str(loc),
     )
