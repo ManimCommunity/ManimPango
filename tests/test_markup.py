@@ -3,7 +3,9 @@ from pathlib import Path
 
 import manimpango
 
+from . import CASES_DIR
 from ._manim import MarkupText
+from .svg_tester import SVGStyleTester
 
 ipsum_text = (
     "<b>Lorem ipsum dolor</b> sit amet, <i>consectetur</i> adipiscing elit,"
@@ -82,3 +84,16 @@ def test_markup_alignment(tmpdir):
         filename=str(loc),
     )
     assert loc.exists()
+
+
+def test_markup_style(tmpdir):
+    test_case = CASES_DIR / "hello_blue_world_green.svg"
+    expected = tmpdir / "expected.svg"
+    MarkupText(
+        "<span foreground='BLUE'>Hello</span> \
+        <span foreground='GREEN'>World</span>",
+        filename=str(expected),
+    )
+    s = SVGStyleTester(gotSVG=expected, expectedSVG=test_case)
+    assert len(s.got_svg_style) == len(s.expected_svg_style)
+    assert s.got_svg_style == s.expected_svg_style

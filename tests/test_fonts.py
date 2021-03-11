@@ -77,3 +77,13 @@ def test_fail_just_unregister():
 @pytest.mark.skipif(sys.platform.startswith("darwin"), reason="unsupported api for mac")
 def test_unregister_linux():
     manimpango.unregister_font("random")
+
+
+@pytest.mark.skipif(
+    sys.platform.startswith("linux"), reason="unsupported api for linux"
+)
+def test_adding_dummy_font(tmpdir):
+    dummy = tmpdir / "font.ttf"
+    with open(dummy, "wb") as f:
+        f.write(b"dummy")
+    assert not manimpango.register_font(str(dummy)), "Registered a dummy font?"
