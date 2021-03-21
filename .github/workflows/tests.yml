@@ -62,6 +62,10 @@ jobs:
       - uses: codecov/codecov-action@v1
         with:
           file: ./.coverage/coverage.xml
+      - uses: actions/upload-artifact@v2
+        with:
+          name: test-artifacts-${{matrix.os}}-${{matrix.python-version}}
+          path: .pytest_temp/
   msys:
     name: Test on Msys2
     runs-on: windows-latest
@@ -116,6 +120,10 @@ jobs:
       - uses: codecov/codecov-action@v1
         with:
           file: ./.coverage/coverage.xml
+      - uses: actions/upload-artifact@v2
+        with:
+          name: test-artifacts-${{matrix.os}}
+          path: .pytest_temp/
   msvc:
     name: ${{matrix.os}} - ${{matrix.python-version}}
     runs-on: ${{matrix.os}}
@@ -183,7 +191,10 @@ jobs:
       - uses: codecov/codecov-action@v1
         with:
           file: ./.coverage/coverage.xml
-
+      - uses: actions/upload-artifact@v2
+        with:
+          name: test-artifacts-${{matrix.os}}-${{matrix.python-version}}
+          path: .pytest_temp/
   success-win:
     needs: [msvc, msys]
     runs-on: ubuntu-latest

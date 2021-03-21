@@ -30,3 +30,4 @@ def delete_media_dir():
 set_dll_search_path()
 delete_media_dir()
 CASES_DIR = Path(Path(__file__).parent, "cases").absolute()
+FONT_DIR = Path(__file__).parent / "fonts"
