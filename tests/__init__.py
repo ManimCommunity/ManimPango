@@ -4,7 +4,6 @@ import platform
 import shutil
 from pathlib import Path
 
-
 def set_dll_search_path():
     # Python 3.8 no longer searches for DLLs in PATH, so we have to add
     # everything in PATH manually.
@@ -30,3 +29,11 @@ def delete_media_dir():
 set_dll_search_path()
 delete_media_dir()
 CASES_DIR = Path(Path(__file__).parent, "cases").absolute()
+FONT_DIR = Path(__file__).parent / "fonts"
+
+import manimpango
+font = str((FONT_DIR / "BungeeOutline-Regular.ttf").absolute())
+orig = manimpango.list_fonts()
+assert manimpango.register_font(font)
+final = manimpango.list_fonts()
+main_font = list(set(final) - set(orig))[0]

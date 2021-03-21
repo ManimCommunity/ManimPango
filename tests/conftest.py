@@ -1,4 +1,6 @@
 import manimpango
+import pytest
+from . import FONT_DIR
 
 
 def pytest_report_header(config):
