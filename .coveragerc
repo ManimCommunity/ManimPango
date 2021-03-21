@@ -1,7 +1,7 @@
 [run]
 plugins = Cython.Coverage
 omit =
-    tests
+    packing
 data_file = .coverage/data
 source = manimpango
 
