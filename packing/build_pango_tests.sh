@@ -11,6 +11,9 @@ HARFBUZZ_VERSION=2.7.4
 FILE_PATH=$PWD
 PREFIX="$HOME/pangoprefix"
 
+cd $TMP
+cd $TEMPDIR
+
 mkdir pango
 cd pango
 echo "::group::Downloading Files"
@@ -47,13 +50,19 @@ meson install -C fribidi_builddir
 echo "::endgroup::"
 
 echo "::group::Building and Installing Cairo"
+echo "Getting patch"
+curl -L https://gitlab.freedesktop.org/cairo/cairo/-/merge_requests/101.diff -o 101.diff
+cd cairo
+patch -Nbp1 -i "$PWD/../101.diff" || true
+# it is fine to fail because the CI config is missing.
+cd ..
 meson setup --prefix=$PREFIX --default-library=shared --buildtype=release -Dfontconfig=enabled -Dfreetype=enabled -Dglib=enabled -Dzlib=enabled -Dtee=enabled cairo_builddir cairo
 meson compile -C cairo_builddir
 meson install --no-rebuild -C cairo_builddir
 echo "::endgroup::"
 
 echo "::group::Building and Installing Harfbuzz"
-meson setup --prefix=$PREFIX --buildtype=release -Dtests=disabled -Ddocs=disabled harfbuzz_builddir harfbuzz
+meson setup --prefix=$PREFIX -Dcoretext=enabled --buildtype=release -Dtests=disabled -Ddocs=disabled harfbuzz_builddir harfbuzz
 meson compile -C harfbuzz_builddir
 meson install -C harfbuzz_builddir
 echo "::endgroup::"

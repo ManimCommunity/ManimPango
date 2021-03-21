@@ -10,6 +10,8 @@ jobs:
   test:
     name: ${{ matrix.os }} - ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
+    env:
+      MACOSX_DEPLOYMENT_TARGET: 10.9
     strategy:
       fail-fast: false
       matrix:
@@ -25,6 +27,9 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew install cairo
+          brew uninstall --ignore-dependencies brotli
+          brew uninstall --ignore-dependencies pcre
+          brew uninstall --ignore-dependencies libpng
           echo "LD_LIBRARY_PATH=$HOME/pangoprefix/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=$HOME/pangoprefix/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
       - name: Set ENV
@@ -38,7 +43,7 @@ jobs:
         with:
           path: |
             /home/runner/pangobuild
-          key: 1-${{ runner.os }}-${{ hashFiles('packing/build_pango_tests.sh') }}
+          key: ${{ runner.os }}-${{ hashFiles('packing/build_pango_tests.sh') }}
       - name: Install System Dependency
         if: steps.cache-pango.outputs.cache-hit != 'true'
         run: |
