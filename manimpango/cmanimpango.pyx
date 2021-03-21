@@ -1,5 +1,7 @@
 from xml.sax.saxutils import escape
 from .utils import *
+from .enums import Alignment
+import warnings
 
 class TextSetting:
     """Formatting for slices of a :class:`manim.mobject.svg.text_mobject.Text` object."""
@@ -138,13 +140,18 @@ class MarkupUtils:
         slant: str,
         weight: str,
         size: int,
-        line_spacing: int,
+        _: int, # for some there was a keyword here.
         disable_liga: bool,
         file_name: str,
         START_X: int,
         START_Y: int,
         width: int,
         height: int,
+        *, # keyword only arguments below
+        justify: bool = None,
+        indent: float = None,
+        line_spacing: float = None,
+        alignment: Alignment = None
     ) -> int:
         """Render an SVG file from a :class:`manim.mobject.svg.text_mobject.MarkupText` object."""
         cdef cairo_surface_t* surface
@@ -152,8 +159,9 @@ class MarkupUtils:
         cdef PangoFontDescription* font_desc
         cdef PangoLayout* layout
         cdef cairo_status_t status
-        cdef double width_layout = width
+        cdef double width_layout = width - 50
         cdef double font_size = size
+        cdef int temp_int # a temporary C integer for conversion
 
         file_name_bytes = file_name.encode("utf-8")
 
@@ -182,7 +190,31 @@ class MarkupUtils:
             cairo_destroy(context)
             cairo_surface_destroy(surface)
             raise MemoryError("Pango.Layout can't be created from Cairo Context.")
+
         pango_layout_set_width(layout, pango_units_from_double(width_layout))
+
+        if justify:
+            pango_layout_set_justify(layout, justify)
+
+        if indent:
+            temp_int = pango_units_from_double(indent)
+            pango_layout_set_indent(layout, temp_int)
+
+        if line_spacing:
+            # Typical values are: 0, 1, 1.5, 2.
+            ret = set_line_width(layout, line_spacing)
+            if not ret:
+                # warn that line spacing don't work
+                # because of old Pango version they
+                # have
+                warnings.warn(
+                    "Pango Version<1.44 found."
+                    "Impossible to set line_spacing."
+                    "Expect Ugly Output."
+                )
+
+        if alignment:
+            pango_layout_set_alignment(layout, alignment.value)
 
         font_desc = pango_font_description_new()
         if font_desc==NULL:

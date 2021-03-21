@@ -143,3 +143,4 @@ cython_debug/
 *.cbp
 *.svg
 .vscode
+!tests/cases/*.svg

@@ -37,6 +37,10 @@ cdef extern from "pango/pangocairo.h":
         PANGO_WRAP_WORD
         PANGO_WRAP_CHAR
         PANGO_WRAP_WORD_CHAR
+    ctypedef enum PangoAlignment:
+        PANGO_ALIGN_LEFT
+        PANGO_ALIGN_CENTER
+        PANGO_ALIGN_RIGHT
     PangoLayout* pango_cairo_create_layout(cairo_t* cr)
     void pango_cairo_show_layout(
         cairo_t* cr,
@@ -121,3 +125,34 @@ cdef extern from "pango/pangocairo.h":
     const char* pango_font_family_get_name(
         PangoFontFamily *family
     )
+    void pango_layout_set_justify(
+        PangoLayout *layout,
+        gboolean justify
+    )
+    void pango_layout_set_indent(
+        PangoLayout *layout,
+        int indent
+    )
+    void pango_layout_set_alignment(
+        PangoLayout *layout,
+        PangoAlignment alignment
+    )
+
+cdef extern from *:
+    """
+    #if PANGO_VERSION_CHECK(1,44,0)
+        int set_line_width(PangoLayout *layout,float spacing)
+        {
+          pango_layout_set_line_spacing(layout, spacing);
+          return 1;
+        }
+    #else
+        int set_line_width(PangoLayout *layout,float spacing){return 0;}
+    #endif
+    """
+    # The above docs string is C which is used to
+    # check for the Pango Version there at run time.
+    # pango_layout_set_line_spacing is only avaiable only for
+    # pango>=1.44.0 but we support pango>=1.30.0 that why this
+    # conditionals.
+    bint set_line_width(PangoLayout *layout,float spacing)
