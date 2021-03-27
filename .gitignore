@@ -8,6 +8,7 @@ docs/_build
 *.c
 # C extensions
 *.so
+builddir/
 manimpango/*.dll
 # Distribution / packaging
 .Python

@@ -1,5 +1,8 @@
-import manimpango
+# -*- coding: utf-8 -*-
 import pytest
+
+import manimpango
+
 from . import FONT_DIR
 
 

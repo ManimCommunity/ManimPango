@@ -2,12 +2,14 @@
 import sys
 from pathlib import Path
 from shutil import copyfile
-from . import FONT_DIR
+
 import manim
 import pytest
-from ._manim import MarkupText
+
 import manimpango
 
+from . import FONT_DIR
+from ._manim import MarkupText
 
 font_lists = {
     (FONT_DIR / "AdobeVFPrototype.ttf").absolute(): "Adobe Variable Font Prototype",
@@ -88,6 +90,7 @@ def test_adding_dummy_font(tmpdir):
         f.write(b"dummy")
     assert not manimpango.register_font(str(dummy)), "Registered a dummy font?"
 
-def test_fonts_render(register_font,tmpdir):
-    filename = str(Path(tmpdir)/"hello.svg")
-    a=MarkupText("Hello World",font=register_font,filename=filename)
+
+def test_fonts_render(register_font, tmpdir):
+    filename = str(Path(tmpdir) / "hello.svg")
+    MarkupText("Hello World", font=register_font, filename=filename)
