@@ -2,12 +2,14 @@
 import sys
 from pathlib import Path
 from shutil import copyfile
-from . import FONT_DIR, main_font
+
 import manim
 import pytest
-from ._manim import MarkupText
+
 import manimpango
 
+from . import FONT_DIR, main_font
+from ._manim import MarkupText
 
 font_lists = {
     (FONT_DIR / "AdobeVFPrototype.ttf").absolute(): "Adobe Variable Font Prototype",
@@ -91,4 +93,5 @@ def test_adding_dummy_font(tmpdir):
 
 def test_fonts_render(tmpdir):
     filename = str(Path(tmpdir) / "hello.svg")
-    a = MarkupText("Hello World", font=main_font, filename=filename)
+    MarkupText("Hello World", font=main_font, filename=filename)
+    assert Path(filename).exists()
