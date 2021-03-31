@@ -8,7 +8,9 @@ import pytest
 
 import manimpango
 
-FONT_DIR = Path(__file__).parent / "fonts"
+from . import FONT_DIR, main_font
+from ._manim import MarkupText
+
 font_lists = {
     (FONT_DIR / "AdobeVFPrototype.ttf").absolute(): "Adobe Variable Font Prototype",
     (
@@ -76,7 +78,7 @@ def test_fail_just_unregister():
 )
 @pytest.mark.skipif(sys.platform.startswith("darwin"), reason="unsupported api for mac")
 def test_unregister_linux():
-    manimpango.unregister_font("random")
+    assert manimpango.unregister_font("random")
 
 
 @pytest.mark.skipif(
@@ -87,3 +89,9 @@ def test_adding_dummy_font(tmpdir):
     with open(dummy, "wb") as f:
         f.write(b"dummy")
     assert not manimpango.register_font(str(dummy)), "Registered a dummy font?"
+
+
+def test_fonts_render(tmpdir):
+    filename = str(Path(tmpdir) / "hello.svg")
+    MarkupText("Hello World", font=main_font, filename=filename)
+    assert Path(filename).exists()
