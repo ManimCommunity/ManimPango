@@ -97,6 +97,8 @@ jobs:
             mingw-w64-${{ matrix.arch }}-python-pillow
             mingw-w64-${{ matrix.arch }}-python-scipy
             mingw-w64-${{ matrix.arch }}-python-cairo
+            mingw-w64-${{ matrix.arch }}-mapbox-earcut
+            mingw-w64-${{ matrix.arch }}-moderngl
 
       - name: Install dependencies
         shell: msys2 {0}
