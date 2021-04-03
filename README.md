@@ -76,8 +76,7 @@ pip install Cython
 After that you can use `pip` to install the clone with the following command:
 
 ```sh
-pip install -r requirements-dev.txt
-pip install .
+pip install -r requirements-dev.txt .
 ```
 
 You will need to this way if you want to *contribute* to **ManimPango**.
