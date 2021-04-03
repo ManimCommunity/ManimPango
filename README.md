@@ -27,7 +27,12 @@ For **Linux Users**, there are no Wheels. You must have a C compiler as well as 
 
 ## WORKFLOW SETUP / CONTRIBUTING
 
-To make it easier for developers to contribute, we have a pre-commit workflow that will check for `black` formatting and `flake`
+To make it easier for developers to contribute, we have a pre-commit workflow that will check for `black` formatting and `flake` checking.
+
+```sh
+pip install pre-commit
+pre-commit install
+```
 
 ## BUILDING
 
