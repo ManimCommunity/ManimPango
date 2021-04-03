@@ -25,6 +25,10 @@ pip install manimpango
 
 For **Linux Users**, there are no Wheels. You must have a C compiler as well as **Pango** and its dependencies along with the **Pango** development headers. See [BUILDING](#BUILDING) for more information.
 
+## WORKFLOW SETUP / CONTRIBUTING
+
+To make it easier for developers to contribute, we have a pre-commit workflow that will check for `black` formatting and `flake`
+
 ## BUILDING
 
 ### Linux/MacOS
@@ -66,10 +70,6 @@ pip install manimpango --no-binary :all:
 #### Using `git` clones / Contributing
 
 Please remember to do this inside your poetry shell, if you want to use your **Manimpango** with **Manim**.
-
-```sh
-poetry shell
-```
 
 If you are using a clone of this repository, you will need [Cython](https://cython.org) which can be easily installed using `pip`:
 
