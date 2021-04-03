@@ -53,7 +53,7 @@ apt install libpango1.0-dev pkg-config python3-dev
 
 Or similar in your system's package manager.
 
-##### Using `tar` archives
+#### Using `tar` archives
 
 If you don't want to contribute to this repository, you can use the tar archives published in PyPi, or just use `pip` to install using
 
@@ -63,7 +63,9 @@ pip install manimpango --no-binary :all:
 
 **Note**: `pip` by default uses wheels, so make sure to pass the `--no-binary` parameter.
 
-##### Using `git` clones / Contributing
+#### Using `git` clones / Contributing
+
+Please remember to do this inside your poetry shell, if you want to use your **Manimpango** with **Manim**.
 
 If you are using a clone of this repository, you will need [Cython](https://cython.org) which can be easily installed using `pip`:
 
@@ -74,12 +76,11 @@ pip install Cython
 After that you can use `pip` to install the clone with the following command:
 
 ```sh
+pip install -r requirements-dev.txt
 pip install .
 ```
 
 You will need to this way if you want to *contribute* to **ManimPango**.
-
-Please remember to do this inside your poetry shell, if you want to use your **Manimpango** with **Manim**.
 
 ### Contributing with Windows
 
