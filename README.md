@@ -67,6 +67,10 @@ pip install manimpango --no-binary :all:
 
 Please remember to do this inside your poetry shell, if you want to use your **Manimpango** with **Manim**.
 
+```sh
+poetry shell
+```
+
 If you are using a clone of this repository, you will need [Cython](https://cython.org) which can be easily installed using `pip`:
 
 ```sh
@@ -77,6 +81,19 @@ After that you can use `pip` to install the clone with the following command:
 
 ```sh
 pip install -r requirements-dev.txt .
+```
+
+Next, run the setup script:
+
+```sh
+python setup.py install
+python setup.py build_ext -i
+```
+
+After installation is complete, you should be able to run pytest:
+
+```sh
+pytest
 ```
 
 You will need to this way if you want to *contribute* to **ManimPango**.
