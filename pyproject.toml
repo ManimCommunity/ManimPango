@@ -5,4 +5,4 @@ requires = ["setuptools", "wheel","Cython>=0.27"]
 name = "ManimPango"
 description = "Binding for Pango to use with Manim."
 version = "0.2.5.post0"
-authors = ["The Manim Community Developers"]
+authors = ["The Manim Community Developers", "Naveen M K <naveen@syrusdark.website>"]
