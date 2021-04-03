@@ -69,7 +69,13 @@ pip install manimpango --no-binary :all:
 
 #### Using `git` clones / Contributing
 
-Please remember to do this inside your poetry shell, if you want to use your **Manimpango** with **Manim**.
+Please remember to do this inside your virtual environment, if you want to use your **Manimpango** with **Manim**.
+
+```sh
+pip install virtualenv
+python -m venv ./venv
+source venv/bin/activate
+```
 
 If you are using a clone of this repository, you will need [Cython](https://cython.org) which can be easily installed using `pip`:
 
