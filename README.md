@@ -91,6 +91,7 @@ pip install Cython
 After that you can use `pip` to install the clone with the following command:
 
 ```sh
+pip install -e .
 pip install -r requirements-dev.txt .
 ```
 
