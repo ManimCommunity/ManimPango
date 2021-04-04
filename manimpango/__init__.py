@@ -14,10 +14,19 @@ try:
     from .cmanimpango import *  # noqa: F403,F401
     from .enums import *  # noqa: F403,F401
     from .register_font import *  # noqa: F403,F401
-except ImportError:  # pragma: no cover
+except ImportError as ie:  # pragma: no cover
     py_ver = ".".join(map(str, sys.version_info[:3]))
-    error = "Couldn't load the necessary shared libraries.\n"
-    error += f"ManimPango v{__version__}, Python v{py_ver}\n\n"
-    error += "Please contact us at https://discord.gg/mMRrZQW or "
-    error += "create an issue at https://github.com/ManimCommunity/ManimPango/issues\n"
-    raise ImportError(error)
+    print(
+        f"""
+ManimPango could not import and load the necessary shared libraries.
+This error may occur when ManimPango and its dependencies are improperly set up.
+Please make sure the following versions are what you expect:\n
+    * ManimPango v{__version__}, Python v{py_ver}\n
+If you believe there is a greater problem,
+feel free to contact us or create an issue on GitHub:\n
+    * Discord: https://discord.gg/mMRrZQW
+    * GitHub: https://github.com/ManimCommunity/ManimPango/issues\n
+Original error below:
+    """
+    )
+    raise ie
