@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import sys
 
 from ._version import __version__  # noqa: F403,F401
 
@@ -14,4 +15,9 @@ try:
     from .enums import *  # noqa: F403,F401
     from .register_font import *  # noqa: F403,F401
 except ImportError:  # pragma: no cover
-    raise ImportError("Couldn't load the necessary Shared Libraries.")
+    py_ver = ".".join(map(str, sys.version_info[:3]))
+    error = "Couldn't load the necessary shared libraries.\n"
+    error += f"ManimPango v{__version__}, Python v{py_ver}\n\n"
+    error += "Please contact us at https://discord.gg/mMRrZQW or "
+    error += "create an issue at https://github.com/ManimCommunity/ManimPango/issues\n"
+    raise ImportError(error)
