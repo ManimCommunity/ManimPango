@@ -8,41 +8,35 @@ class PangoUtils:
     @staticmethod
     def str2style(string: str) -> Style:
         """Internally used function. Converts text to Pango Understandable Styles."""
-        if string == "NORMAL":
-            return Style.NORMAL
-        elif string == "ITALIC":
-            return Style.ITALIC
-        elif string == "OBLIQUE":
-            return Style.OBLIQUE
-        else:
+        styles = {
+            "NORMAL": Style.NORMAL,
+            "ITALIC": Style.ITALIC,
+            "OBLIQUE": Style.OBLIQUE,
+        }
+        try:
+            return styles[string]
+        except KeyError:
             raise AttributeError("There is no Style Called %s" % string)
 
     @staticmethod
     def str2weight(string: str) -> Weight:
         """Internally used function. Convert text to Pango Understandable Weight"""
-        if string == "NORMAL":
-            return Weight.NORMAL
-        elif string == "BOLD":
-            return Weight.BOLD
-        elif string == "THIN":
-            return Weight.THIN
-        elif string == "ULTRALIGHT":
-            return Weight.ULTRALIGHT
-        elif string == "LIGHT":
-            return Weight.LIGHT
-        elif string == "BOOK":
-            return Weight.BOOK
-        elif string == "MEDIUM":
-            return Weight.MEDIUM
-        elif string == "SEMIBOLD":
-            return Weight.SEMIBOLD
-        elif string == "ULTRABOLD":
-            return Weight.ULTRABOLD
-        elif string == "HEAVY":
-            return Weight.HEAVY
-        elif string == "ULTRAHEAVY":
-            return Weight.ULTRAHEAVY
-        else:
+        weights = {
+            "NORMAL": Weight.NORMAL,
+            "BOLD": Weight.BOLD,
+            "THIN": Weight.THIN,
+            "ULTRALIGHT": Weight.ULTRALIGHT,
+            "LIGHT": Weight.LIGHT,
+            "BOOK": Weight.BOOK,
+            "MEDIUM": Weight.MEDIUM,
+            "SEMIBOLD": Weight.SEMIBOLD,
+            "ULTRABOLD": Weight.ULTRABOLD,
+            "HEAVY": Weight.HEAVY,
+            "ULTRAHEAVY": Weight.ULTRAHEAVY,
+        }
+        try:
+            return weights[string]
+        except KeyError:
             raise AttributeError("There is no Font Weight Called %s" % string)
 
     @staticmethod
