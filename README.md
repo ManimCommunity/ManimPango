@@ -78,7 +78,8 @@ Please remember to do this inside your virtual environment, if you want to use y
 
 ```sh
 python -m venv ./venv
-source venv/bin/activate
+source venv/bin/activate # Linux/macOS
+venv\Scripts\activate # Windows
 ```
 
 If you are using a clone of this repository, you will need [Cython](https://cython.org) which can be easily installed using `pip`:
