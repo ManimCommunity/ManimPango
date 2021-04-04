@@ -97,7 +97,6 @@ pip install -r requirements-dev.txt .
 Next, run the setup script:
 
 ```sh
-python setup.py install
 python setup.py build_ext -i
 ```
 
