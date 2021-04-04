@@ -16,8 +16,8 @@ try:
     from .register_font import *  # noqa: F403,F401
 except ImportError as ie:  # pragma: no cover
     py_ver = ".".join(map(str, sys.version_info[:3]))
-    print(
-        f"""
+    msg = f"""
+
 ManimPango could not import and load the necessary shared libraries.
 This error may occur when ManimPango and its dependencies are improperly set up.
 Please make sure the following versions are what you expect:
@@ -30,7 +30,6 @@ feel free to contact us or create an issue on GitHub:
     * Discord: https://discord.gg/mMRrZQW
     * GitHub: https://github.com/ManimCommunity/ManimPango/issues
 
-Original error below:
-    """
-    )
-    raise ie
+Original error: {ie}
+"""
+    raise ImportError(msg)
