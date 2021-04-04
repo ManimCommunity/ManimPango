@@ -77,7 +77,6 @@ pip install manimpango --no-binary :all:
 Please remember to do this inside your virtual environment, if you want to use your **Manimpango** with **Manim**.
 
 ```sh
-pip install virtualenv
 python -m venv ./venv
 source venv/bin/activate
 ```
