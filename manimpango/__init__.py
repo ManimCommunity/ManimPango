@@ -25,9 +25,11 @@ Please make sure the following versions are what you expect:
     * ManimPango v{__version__}, Python v{py_ver}
 
 If you believe there is a greater problem,
-feel free to contact us or create an issue on GitHub:\n
+feel free to contact us or create an issue on GitHub:
+
     * Discord: https://discord.gg/mMRrZQW
-    * GitHub: https://github.com/ManimCommunity/ManimPango/issues\n
+    * GitHub: https://github.com/ManimCommunity/ManimPango/issues
+
 Original error below:
     """
     )
