@@ -22,7 +22,8 @@ ManimPango could not import and load the necessary shared libraries.
 This error may occur when ManimPango and its dependencies are improperly set up.
 Please make sure the following versions are what you expect:
 
-    * ManimPango v{__version__}, Python v{py_ver}\n
+    * ManimPango v{__version__}, Python v{py_ver}
+
 If you believe there is a greater problem,
 feel free to contact us or create an issue on GitHub:\n
     * Discord: https://discord.gg/mMRrZQW
