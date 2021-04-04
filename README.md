@@ -25,6 +25,15 @@ pip install manimpango
 
 For **Linux Users**, there are no Wheels. You must have a C compiler as well as **Pango** and its dependencies along with the **Pango** development headers. See [BUILDING](#BUILDING) for more information.
 
+## WORKFLOW SETUP / CONTRIBUTING
+
+To make it easier for developers to contribute, we have a pre-commit workflow that will check for `black` formatting and `flake` checking.
+
+```sh
+pip install pre-commit
+pre-commit install
+```
+
 ## BUILDING
 
 ### Linux/MacOS
@@ -53,7 +62,7 @@ apt install libpango1.0-dev pkg-config python3-dev
 
 Or similar in your system's package manager.
 
-##### Using `tar` archives
+#### Using `tar` archives
 
 If you don't want to contribute to this repository, you can use the tar archives published in PyPi, or just use `pip` to install using
 
@@ -63,7 +72,15 @@ pip install manimpango --no-binary :all:
 
 **Note**: `pip` by default uses wheels, so make sure to pass the `--no-binary` parameter.
 
-##### Using `git` clones / Contributing
+#### Using `git` clones / Contributing
+
+Please remember to do this inside your virtual environment, if you want to use your **Manimpango** with **Manim**.
+
+```sh
+python -m venv ./venv
+source venv/bin/activate # Linux/macOS
+venv\Scripts\activate # Windows
+```
 
 If you are using a clone of this repository, you will need [Cython](https://cython.org) which can be easily installed using `pip`:
 
@@ -74,12 +91,23 @@ pip install Cython
 After that you can use `pip` to install the clone with the following command:
 
 ```sh
-pip install .
+pip install -e .
+pip install -r requirements-dev.txt .
+```
+
+Next, run the setup script:
+
+```sh
+python setup.py build_ext -i
+```
+
+After installation is complete, you should be able to run pytest:
+
+```sh
+pytest
 ```
 
 You will need to this way if you want to *contribute* to **ManimPango**.
-
-Please remember to do this inside your poetry shell, if you want to use your **Manimpango** with **Manim**.
 
 ### Contributing with Windows
 
