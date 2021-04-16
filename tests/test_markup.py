@@ -97,3 +97,14 @@ def test_markup_style(tmpdir):
     s = SVGStyleTester(gotSVG=expected, expectedSVG=test_case)
     assert len(s.got_svg_style) == len(s.expected_svg_style)
     assert s.got_svg_style == s.expected_svg_style
+
+
+def test_wrap_text(tmpdir):
+    tmpdir = Path(tmpdir)
+    wrapped = tmpdir / "wrap.svg"
+    nowrap = tmpdir / "nowarap.svg"
+
+    MarkupText(ipsum_text, wrap_text=False, filename=str(nowrap))
+    MarkupText(ipsum_text, filename=str(wrapped))
+
+    assert wrapped.read_text() != nowrap.read_text()

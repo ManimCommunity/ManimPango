@@ -26,6 +26,7 @@ class MarkupText:
         alignment: Alignment = None,
         # for the tests
         filename: str = "test.svg",
+        wrap_text: bool = True,
         **kwargs,
     ):
         self.text = text
@@ -42,6 +43,7 @@ class MarkupText:
         self.justify = justify
         self.indent = indent
         self.alignment = alignment
+        self.wrap_text = wrap_text
         if not MarkupUtils.validate(self.text):
             raise ValueError(
                 f"Pango cannot parse your markup in {self.text}. "
@@ -58,24 +60,47 @@ class MarkupText:
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)
         file_name = self.filename
-        return MarkupUtils.text2svg(
-            f"{self.text}",
-            self.font,
-            self.slant,
-            self.weight,
-            size,
-            True,  # stray positional argument
-            disable_liga,
-            file_name,
-            20,
-            20,
-            600,  # width
-            400,  # height
-            justify=self.justify,
-            indent=self.indent,
-            line_spacing=self.line_spacing,
-            alignment=self.alignment,
-        )
+        if self.wrap_text:
+            return MarkupUtils.text2svg(
+                f"{self.text}",
+                self.font,
+                self.slant,
+                self.weight,
+                size,
+                True,  # stray positional argument
+                disable_liga,
+                file_name,
+                20,
+                20,
+                600,  # width
+                400,  # height
+                justify=self.justify,
+                indent=self.indent,
+                line_spacing=self.line_spacing,
+                alignment=self.alignment,
+            )
+        else:
+            return MarkupUtils.text2svg(
+                f"{self.text}",
+                self.font,
+                self.slant,
+                self.weight,
+                size,
+                True,  # stray positional argument
+                disable_liga,
+                file_name,
+                20,
+                20,
+                600,  # width
+                400,  # height
+                justify=self.justify,
+                indent=self.indent,
+                line_spacing=self.line_spacing,
+                alignment=self.alignment,
+                pango_width=-1,
+            )
+            # -1 for no wrapping
+            # default is full width and then wrap.
 
     def __repr__(self):
         return f"MarkupText({repr(self.original_text)})"
