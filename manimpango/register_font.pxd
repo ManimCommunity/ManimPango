@@ -1,15 +1,17 @@
-IF UNAME_SYSNAME == "Linux":
-    cdef extern from "fontconfig/fontconfig.h":
-        ctypedef int FcBool
-        ctypedef struct FcConfig:
-            pass
-        FcBool FcConfigAppFontAddFile(
-            FcConfig* config,
-            const unsigned char* file_name
-        )
-        FcConfig* FcConfigGetCurrent()
-        void FcConfigAppFontClear(void *)
-ELIF UNAME_SYSNAME == "Windows":
+
+cdef extern from "fontconfig/fontconfig.h":
+    ctypedef int FcBool
+    ctypedef struct FcConfig:
+        pass
+    FcBool FcConfigAppFontAddFile(
+        FcConfig* config,
+        const unsigned char* file_name
+    )
+    FcConfig* FcConfigGetCurrent()
+    void FcConfigAppFontClear(void *)
+
+# Windows and macOS specific API's
+IF UNAME_SYSNAME == "Windows":
     cdef extern from "windows.h":
         ctypedef Py_UNICODE WCHAR
         ctypedef const WCHAR* LPCWSTR

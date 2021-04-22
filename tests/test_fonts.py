@@ -26,19 +26,18 @@ def test_unicode_font_name(tmpdir):
     assert manimpango.register_font(final_font)
     assert manimpango.unregister_font(final_font)
 
+@pytest.mark.parametrize("font_name", font_lists)
+def test_register_font(font_name):
+    assert manimpango.register_font(str(font_name)), "Invalid Font possibly."
 
-def test_register_font():
-    for font_name in font_lists:
-        assert manimpango.register_font(str(font_name)), "Invalid Font possibly."
-
-
-def test_warning(capfd):
-    for font_name in font_lists.values():
-        manim.Text("Testing", font=font_name)
-        captured = capfd.readouterr()
-        assert (
-            "Pango-WARNING **" not in captured.err
-        ), "Looks like pango raised a warning?"
+@pytest.mark.parametrize("font_name", font_lists.values())
+def test_warning(capfd,font_name):
+    print(font_name)
+    manim.Text("Testing", font=font_name)
+    captured = capfd.readouterr()
+    assert (
+        "Pango-WARNING **" not in captured.err
+    ), "Looks like pango raised a warning?"
 
 
 @pytest.mark.skipif(
@@ -95,3 +94,24 @@ def test_fonts_render(tmpdir):
     filename = str(Path(tmpdir) / "hello.svg")
     MarkupText("Hello World", font=main_font, filename=filename)
     assert Path(filename).exists()
+
+@pytest.mark.skipif(
+    not sys.platform.startswith("linux"), reason="unsupported api other than linux"
+)
+def test_both_fc_and_register_font_are_same():
+    assert manimpango.fc_register_font == manimpango.register_font
+    assert manimpango.fc_unregister_font == manimpango.unregister_font
+
+@pytest.mark.parametrize("font_file", font_lists)
+def test_fc_font_register(setup_fontconfig, font_file):
+    intial = manimpango.list_fonts()
+    assert manimpango.fc_register_font(str(font_file)), "Invalid Font possibly."
+    final = manimpango.list_fonts()
+    assert intial != final
+
+def test_fc_font_unregister(setup_fontconfig):
+    # it will remove everything
+    intial = manimpango.list_fonts()
+    manimpango.fc_unregister_font("clear")
+    final = manimpango.list_fonts()
+    assert intial != final

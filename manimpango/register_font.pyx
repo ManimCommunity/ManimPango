@@ -1,61 +1,74 @@
 from pathlib import Path
 from pango cimport *
 import copy
-IF UNAME_SYSNAME == "Linux":
-    cpdef bint register_font(str font_path):
-        """This function registers the font file using ``fontconfig`` so that
-        it is available for use by Pango.
-        Parameters
-        ==========
-        font_path : :class:`str`
-            Relative or absolute path to font file.
-        Returns
-        =======
-        :class:`bool`
-                True means it worked without any error.
-                False means there was an unknown error
-        Examples
-        --------
-        >>> register_font("/home/roboto.tff")
-        1
-        Raises
-        ------
-        AssertionError
-            Font is missing.
-        """
-        a=Path(font_path)
-        assert a.exists(), f"font doesn't exist at {a.absolute()}"
-        font_path = str(a.absolute())
-        font_path_bytes=font_path.encode('utf-8')
-        cdef const unsigned char* fontPath = font_path_bytes
-        fontAddStatus = FcConfigAppFontAddFile(FcConfigGetCurrent(), fontPath)
-        if fontAddStatus:
-            return True
-        else:
-            return False
-    cpdef bint unregister_font(str font_path):
-        """This function unregisters(removes) the font file using
-        ``fontconfig``. It is mostly optional to call this.
-        Mainly used in tests.
-        Note:
-        The API for Windows is different that this.
 
-        Parameters
-        ==========
+cpdef bint fc_register_font(str font_path):
+    """This function registers the font file using ``fontconfig`` so that
+    it is available for use by Pango. On Linux it is aliased to 
+    :func:`register_font` and on Windows and macOS this would work only when
+    using ``fontconfig`` backend.
 
-        font_path: :class:`str`
-            For compatibility with the windows function.
+    Parameters
+    ==========
+    font_path : :class:`str`
+        Relative or absolute path to font file.
+    Returns
+    =======
+    :class:`bool`
+            True means it worked without any error.
+            False means there was an unknown error
+    Examples
+    --------
+    >>> register_font("/home/roboto.tff")
+    True
 
-        Returns
-        =======
-        :class:`bool`
-                True means it worked without any error.
-                False means there was an unknown error
-
-        """
-        FcConfigAppFontClear(NULL)
+    Raises
+    ------
+    AssertionError
+        Font is missing.
+    """
+    a=Path(font_path)
+    assert a.exists(), f"font doesn't exist at {a.absolute()}"
+    font_path = str(a.absolute())
+    font_path_bytes=font_path.encode('utf-8')
+    cdef const unsigned char* fontPath = font_path_bytes
+    fontAddStatus = FcConfigAppFontAddFile(FcConfigGetCurrent(), fontPath)
+    if fontAddStatus:
         return True
-IF UNAME_SYSNAME == "Windows":
+    else:
+        return False
+
+
+cpdef bint fc_unregister_font(str font_path):
+    """This function unregisters(removes) the font file using
+    ``fontconfig``. It is mostly optional to call this.
+    Mainly used in tests. On Linux it is aliased to 
+    :func:`unregister_font` and on Windows and macOS this 
+    would work only when using ``fontconfig`` backend.
+
+    Parameters
+    ==========
+
+    font_path: :class:`str`
+        For compatibility with the windows function.
+
+    Returns
+    =======
+    :class:`bool`
+            True means it worked without any error.
+            False means there was an unknown error
+
+    """
+    FcConfigAppFontClear(NULL)
+    return True
+
+
+IF UNAME_SYSNAME == "Linux":
+    register_font = fc_register_font
+    unregister_font = fc_unregister_font
+
+
+ELIF UNAME_SYSNAME == "Windows":
     cpdef bint register_font(str font_path):
         """This function registers the font file using native windows API
         so that it is available for use by Pango.
@@ -72,7 +85,7 @@ IF UNAME_SYSNAME == "Windows":
         Examples
         --------
         >>> register_font("C:/home/roboto.tff")
-        1
+        True
         Raises
         ------
         AssertionError
@@ -90,6 +103,8 @@ IF UNAME_SYSNAME == "Windows":
             return True
         else:
             return False
+
+
     cpdef bint unregister_font(str font_path):
         """This function unregisters(removes) the font file using
         native Windows API. It is mostly optional to call this.
@@ -116,6 +131,8 @@ IF UNAME_SYSNAME == "Windows":
             FR_PRIVATE,
             0
         )
+
+
 ELIF UNAME_SYSNAME == "Darwin":
     cpdef bint register_font(str font_path):
         """This function registers the font file using ``CoreText`` API so that
@@ -132,7 +149,7 @@ ELIF UNAME_SYSNAME == "Darwin":
         Examples
         --------
         >>> register_font("/home/roboto.tff")
-        1
+        True
         Raises
         ------
         AssertionError
@@ -149,6 +166,8 @@ ELIF UNAME_SYSNAME == "Darwin":
             kCTFontManagerScopeProcess,
             NULL
         )
+
+
     cpdef bint unregister_font(str font_path):
         """This function unregisters(removes) the font file using
         native ``CoreText`` API. It is mostly optional to call this.
@@ -178,6 +197,7 @@ ELIF UNAME_SYSNAME == "Darwin":
             kCTFontManagerScopeProcess,
             NULL
         )
+
 
 cpdef list list_fonts():
     """Lists the fonts available to Pango.
