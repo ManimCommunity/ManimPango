@@ -1,4 +1,4 @@
-NotoNastaliqUrdu-Regular.ttf from https://github.com/googlei18n/noto-fonts
+MaShanZheng-Regular.ttf from https://fonts.google.com/specimen/Ma+Shan+Zheng
 BungeeColor-Regular_colr_Windows.ttf, from https://github.com/djrrb/bungee
 AdobeVFPrototype.ttf, from https://github.com/adobe-fonts/adobe-variable-font-prototype
 BungeeOutline-Regular.ttf, from https://fonts.google.com/specimen/Bungee+Outline

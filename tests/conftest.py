@@ -3,7 +3,7 @@ import pytest
 import manimpango
 from textwrap import dedent
 import sys
-from pathlib import Path
+
 def pytest_report_header(config):
     return (
         f"ManimPango version {manimpango.__version__}\n"

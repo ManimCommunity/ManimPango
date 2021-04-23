@@ -8,7 +8,7 @@ import pytest
 
 import manimpango
 
-from . import FONT_DIR, main_font
+from . import FONT_DIR
 from ._manim import MarkupText
 
 font_lists = {
@@ -16,7 +16,7 @@ font_lists = {
     (
         FONT_DIR / "BungeeColor-Regular_colr_Windows.ttf"
     ).absolute(): "Bungee Color Regular",
-    (FONT_DIR / "NotoNastaliqUrdu-Regular.ttf").absolute(): "Noto Nastaliq Urdu",
+    (FONT_DIR / "MaShanZheng-Regular.ttf").absolute(): "Ma Shan Zheng",
 }
 
 
@@ -92,7 +92,7 @@ def test_adding_dummy_font(tmpdir):
 
 def test_fonts_render(tmpdir):
     filename = str(Path(tmpdir) / "hello.svg")
-    MarkupText("Hello World", font=main_font, filename=filename)
+    MarkupText("Hello World", filename=filename)
     assert Path(filename).exists()
 
 @pytest.mark.skipif(
