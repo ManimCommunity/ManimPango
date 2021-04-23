@@ -63,7 +63,7 @@ NEEDED_LIBS = [
     "intl",
     "harfbuzz",
     "cairo",
-    "fontconfig"
+    "fontconfig",
 ]
 
 
@@ -195,7 +195,9 @@ _pkg_config_pangocairo = PKG_CONFIG("pangocairo")
 _pkg_config_fontconfig = PKG_CONFIG("pangofc")
 if _pkg_config_pangocairo.check_pkgconfig:
     _pkg_config_pangocairo.check_min_version(MINIMUM_PANGO_VERSION)
-    returns = update_dict(_pkg_config_pangocairo.setuptools_args,_pkg_config_fontconfig.setuptools_args)
+    returns = update_dict(
+        _pkg_config_pangocairo.setuptools_args, _pkg_config_fontconfig.setuptools_args
+    )
 else:
     returns = {}
     returns["libraries"] = NEEDED_LIBS

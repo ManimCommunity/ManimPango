@@ -4,7 +4,7 @@ import copy
 
 cpdef bint fc_register_font(str font_path):
     """This function registers the font file using ``fontconfig`` so that
-    it is available for use by Pango. On Linux it is aliased to 
+    it is available for use by Pango. On Linux it is aliased to
     :func:`register_font` and on Windows and macOS this would work only when
     using ``fontconfig`` backend.
 
@@ -42,8 +42,8 @@ cpdef bint fc_register_font(str font_path):
 cpdef bint fc_unregister_font(str font_path):
     """This function unregisters(removes) the font file using
     ``fontconfig``. It is mostly optional to call this.
-    Mainly used in tests. On Linux it is aliased to 
-    :func:`unregister_font` and on Windows and macOS this 
+    Mainly used in tests. On Linux it is aliased to
+    :func:`unregister_font` and on Windows and macOS this
     would work only when using ``fontconfig`` backend.
 
     Parameters

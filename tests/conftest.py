@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
-import pytest
-import manimpango
-from textwrap import dedent
 import sys
+from textwrap import dedent
+
+import pytest
+
+import manimpango
+
 
 def pytest_report_header(config):
     return (
@@ -11,10 +14,12 @@ def pytest_report_header(config):
         f"Cairo version {manimpango.cairo_version()}"
     )
 
+
 @pytest.fixture
-def setup_fontconfig(tmpdir,monkeypatch):
+def setup_fontconfig(tmpdir, monkeypatch):
     if sys.platform.startswith("win32") and "GCC" not in sys.version:
-        default_fontconfig_configuration = dedent("""\
+        default_fontconfig_configuration = dedent(
+            """\
         <?xml version="1.0"?>
         <!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
         <!-- /etc/fonts/fonts.conf file to configure system font access -->
@@ -42,7 +47,7 @@ def setup_fontconfig(tmpdir,monkeypatch):
         <!-- Font directory list -->
 
             <dir>WINDOWSFONTDIR</dir>
-            
+
             <dir prefix="xdg">fonts</dir>
             <!-- the following element will be removed in the future -->
             <dir>~/.fonts</dir>
@@ -116,8 +121,9 @@ def setup_fontconfig(tmpdir,monkeypatch):
             </config>
 
         </fontconfig>
-        """)
-        with open(tmpdir / "fonts.conf",'w') as f:
+        """
+        )
+        with open(tmpdir / "fonts.conf", "w") as f:
             f.write(default_fontconfig_configuration)
         monkeypatch.setenv("FONTCONFIG_PATH", str(tmpdir))
     monkeypatch.setenv("PANGOCAIRO_BACKEND", "fc")
