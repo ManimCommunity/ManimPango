@@ -31,11 +31,3 @@ set_dll_search_path()
 delete_media_dir()
 CASES_DIR = Path(Path(__file__).parent, "cases").absolute()
 FONT_DIR = Path(__file__).parent / "fonts"
-
-import manimpango  # noqa: E402
-
-font = str((FONT_DIR / "BungeeOutline-Regular.ttf").absolute())
-orig = manimpango.list_fonts()
-assert manimpango.register_font(font)
-final = manimpango.list_fonts()
-main_font = list(set(final) - set(orig))[0]

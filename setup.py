@@ -63,6 +63,7 @@ NEEDED_LIBS = [
     "intl",
     "harfbuzz",
     "cairo",
+    "fontconfig",
 ]
 
 
@@ -190,10 +191,15 @@ def update_dict(dict1: dict, dict2: dict):
 
 ext = ".pyx" if USE_CYTHON else ".c"
 base_file = Path(__file__).parent / "manimpango"
-_pkg_config = PKG_CONFIG("pangocairo")
-_pkg_config.check_min_version(MINIMUM_PANGO_VERSION)
-returns = _pkg_config.setuptools_args
-if not _pkg_config.check_pkgconfig:
+_pkg_config_pangocairo = PKG_CONFIG("pangocairo")
+_pkg_config_fontconfig = PKG_CONFIG("pangofc")
+if _pkg_config_pangocairo.check_pkgconfig:
+    _pkg_config_pangocairo.check_min_version(MINIMUM_PANGO_VERSION)
+    returns = update_dict(
+        _pkg_config_pangocairo.setuptools_args, _pkg_config_fontconfig.setuptools_args
+    )
+else:
+    returns = {}
     returns["libraries"] = NEEDED_LIBS
 if sys.platform == "win32":
     returns["libraries"] += ["Gdi32"]
