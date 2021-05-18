@@ -102,7 +102,7 @@ echo "::endgroup::"
 echo "::group::Building and Install Fontconfig"
 meson setup --prefix=/usr --buildtype=release -Ddoc=disabled -Dtests=disabled -Dtools=disabled fontconfig_builddir fontconfig
 meson compile -C fontconfig_builddir
-meson install -C fontconfig_builddir
+meson install -C fontconfig_builddir || true
 echo "::endgroup::"
 
 echo "::group::Building and Install Libpng"
