@@ -64,13 +64,13 @@ cd ..
 echo "::endgroup::"
 
 echo "::group::Building and Install Glib"
-meson setup --prefix=/usr --buildtype=release -Dselinux=disabled -Dlibmount=false glib_builddir glib
+meson setup --prefix=/usr/local --buildtype=release -Dselinux=disabled -Dlibmount=false glib_builddir glib
 meson compile -C glib_builddir
 meson install -C glib_builddir
 echo "::endgroup::"
 
 echo "::group::Building and Install Fribidi"
-meson setup --prefix=/usr --buildtype=release fribidi_builddir fribidi
+meson setup --prefix=/usr/local --buildtype=release fribidi_builddir fribidi
 meson compile -C fribidi_builddir
 meson install -C fribidi_builddir
 echo "::endgroup::"
@@ -100,9 +100,9 @@ cd ..
 echo "::endgroup::"
 
 echo "::group::Building and Install Fontconfig"
-meson setup --prefix=/usr --buildtype=release -Ddoc=disabled -Dtests=disabled -Dtools=disabled fontconfig_builddir fontconfig
+meson setup --prefix=/usr/local --buildtype=release -Ddoc=disabled -Dtests=disabled -Dtools=disabled fontconfig_builddir fontconfig
 meson compile -C fontconfig_builddir
-meson install -C fontconfig_builddir || true
+meson install -C fontconfig_builddir
 echo "::endgroup::"
 
 echo "::group::Building and Install Libpng"
@@ -130,13 +130,13 @@ cd ..
 echo "::endgroup::"
 
 echo "::group::Building and Installing Harfbuzz"
-meson setup --prefix=/usr --buildtype=release -Dtests=disabled -Ddocs=disabled harfbuzz_builddir harfbuzz
+meson setup --prefix=/usr/local --buildtype=release -Dtests=disabled -Ddocs=disabled harfbuzz_builddir harfbuzz
 meson compile -C harfbuzz_builddir
 meson install -C harfbuzz_builddir
 echo "::endgroup::"
 
 echo "::group::Buildling and Installing Pango"
-meson setup --prefix=/usr --buildtype=release -Dintrospection=false pango_builddir pango
+meson setup --prefix=/usr/local --buildtype=release -Dintrospection=false pango_builddir pango
 meson compile -C pango_builddir
 meson install -C pango_builddir
 echo "::endgroup::"
