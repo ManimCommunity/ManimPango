@@ -134,9 +134,39 @@ def text2svg(
 
 class MarkupUtils:
     @staticmethod
-    def validate(text: str) -> bool:
-        text_bytes = text.encode("utf-8")
-        return pango_parse_markup(text_bytes, -1, 0, NULL, NULL, NULL, NULL)
+    def validate(markup: str) -> str:
+        """Validates whether markup is a valid Markup
+        and return the error's if any.
+
+        Parameters
+        ==========
+        markup : :class:`str`
+            The markup which should be checked.
+
+        Returns
+        =======
+        :class:`str`
+            Returns empty string if markup is valid. If markup
+            contains error it return the error message.
+
+        """
+        cdef GError *err = NULL
+        text_bytes = markup.encode("utf-8")
+        res = pango_parse_markup(
+            text_bytes,
+            -1,
+            0,
+            NULL,
+            NULL,
+            NULL,
+            &err
+        )
+        if res:
+            return ""
+        else:
+            message = <bytes>err.message
+            g_error_free(err)
+            return message.decode('utf-8')
 
     @staticmethod
     def text2svg(

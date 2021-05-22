@@ -25,16 +25,34 @@ ipsum_text = (
 @pytest.mark.parametrize("text", ["foo", "<b>bar</b>", "வணக்கம்"])
 def test_good_markup(text):
 
-    assert manimpango.MarkupUtils.validate(
+    assert not manimpango.MarkupUtils.validate(
         text,
     ), f"{text} should not fail validation"
 
 
 @pytest.mark.parametrize("text", ["<b>foo", "<xyz>foo</xyz>"])
 def test_bad_markup(text):
-    assert not manimpango.MarkupUtils.validate(
+    assert manimpango.MarkupUtils.validate(
         text
     ), f"{text} should fail validation (unbalanced tags)"
+
+
+@pytest.mark.parametrize(
+    "text,error",
+    [
+        (
+            "<b>foo",
+            "Error on line 1 char 23: Element “markup” was closed, "
+            "but the currently open element is “b”",
+        ),
+        (
+            "<xyz>foo</xyz>",
+            "Unknown tag 'xyz' on line 1 char 14",
+        ),
+    ],
+)
+def test_bad_markup_error_message(text, error):
+    assert manimpango.MarkupUtils.validate(text) == error
 
 
 def test_markup_text(tmpdir):

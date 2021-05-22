@@ -44,7 +44,7 @@ class MarkupText:
         self.indent = indent
         self.alignment = alignment
         self.wrap_text = wrap_text
-        if not MarkupUtils.validate(self.text):
+        if MarkupUtils.validate(self.text):
             raise ValueError(
                 f"Pango cannot parse your markup in {self.text}. "
                 "Please check for typos, unmatched tags or unescaped "
