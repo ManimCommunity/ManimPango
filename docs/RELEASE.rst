@@ -31,13 +31,18 @@ This means older version would have a backport of bugs fixes.
     Here, ``-s`` is used to sign the tag with gpg so that users
     can later verify it, and a tag shouldn't be created with
     signing because Github shows it unverified.
+
 .. important::
 
     The message should include the changelog of the release.
+    There is a github actions which will creates a draft `release`_
+    with the changelog. You can edit them and copy it to the tag you
+    create.
 
 8. Push the tag to remote.
 
 9. Go to `Github`_, and `draft a new release`_ with the same tag pushed.
+   You can copy the same changelog you copied when you created the tag.
 
 10. Check whether the CI uploads the wheels and the ``.tar.gz`` file to
     PyPi.
@@ -50,3 +55,4 @@ This means older version would have a backport of bugs fixes.
 .. _Github: https://github.com
 .. _draft a new release: https://docs.github.com/en/free-pro-team@latest/github/administering-a-repository/managing-releases-in-a-repository#creating-a-release
 .. _PyPi: https://pypi.org/project/manimpango/
+.. _release: https://github.com/ManimCommunity/ManimPango/releases
