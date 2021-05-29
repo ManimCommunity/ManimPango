@@ -254,6 +254,7 @@ setup(
     python_requires=">=3.6",
     platforms=["Linux", "macOS", "Windows"],
     keywords=["cython", "pango", "cairo", "manim"],
+    license="GPL-3.0-or-later",
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
@@ -262,7 +263,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Development Status :: 3 - Alpha",
         "Programming Language :: Python :: 3 :: Only",
-        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Operating System :: OS Independent",
         "Programming Language :: Cython",
     ],
