@@ -1,0 +1,3 @@
+import typing
+
+def list_fonts() -> typing.List[str]: ...

@@ -6,6 +6,8 @@ cdef extern from "cairo.h":
     ctypedef enum cairo_status_t:
         CAIRO_STATUS_SUCCESS
         CAIRO_STATUS_NO_MEMORY
+    ctypedef enum cairo_font_type_t:
+        CAIRO_FONT_TYPE_FT
     cairo_t* cairo_create(cairo_surface_t* target)
     void cairo_move_to(
         cairo_t* cr,

@@ -213,18 +213,49 @@ if coverage:
 
 ext_modules = [
     Extension(
-        "manimpango.cmanimpango",
-        [str(base_file / ("cmanimpango" + ext))],
+        "manimpango.utils.enums",
+        [str(base_file / "utils" / ("enums" + ext))],
         **returns,
     ),
     Extension(
-        "manimpango.enums",
-        [str(base_file / ("enums" + ext))],
+        "manimpango.font_manager._register_font",
+        [str(base_file / "font_manager" / ("_register_font" + ext))],
+        **returns,
+    ),
+    # New one's here
+    Extension(
+        "manimpango.utils._cutils",
+        [str(base_file / "utils" / ("_cutils" + ext))],
         **returns,
     ),
     Extension(
-        "manimpango.register_font",
-        [str(base_file / ("register_font" + ext))],
+        "manimpango.utils.colours",
+        [str(base_file / "utils" / ("colours" + ext))],
+        **returns,
+    ),
+    Extension(
+        "manimpango.renderer.renderer",
+        [str(base_file / "renderer" / ("renderer" + ext))],
+        **returns,
+    ),
+    # Extension(
+    #     "manimpango.layout.layout",
+    #     [str(base_file / "layout" / ("layout" + ext))],
+    #     **returns,
+    # ),
+    # Extension(
+    #     "manimpango.font_manager.font_description",
+    #     [str(base_file / "font_manager" / ("font_description" + ext))],
+    #     **returns,
+    # ),
+    Extension(
+        "manimpango.layout.utils",
+        [str(base_file / "layout" / ("utils" + ext))],
+        **returns,
+    ),
+    Extension(
+        "manimpango.utils._list_fonts",
+        [str(base_file / "utils" / ("_list_fonts" + ext))],
         **returns,
     ),
 ]
@@ -232,7 +263,7 @@ if USE_CYTHON:
     ext_modules = cythonize(
         ext_modules,
         language_level=3,
-        include_path=["manimpango"],
+        include_path=[str(i) for i in Path("manimpango").iterdir() if i.is_dir()],
         gdb_debug=DEBUG,
         compiler_directives={"linetrace": coverage},
     )
@@ -250,7 +281,14 @@ setup(
     long_description=long_description,
     zip_safe=False,
     long_description_content_type="text/markdown",
-    packages=["manimpango"],
+    packages=[
+        "manimpango",
+        "manimpango.font_manager",
+        "manimpango.includes",
+        "manimpango.layout",
+        "manimpango.renderer",
+        "manimpango.utils",
+    ],
     python_requires=">=3.6",
     platforms=["Linux", "macOS", "Windows"],
     keywords=["cython", "pango", "cairo", "manim"],
@@ -276,4 +314,5 @@ setup(
     package_data={
         "manimpango": ["*.pxd", "*.pyx"],
     },
+    install_requires=["attrs>=20.0"],
 )

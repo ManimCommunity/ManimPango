@@ -1,3 +1,8 @@
+# Enums should be Python and not here.
+# This would simplify the documenting process.
+# Just export the things from here and add it
+# to another Python file.
+
 from enum import Enum
 from pango cimport *
 class Style(Enum):

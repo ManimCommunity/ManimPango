@@ -41,6 +41,10 @@ cdef extern from "pango/pangocairo.h":
         PANGO_ALIGN_LEFT
         PANGO_ALIGN_CENTER
         PANGO_ALIGN_RIGHT
+    ctypedef struct PangoColor:
+        guint16 red
+        guint16 green
+        guint16 blue
     PangoLayout* pango_cairo_create_layout(cairo_t* cr)
     void pango_cairo_show_layout(
         cairo_t* cr,
@@ -137,6 +141,76 @@ cdef extern from "pango/pangocairo.h":
         PangoLayout *layout,
         PangoAlignment alignment
     )
+    bint pango_color_parse(
+        PangoColor *color,
+        const char *spec
+    )
+    gchar* pango_color_to_string(
+        const PangoColor *color
+    )
+    PangoLayout* pango_layout_copy(
+        PangoLayout* src
+    )
+    PangoAlignment pango_layout_get_alignment(
+        PangoLayout* layout
+    )
+    void pango_layout_set_alignment(
+        PangoLayout* layout,
+        PangoAlignment alignment
+    )
+    gboolean pango_layout_get_auto_dir(
+        PangoLayout* layout
+    )
+    void pango_layout_set_auto_dir(
+        PangoLayout* layout,
+        gboolean auto_dir
+    )
+    int pango_layout_get_width(
+        PangoLayout* layout
+    )
+    gboolean pango_font_description_equal(
+        const PangoFontDescription* desc1,
+        const PangoFontDescription* desc2
+    )
+    PangoFontDescription* pango_font_description_copy(
+        const PangoFontDescription* desc
+    )
+    const char* pango_font_description_get_family(
+        const PangoFontDescription* desc
+    )
+    # PangoGravity pango_font_description_get_gravity (
+    #     const PangoFontDescription* desc
+    # )
+    gint pango_font_description_get_size(
+        const PangoFontDescription* desc
+    )
+    gboolean pango_font_description_get_size_is_absolute(
+        const PangoFontDescription* desc
+    )
+    const char* pango_layout_get_text(
+        PangoLayout* layout
+    )
+    PangoFontMap* pango_cairo_font_map_new_for_font_type(
+        cairo_font_type_t fonttype
+    )
+    void pango_layout_set_height(
+        PangoLayout* layout,
+        int height
+    )
+    void pango_layout_set_auto_dir(
+        PangoLayout* layout,
+        gboolean auto_dir
+    )
+    void pango_layout_set_spacing(
+        PangoLayout* layout,
+        int spacing
+    )
+    void pango_layout_set_line_spacing(
+        PangoLayout* layout,
+        float factor
+    )
+
+
 
 cdef extern from *:
     """

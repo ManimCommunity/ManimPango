@@ -1,3 +1,12 @@
+# Register_Font should provide a Python Wrapper
+# by returning the family name once adding it
+# to search Path. Other than that the font_path
+# should accept `PathLike` objects for example
+# `pathlib.Path` instead of just strings.
+# Other than that this can be used directly in
+# our Stable API.
+
+
 from pathlib import Path
 from pango cimport *
 import copy
