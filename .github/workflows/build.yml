@@ -33,13 +33,13 @@ jobs:
     env:
       CIBW_BUILD: cp36-${{ matrix.platform_id }} cp37-${{ matrix.platform_id }} cp38-${{ matrix.platform_id }} cp39-${{ matrix.platform_id }}
       CIBW_SKIP: pp* cp35
-      CIBW_BEFORE_BUILD_MACOS: "source packing/build_pango_mac.sh && pip install cython && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pip install . && pkg-config --libs pango"
-      CIBW_BEFORE_BUILD_WINDOWS: "pip install cython && python packing/download_dlls.py && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pkg-config --libs pango && pip install ."
+      CIBW_BEFORE_BUILD_MACOS: "source scripts/build_pango_mac.sh && pip install cython && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pip install . && pkg-config --libs pango"
+      CIBW_BEFORE_BUILD_WINDOWS: "pip install cython && python scripts/download_dlls.py && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pkg-config --libs pango && pip install ."
       CIBW_ENVIRONMENT_WINDOWS: "PKG_CONFIG_PATH='C:\\cibw\\vendor\\lib\\pkgconfig'"
       CIBW_ENVIRONMENT_MACOS: "PKG_CONFIG_PATH='/Users/runner/pangobuild/lib/pkgconfig'"
-      CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: python packing/inject-dlls.py {wheel} {dest_dir} C:\cibw\vendor\bin
+      CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: python scripts/inject-dlls.py {wheel} {dest_dir} C:\cibw\vendor\bin
       CIBW_TEST_REQUIRES: pytest Cython pytest-cov
-      CIBW_TEST_COMMAND: "bash {project}/packing/test_wheels.sh {project}"
+      CIBW_TEST_COMMAND: "bash {project}/scripts/test_wheels.sh {project}"
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -62,14 +62,14 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $env:PATH="$env:PATH;C:\cibw\pkg-config\bin"
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
-          Copy-Item packing/LICENSE.bin .
+          Copy-Item scripts/LICENSE.bin .
           Rename-Item LICENSE.bin LICENSE.win32
           python -m cibuildwheel --output-dir wheelhouse
 
       - name: Build wheels (Non-Windows)
         if: runner.os != 'windows'
         run: |
-          cp packing/LICENSE.bin .
+          cp scripts/LICENSE.bin .
           python -m cibuildwheel --output-dir wheelhouse
 
       - uses: actions/upload-artifact@v2
