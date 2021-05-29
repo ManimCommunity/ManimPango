@@ -31,3 +31,7 @@ set_dll_search_path()
 delete_media_dir()
 CASES_DIR = Path(Path(__file__).parent, "cases").absolute()
 FONT_DIR = Path(__file__).parent / "fonts"
+
+# avoid fail due to env vars.
+os.environ["PANGOCAIRO_BACKEND"] = ""
+os.environ["FONTCONFIG_PATH"] = ""

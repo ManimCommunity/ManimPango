@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from manimpango.enums import Style, Weight
-from manimpango.utils import PangoUtils
+from manimpango.utils import PangoUtils, Style, Weight
 
 
 def test_str2style():

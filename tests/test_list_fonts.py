@@ -4,6 +4,7 @@ import sys
 import pytest
 
 import manimpango
+from manimpango.font_manager._register_font import register_font, unregister_font
 
 from .test_fonts import font_lists
 
@@ -20,7 +21,7 @@ def test_whether_list():
 )
 @pytest.mark.parametrize("font_file", font_lists)
 def test_resgister_font_with_list(font_file):
-    manimpango.register_font(str(font_file))
+    register_font(str(font_file))
     a = manimpango.list_fonts()
     assert font_lists[font_file] in a
-    manimpango.unregister_font(str(font_file))
+    unregister_font(str(font_file))
