@@ -2,9 +2,9 @@
 """This file contains helpers for the tests copied and modified
 from Manim.
 """
+import copy
 import os
 import re
-import copy
 from pathlib import Path
 
 from manimpango import Alignment, MarkupUtils, TextSetting, text2svg
