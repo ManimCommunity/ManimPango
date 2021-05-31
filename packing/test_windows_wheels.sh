@@ -16,7 +16,7 @@ if [[ "$PYTHON_VERSION" == "36" || "$BITNESS" == "32" ]]; then
         exit 1
     fi
     cd $TMP
-    cp -r $package/tests mtests
+    cp -r $PACKAGE/tests mtests
     pytest -s mtests
     rm -r mtests
     cd $FILE_PATH
