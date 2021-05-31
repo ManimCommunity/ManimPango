@@ -3,13 +3,12 @@ import sys
 from pathlib import Path
 from shutil import copyfile
 
-import manim
 import pytest
 
 import manimpango
 
 from . import FONT_DIR
-from ._manim import MarkupText
+from ._manim import MarkupText, Text
 
 font_lists = {
     (FONT_DIR / "AdobeVFPrototype.ttf").absolute(): "Adobe Variable Font Prototype",
@@ -38,7 +37,7 @@ def test_register_font(font_name):
 @pytest.mark.parametrize("font_name", font_lists.values())
 def test_warning(capfd, font_name):
     print(font_name)
-    manim.Text("Testing", font=font_name)
+    Text("Testing", font=font_name)
     captured = capfd.readouterr()
     assert "Pango-WARNING **" not in captured.err, "Looks like pango raised a warning?"
 

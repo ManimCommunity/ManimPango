@@ -8,8 +8,7 @@ FILE_PATH="`( cd \"$FILE_PATH\" && pwd )`"
 if [ -z "$FILE_PATH" ] ; then
   exit 1
 fi
-pip install manim --no-deps
-pip install colour numpy Pillow progressbar scipy tqdm pydub pygments rich pycairo networkx mapbox-earcut moderngl-window moderngl importlib-metadata watchdog
+
 cd $TMP
 cp -r $package/tests mtests
 pytest -s mtests
