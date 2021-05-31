@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - win-ci-docker
   release:
     types: [created]
 
@@ -40,6 +41,8 @@ jobs:
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: python packing/inject-dlls.py {wheel} {dest_dir} C:\cibw\vendor\bin
       CIBW_TEST_REQUIRES: pytest Cython pytest-cov
       CIBW_TEST_COMMAND: "bash {project}/packing/test_wheels.sh {project}"
+      CIBW_BEFORE_TEST_WINDOWS: bash {project}/packing/build_minimal_windows_image.sh ${{ matrix.bitness }}
+      CIBW_TEST_COMMAND_WINDOWS: bash {project}/packing/test_windows_wheels.sh ${{ matrix.bitness }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
