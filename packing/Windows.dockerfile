@@ -11,3 +11,7 @@ RUN pip install $env:WHEEL_NAME
 
 # Install the testing dependencies
 RUN pip install $env:CIBW_TEST_REQUIRES.split(" ")
+
+# Copy the tests folder
+COPY tests/ C:/ManimPango/tests
+WORKDIR C:/ManimPango
