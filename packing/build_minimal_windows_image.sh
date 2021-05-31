@@ -27,4 +27,4 @@ docker build --build-arg PYTHON_VERSION=$PYTHON_VERSION \
              --build-arg WHEEL_NAME=$WHEEL_NAME \
              --build-arg CIBW_TEST_REQUIRES="$CIBW_TEST_REQUIRES" \
              -f packing/Windows.dockerfile \
-             -t ManimCommunity/minimal-windows .
+             -t manimcommunity/minimal-windows .

@@ -21,6 +21,6 @@ if [[ "$PYTHON_VERSION" == "36" || "$BITNESS" == "32" ]]; then
     rm -r mtests
     cd $FILE_PATH
 else
-    docker container run --rm ManimCommunity/minimal-windows \
+    docker container run --rm manimcommunity/minimal-windows \
                          powershell -Command "pytest"
 fi
