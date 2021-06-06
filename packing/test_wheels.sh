@@ -1,6 +1,7 @@
 #!/bin/bash
 #test wheels in different directory
 set -e
+set -x
 package=$1
 
 FILE_PATH="`dirname \"$0\"`"
