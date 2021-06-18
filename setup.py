@@ -90,8 +90,8 @@ class PKG_CONFIG:
             return True
         except Exception:
             warnings.warn(
-                f"{self.pkg_config} doesn't exists or doesn't seem to work"
-                "We assume that you give the compiler flags using"
+                f"{self.pkg_config} doesn't exists or doesn't seem to work\n"
+                "We assume that you give the compiler flags using\n"
                 "corresponding environment variables.",
                 RuntimeWarning,
             )
