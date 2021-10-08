@@ -6,8 +6,8 @@ set -x
 PYTHON_VERSION=$(python -c "import sys;print(f'{sys.version_info.major}{sys.version_info.minor}')")
 BITNESS=$1
 
-if [[ "$PYTHON_VERSION" == "36" || "$BITNESS" == "32" ]]; then
-    # Python 3.6 and 32-bit architectures are not supported
+if [[ "$BITNESS" == "32" ]]; then
+    # 32-bit architectures is not supported
     # by the official Docker images: Tests will just be run
     # on the host (instead of the minimal Docker container).
     exit 0
