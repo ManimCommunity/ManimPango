@@ -243,7 +243,7 @@ setup(
     name=NAME,
     version=MANIMPANGO_VERSION,
     author="Naveen M K",
-    author_email="naveen@syrusdark.website",
+    author_email="naveen@manim.community",
     maintainer="The Manim Community Developers",
     url="https://manimpango.manim.community/",
     description="Bindings for Pango for using with Manim.",
