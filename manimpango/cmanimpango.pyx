@@ -13,7 +13,8 @@ class TextSetting:
         font:str,
         slant,
         weight,
-        line_num=-1
+        line_num=-1,
+        color: str=None,
     ):
         self.start = start
         self.end = end
@@ -21,6 +22,8 @@ class TextSetting:
         self.slant = slant
         self.weight = weight
         self.line_num = line_num
+        self.color = color
+
 
 def text2svg(
     settings:list,
@@ -82,8 +85,8 @@ def text2svg(
         family = setting.font
         style = PangoUtils.str2style(setting.slant)
         weight = PangoUtils.str2weight(setting.weight)
+        color = setting.color
         text_str = orig_text[setting.start : setting.end].replace("\n", " ")
-        text = text_str.encode('utf-8')
         font_desc = pango_font_description_new()
         if font_desc==NULL:
             cairo_destroy(cr)
@@ -102,14 +105,12 @@ def text2svg(
             last_line_num = setting.line_num
         cairo_move_to(cr,START_X + offset_x,START_Y + line_spacing * setting.line_num)
 
-        pango_cairo_update_layout(cr,layout)
+        markup = escape(text_str)
+        if color:
+            markup = (f"<span color='{color}'>{markup}</span>")
         if disable_liga:
-            text_bytes = escape(text.decode('utf-8'))
-            markup = f"<span font_features='liga=0,dlig=0,clig=0,hlig=0'>{text_bytes}</span>"
-            markup_bytes = markup.encode('utf-8')
-            pango_layout_set_markup(layout, markup_bytes, -1)
-        else:
-            pango_layout_set_text(layout,text,-1)
+            markup = f"<span font_features='liga=0,dlig=0,clig=0,hlig=0'>{markup}</span>"
+        pango_layout_set_markup(layout, markup.encode('utf-8'), -1)
         pango_cairo_show_layout(cr, layout)
         pango_layout_get_size(layout,&temp_width,NULL)
         offset_x += pango_units_to_double(temp_width)
