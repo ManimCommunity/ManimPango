@@ -123,7 +123,7 @@ class Text:
         tab_width: int = 4,
         disable_ligatures: bool = False,
         filename: str = "text.svg",
-        color: str = 'white',
+        color: str = "white",
         **kwargs,
     ) -> None:
         self.color = color
@@ -165,8 +165,9 @@ class Text:
             default = getattr(self, arg)
             if left != default and getattr(right_setting, arg) != default:
                 raise ValueError(
-                    f"Ambiguous style for text '{self.text[right_setting.start:right_setting.end]}':"
-                    + "'{arg}' cannot be both '{left}' and '{right}'."
+                    "Ambiguous style for text"
+                    f"'{self.text[right_setting.start:right_setting.end]}':"
+                    f"'{arg}' cannot be both '{left}' and '{right}'."
                 )
             setattr(right_setting, arg, left if left != default else right)
         return new_setting
@@ -200,7 +201,6 @@ class Text:
         setting_args = {arg: getattr(self, arg) for _, arg in t2xs}
 
         settings.sort(key=lambda setting: setting.start)
-        new_settings = []
         index = 0
         for setting in settings:
             index += 1
