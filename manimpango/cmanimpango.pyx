@@ -110,6 +110,9 @@ def text2svg(
         if color:
             markup = (f"<span color='{color}'>{markup}</span>")
             if MarkupUtils.validate(markup):
+                cairo_destroy(cr)
+                cairo_surface_destroy(surface)
+                g_object_unref(layout)
                 raise ValueError(f"Pango cannot recognize your color '{color}' for text '{text_str}'.")
         if disable_liga:
             markup = f"<span font_features='liga=0,dlig=0,clig=0,hlig=0'>{markup}</span>"
