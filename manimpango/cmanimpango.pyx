@@ -109,6 +109,8 @@ def text2svg(
         markup = escape(text_str)
         if color:
             markup = (f"<span color='{color}'>{markup}</span>")
+            if MarkupUtils.validate(markup):
+                raise ValueError(f"Pango cannot recognize your color '{color}' for text '{text_str}'.")
         if disable_liga:
             markup = f"<span font_features='liga=0,dlig=0,clig=0,hlig=0'>{markup}</span>"
         pango_layout_set_markup(layout, markup.encode('utf-8'), -1)
