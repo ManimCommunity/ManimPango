@@ -105,6 +105,7 @@ def text2svg(
             last_line_num = setting.line_num
         cairo_move_to(cr,START_X + offset_x,START_Y + line_spacing * setting.line_num)
 
+        pango_cairo_update_layout(cr,layout)
         markup = escape(text_str)
         if color:
             markup = (f"<span color='{color}'>{markup}</span>")
