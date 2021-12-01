@@ -14,7 +14,6 @@ def test_invalid_color_fail(tmpdir):
     assert not loc.exists()
     with pytest.raises(ValueError):
         Text("color", color="invalid", filename=str(loc))
-    assert not loc.exists()
 
 
 @pytest.mark.skipif(

@@ -264,19 +264,15 @@ class Text:
         width = 600
         height = 400
 
-        try:
-            return text2svg(
-                settings,
-                size,
-                line_spacing,
-                disable_liga,
-                file_name,
-                30,
-                30,
-                width,
-                height,
-                self.text,
-            )
-        except ValueError as e:
-            os.remove(file_name)
-            raise e
+        return text2svg(
+            settings,
+            size,
+            line_spacing,
+            disable_liga,
+            file_name,
+            30,
+            30,
+            width,
+            height,
+            self.text,
+        )
