@@ -6,6 +6,7 @@ import copy
 import os
 import re
 from pathlib import Path
+from typing import Sequence
 
 from manimpango import Alignment, MarkupUtils, TextSetting, text2svg
 
@@ -122,8 +123,10 @@ class Text:
         tab_width: int = 4,
         disable_ligatures: bool = False,
         filename: str = "text.svg",
+        color: str = 'white',
         **kwargs,
     ) -> None:
+        self.color = color
         self.size = size
         self.filename = filename
         self.line_spacing = line_spacing
@@ -135,7 +138,7 @@ class Text:
         self.original_text = text
         self.disable_ligatures = disable_ligatures
         text_without_tabs = text
-        self.t2f = self.t2s = self.t2w = {}
+        self.t2f = self.t2s = self.t2w = self.t2c = {}
         if text.find("\t") != -1:
             text_without_tabs = text.replace("\t", " " * self.tab_width)
         self.text = text_without_tabs
@@ -145,29 +148,85 @@ class Text:
             self.line_spacing = self.size + self.size * self.line_spacing
         self.text2svg()
 
+    def _merge_settings(
+        self, left_setting: TextSetting, right_setting: TextSetting, args: Sequence[str]
+    ) -> TextSetting:
+        contained = right_setting.end < left_setting.end
+        new_setting = copy.copy(left_setting) if contained else copy.copy(right_setting)
+
+        new_setting.start = right_setting.end if contained else left_setting.end
+        left_setting.end = right_setting.start
+        if not contained:
+            right_setting.end = new_setting.start
+
+        for arg in args:
+            left = getattr(left_setting, arg)
+            right = getattr(right_setting, arg)
+            default = getattr(self, arg)
+            if left != default and getattr(right_setting, arg) != default:
+                raise ValueError(
+                    f"Ambiguous style for text '{self.text[right_setting.start:right_setting.end]}':"
+                    + "'{arg}' cannot be both '{left}' and '{right}'."
+                )
+            setattr(right_setting, arg, left if left != default else right)
+        return new_setting
+
     def text2settings(self):
         """Internally used function. Converts the texts and styles
         to a setting for parsing."""
         settings = []
-        t2x = [self.t2f, self.t2s, self.t2w]
-        for i in range(len(t2x)):
-            fsw = [self.font, self.slant, self.weight]
-            if t2x[i]:
-                for word, x in list(t2x[i].items()):
-                    for start, end in self.find_indexes(word, self.text):
-                        fsw[i] = x
-                        settings.append(TextSetting(start, end, *fsw))
-        # Set all text settings (default font, slant, weight)
-        fsw = [self.font, self.slant, self.weight]
+        t2xs = [
+            (self.t2f, "font"),
+            (self.t2s, "slant"),
+            (self.t2w, "weight"),
+            (self.t2c, "color"),
+        ]
+        t2xwords = {
+            *self.t2f.keys(),
+            *self.t2s.keys(),
+            *self.t2w.keys(),
+            *self.t2c.keys(),
+        }
+        for word in t2xwords:
+            setting_args = {
+                arg: t2x[word] if word in t2x else getattr(self, arg)
+                for t2x, arg in t2xs
+            }
+
+            for start, end in self.find_indexes(word, self.text):
+                settings.append(TextSetting(start, end, **setting_args))
+
+        # Handle overlaps
+        setting_args = {arg: getattr(self, arg) for _, arg in t2xs}
+
         settings.sort(key=lambda setting: setting.start)
+        new_settings = []
+        index = 0
+        for setting in settings:
+            index += 1
+            if index == len(settings):
+                break
+
+            next_setting = settings[index]
+            if setting.end > next_setting.start:
+                new_setting = self._merge_settings(setting, next_setting, setting_args)
+                new_index = index
+                while (
+                    new_index < len(settings)
+                    and settings[new_index].start < new_setting.start
+                ):
+                    new_index += 1
+                settings.insert(new_index, new_setting)
+
+        # Set all text settings (default font, slant, weight)
         temp_settings = settings.copy()
         start = 0
         for setting in settings:
             if setting.start != start:
-                temp_settings.append(TextSetting(start, setting.start, *fsw))
+                temp_settings.append(TextSetting(start, setting.start, **setting_args))
             start = setting.end
         if start != len(self.text):
-            temp_settings.append(TextSetting(start, len(self.text), *fsw))
+            temp_settings.append(TextSetting(start, len(self.text), **setting_args))
         settings = sorted(temp_settings, key=lambda setting: setting.start)
 
         if re.search(r"\n", self.text):
@@ -205,15 +264,19 @@ class Text:
         width = 600
         height = 400
 
-        return text2svg(
-            settings,
-            size,
-            line_spacing,
-            disable_liga,
-            file_name,
-            30,
-            30,
-            width,
-            height,
-            self.text,
-        )
+        try:
+            return text2svg(
+                settings,
+                size,
+                line_spacing,
+                disable_liga,
+                file_name,
+                30,
+                30,
+                width,
+                height,
+                self.text,
+            )
+        except ValueError as e:
+            os.remove(file_name)
+            raise e

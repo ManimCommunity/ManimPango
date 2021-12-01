@@ -18,7 +18,7 @@ class TextSetting:
     ):
         self.start = start
         self.end = end
-        self.font = font.encode('utf-8')
+        self.font = font
         self.slant = slant
         self.weight = weight
         self.line_num = line_num
@@ -82,7 +82,7 @@ def text2svg(
         pango_layout_set_width(layout, pango_units_from_double(pango_width))
 
     for setting in settings:
-        family = setting.font
+        family = setting.font.encode('utf-8')
         style = PangoUtils.str2style(setting.slant)
         weight = PangoUtils.str2weight(setting.weight)
         color = setting.color
