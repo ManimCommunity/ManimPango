@@ -5,7 +5,7 @@ import pytest
 
 import manimpango
 
-from .test_fonts import font_lists
+from .test_fonts import font_lists_dict as font_lists
 
 
 def test_whether_list():
