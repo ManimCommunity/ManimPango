@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import sys
 from pathlib import Path
 
 import pytest
@@ -16,9 +15,6 @@ def test_invalid_color_fail(tmpdir):
         Text("color", color="invalid", filename=str(loc))
 
 
-@pytest.mark.skipif(
-    sys.platform.startswith("win32"), reason="windows draws fonts differently"
-)
 def test_colors(tmpdir):
     expected = Path(CASES_DIR, "color_red.svg")
     loc = Path(tmpdir, "test.svg")
