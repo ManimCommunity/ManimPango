@@ -11,7 +11,7 @@ if [ -z "$FILE_PATH" ] ; then
 fi
 
 cd $TMP
-cp -r $package/tests mtests
-pytest -s mtests
-rm -r mtests
+cp -r $package/tests tests
+pytest -s tests
+rm -r tests
 cd $FILE_PATH

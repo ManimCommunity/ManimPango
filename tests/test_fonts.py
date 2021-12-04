@@ -83,7 +83,10 @@ def test_warning(font_file, font_name):
         """
     )
     a = subprocess.run(
-        [sys.executable, "-c", command], check=True, stderr=subprocess.PIPE
+        [sys.executable, "-c", command],
+        check=True,
+        stderr=subprocess.PIPE,
+        cwd=Path(__file__).parent.parent,
     )
     captured = a.stderr.decode()
     assert "Pango-WARNING **" not in captured, "Looks like pango raised a warning?"
