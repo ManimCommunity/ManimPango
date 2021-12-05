@@ -57,7 +57,7 @@ jobs:
           python -m pip install cibuildwheel==2.3.0
           echo "$event_name"
 
-      - name: Build wheels(Windows)
+      - name: Build wheels (Windows)
         if: runner.os == 'windows'
         run: |
           $ErrorActionPreference = 'Stop'
@@ -79,7 +79,7 @@ jobs:
           name: wheels-${{ runner.os }}-${{ matrix.platform_id }}
 
   test_wheels:
-    name: Test Wheels on ${{ matrix.os }}-${{ matrix.platform_id }}-${{ matrix.python-version }}
+    name: Test wheels on ${{ matrix.os }}-${{ matrix.platform_id }}-${{ matrix.python-version }}
     needs: [build_wheels]
     runs-on: ${{ matrix.os }}
     strategy:
@@ -115,11 +115,11 @@ jobs:
           name: wheels-${{ runner.os }}-${{ matrix.platform_id }}
           path: ~/wheelhouse
 
-      - name: Install Test Dependencies
+      - name: Install test dependencies
         run: |
           pip install pytest pytest-cov
 
-      - name: Install Wheels
+      - name: Install wheels
         run: |
           pip install --no-index --find-links ~/wheelhouse ManimPango
 
@@ -143,7 +143,7 @@ jobs:
         with:
           path: downloads/
 
-      - name: Publish (Release)
+      - name: Publish release
         if: github.event_name == 'release'
         shell: bash
         env:
@@ -221,7 +221,7 @@ jobs:
   success:
     needs: [test_wheels]
     runs-on: ubuntu-latest
-    name: Build and Test Wheels Successfully
+    name: Building and testing of wheels success
     steps:
       - name: Success
-        run: echo Build and Test Wheels Successfully
+        run: echo "Building and testing of wheels success"

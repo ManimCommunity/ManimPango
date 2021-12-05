@@ -28,7 +28,7 @@ python $FILE_PATH/packing/download_and_extract.py "https://gitlab.freedesktop.or
 python $FILE_PATH/packing/download_and_extract.py "https://www.freedesktop.org/software/fontconfig/release/fontconfig-${FONTCONFIG_VERSION}.tar.xz" fontconfig
 python $FILE_PATH/packing/download_and_extract.py "https://github.com/harfbuzz/harfbuzz/releases/download/${HARFBUZZ_VERSION}/harfbuzz-${HARFBUZZ_VERSION}.tar.xz" harfbuzz
 
-echo "Getting Patch and Applying patch for Cairo Build"
+echo "Fetching and applying patch for Cairo build"
 curl -L https://gitlab.freedesktop.org/cairo/cairo/-/merge_requests/101.diff -o 101.diff
 cd cairo
 patch -Nbp1 -i "$PWD/../101.diff" || true
@@ -61,13 +61,13 @@ echo "::endgroup::"
 
 export CFLAGS=" -w" # warning are just noise. Ignore it.
 
-echo "::group::Building and Install proxy-libintl"
+echo "::group::Building and installing proxy-libintl"
 meson setup --buildtype=release libintlbuilddir proxy-libintl
 meson compile -C libintlbuilddir
 meson install -C libintlbuilddir
 echo "::endgroup::"
 
-echo "::group::Building and Install Fontconfig"
+echo "::group::Building and installing Fontconfig"
 rm -rf /usr/local/share/fontconfig/conf.avail
 meson setup \
   --buildtype=release \
@@ -83,7 +83,7 @@ meson install -C fontconfig_builddir
 echo "::endgroup::"
 
 
-echo "::group::Building and Install Glib"
+echo "::group::Building and installing Glib"
 meson setup \
   --prefix=$PREFIX \
   --buildtype=release \
@@ -97,7 +97,7 @@ meson compile -C glib_builddir
 meson install -C glib_builddir
 echo "::endgroup::"
 
-echo "::group::Building and Installing Cairo"
+echo "::group::Building and installing Cairo"
 meson setup \
   --prefix=$PREFIX \
   --buildtype=release \
@@ -111,7 +111,7 @@ meson compile -C cairo_builddir
 meson install -C cairo_builddir
 echo "::endgroup::"
 
-echo "::group::Building and Installing Harfbuzz"
+echo "::group::Building and installing Harfbuzz"
 meson setup \
   --prefix=$PREFIX \
   --buildtype=release \
@@ -129,7 +129,7 @@ meson install -C harfbuzz_builddir
 echo "::endgroup::"
 
 
-echo "::group::Buildling and Installing Pango"
+echo "::group::Building and installing Pango"
 export LDFLAGS=" -framework Foundation "
 meson setup \
   --prefix=$PREFIX \
