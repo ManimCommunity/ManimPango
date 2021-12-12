@@ -5,3 +5,4 @@ prune docs/_build
 include *.md
 include *.txt
 include .coveragerc
+include LICENSE*

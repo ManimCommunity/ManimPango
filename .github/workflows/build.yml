@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - fix-ci-win
   release:
     types: [created]
 
@@ -14,14 +15,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-2016]
+        os: [macos-latest, windows-2019]
         bitness: [32, 64]
         include:
           # Run 32 and 64 bit version in parallel for Windows
-          - os: windows-2016
+          - os: windows-2019
             bitness: 64
             platform_id: win_amd64
-          - os: windows-2016
+          - os: windows-2019
             bitness: 32
             platform_id: win32
           - os: macos-latest
@@ -32,16 +33,14 @@ jobs:
             bitness: 32
     env:
       CIBW_BUILD: cp37-${{ matrix.platform_id }} cp38-${{ matrix.platform_id }} cp39-${{ matrix.platform_id }} cp310-${{ matrix.platform_id }}
-      CIBW_SKIP: pp* cp35 cp36
-      CIBW_BEFORE_BUILD_MACOS: "source packing/build_pango_mac.sh && pip install cython && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pip install . && pkg-config --libs pango"
-      CIBW_BEFORE_BUILD_WINDOWS: "pip install cython && python packing/download_dlls.py && cd manimpango && cythonize cmanimpango.pyx -3 -k -f && cd ../ && pkg-config --libs pango && pip install ."
+      CIBW_SKIP: pp* cp35* cp36*
+      CIBW_BEFORE_BUILD_MACOS: "source packing/build_pango_mac.sh"
+      CIBW_BEFORE_BUILD_WINDOWS: "python packing/download_dlls.py"
       CIBW_ENVIRONMENT_WINDOWS: "PKG_CONFIG_PATH='C:\\cibw\\vendor\\lib\\pkgconfig'"
       CIBW_ENVIRONMENT_MACOS: "PKG_CONFIG_PATH='/Users/runner/pangobuild/lib/pkgconfig'"
       CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: python packing/inject-dlls.py {wheel} {dest_dir} C:\cibw\vendor\bin
-      CIBW_TEST_REQUIRES: pytest Cython pytest-cov
+      CIBW_TEST_REQUIRES: pytest pytest-cov
       CIBW_TEST_COMMAND: "bash {project}/packing/test_wheels.sh {project}"
-      CIBW_BEFORE_TEST_WINDOWS: bash {project}/packing/build_minimal_windows_image.sh ${{ matrix.bitness }} {project}
-      CIBW_TEST_COMMAND_WINDOWS: bash {project}/packing/test_windows_wheels.sh ${{ matrix.bitness }} {project}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -55,10 +54,10 @@ jobs:
         continue-on-error: true
         shell: bash
         run: |
-          python -m pip install cibuildwheel==2.1.3
+          python -m pip install cibuildwheel==2.3.0
           echo "$event_name"
 
-      - name: Build wheels(Windows)
+      - name: Build wheels (Windows)
         if: runner.os == 'windows'
         run: |
           $ErrorActionPreference = 'Stop'
@@ -78,12 +77,81 @@ jobs:
         with:
           path: ./wheelhouse/*.whl
           name: wheels-${{ runner.os }}-${{ matrix.platform_id }}
-      - name: Publish (Release)
+
+  test_wheels:
+    name: Test wheels on ${{ matrix.os }}-${{ matrix.platform_id }}-${{ matrix.python-version }}
+    needs: [build_wheels]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-2019]
+        architecture: [x86, x64]
+        python-version: ['3.7', '3.8', '3.9', '3.10']
+        include:
+          - os: windows-2019
+            architecture: x64
+            platform_id: win_amd64
+          - os: windows-2019
+            architecture: x86
+            platform_id: win32
+          - os: macos-latest
+            architecture: x64
+            platform_id: macosx_x86_64
+        exclude:
+          - os: macos-latest
+            architecture: x86
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        name: Install Python
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: ${{ matrix.architecture }}
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: wheels-${{ runner.os }}-${{ matrix.platform_id }}
+          path: ~/wheelhouse
+
+      - name: Install test dependencies
+        run: |
+          pip install pytest pytest-cov
+
+      - name: Install wheels
+        run: |
+          pip install --no-index --find-links ~/wheelhouse ManimPango
+
+      - name: Run tests
+        shell: bash
+        run: |
+          bash packing/test_wheels.sh $(pwd)
+
+  publish_wheels:
+    needs: [test_wheels]
+    name: Upload wheels
+    runs-on: ubuntu-latest
+    if: github.event_name== 'release'
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - uses: actions/download-artifact@v2
+        with:
+          path: downloads/
+
+      - name: Publish release
         if: github.event_name == 'release'
+        shell: bash
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
+          mkdir -p wheelhouse/
+          find downloads/ -name \*.whl -exec cp {} wheelhouse \;
           pip install twine
           twine upload wheelhouse/*.whl
 
@@ -151,9 +219,9 @@ jobs:
           asset_content_type: application/gzip
 
   success:
-    needs: [build_wheels]
+    needs: [test_wheels]
     runs-on: ubuntu-latest
-    name: Build Wheels Sucessfully
+    name: Building and testing of wheels success
     steps:
       - name: Success
-        run: echo Build Wheels Sucessfully
+        run: echo "Building and testing of wheels success"

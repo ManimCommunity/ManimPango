@@ -31,7 +31,7 @@ with tempfile.TemporaryDirectory() as tmpdirname:
         logging.info(f"Extracting {tmpdirname / fname} to {tmpdirname}")
         tar.extractall(tmpdirname)
     logging.info(
-        f"Moving {str(tmpdirname / Path(Path(args.url).stem).stem)}"
+        f"Moving {str(tmpdirname / Path(Path(args.url).stem).stem)} "
         f"to {str(args.folder)}"
     )
     shutil.move(

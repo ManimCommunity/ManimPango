@@ -12,7 +12,7 @@ import zipfile
 from pathlib import Path
 from urllib.request import urlretrieve as download
 
-PANGO_VERSION = "1.49.1"
+PANGO_VERSION = "1.50.1"
 
 
 def get_platform():
