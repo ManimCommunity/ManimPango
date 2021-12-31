@@ -76,7 +76,7 @@ meson setup \
   -Ddoc=disabled \
   -Dtests=disabled \
   -Dtools=disabled \
-  --default-library=static \
+  --default-library=shared \
   fontconfig_builddir fontconfig
 meson compile -C fontconfig_builddir
 meson install -C fontconfig_builddir
@@ -91,7 +91,7 @@ meson setup \
   -Dlibmount=disabled \
   -Dtests=false \
   --force-fallback-for=pcre,libffi,proxy-libintl,zlib \
-  --default-library=static \
+  --default-library=shared \
   glib_builddir glib
 meson compile -C glib_builddir
 meson install -C glib_builddir
@@ -105,7 +105,7 @@ meson setup \
   -Dfreetype=enabled \
   -Dtests=disabled \
   --force-fallback-for=expat,libpng,pixman \
-  --default-library=static \
+  --default-library=shared \
   cairo_builddir cairo
 meson compile -C cairo_builddir
 meson install -C cairo_builddir
@@ -122,7 +122,7 @@ meson setup \
   -Dfreetype=enabled \
   -Dintrospection=disabled \
   -Dglib=disabled \
-  --default-library=static \
+  --default-library=shared \
   harfbuzz_builddir harfbuzz
 meson compile -C harfbuzz_builddir
 meson install -C harfbuzz_builddir
@@ -135,7 +135,7 @@ meson setup \
   --prefix=$PREFIX \
   --buildtype=release \
   -Dintrospection=disabled \
-  --default-library=static \
+  --default-library=shared \
   pango_builddir pango
 meson compile -C pango_builddir
 meson install -C pango_builddir
