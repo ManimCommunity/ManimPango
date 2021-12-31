@@ -148,7 +148,7 @@ jobs:
       - name: Test x64
         run: |
           pip install -U setuptools wheel
-          $env:SETUPTOOLS_USE_DISTUTILS=stdlib
+          $env:SETUPTOOLS_USE_DISTUTILS="stdlib"
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
           pip install -r requirements-dev.txt
           python setup.py build_ext -i --coverage
