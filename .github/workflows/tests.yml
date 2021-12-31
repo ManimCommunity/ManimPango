@@ -150,6 +150,7 @@ jobs:
           pip install -U setuptools wheel
           $env:SETUPTOOLS_USE_DISTUTILS="stdlib"
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
+          pip install .
           pip install -r requirements-dev.txt
           python setup.py build_ext -i --coverage
           $env:PATH="C:\cibw\vendor\bin;$env:PATH"
