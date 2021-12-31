@@ -146,13 +146,11 @@ jobs:
           $env:Path = "C:\cibw\pkg-config\bin;C:\cibw\vendor\bin;$($env:PATH)"
           echo "$env:Path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Test x64
-        shell: cmd
         run: |
-          pip freeze --all
+          pip install -U setuptools wheels
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
           pip install -r requirements-dev.txt
           python setup.py build_ext -i --coverage
-          python setup.py sdist
           $env:PATH="C:\cibw\vendor\bin;$env:PATH"
           pytest
       - name: Coverage
