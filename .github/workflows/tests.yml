@@ -99,6 +99,7 @@ jobs:
       - name: Run tests
         shell: msys2 {0}
         run: |
+          export SETUPTOOLS_USE_DISTUTILS=stdlib
           pip install .
           python setup.py build_ext -i --coverage
           python setup.py sdist
