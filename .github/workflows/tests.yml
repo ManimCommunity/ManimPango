@@ -153,7 +153,6 @@ jobs:
           pip install -r requirements-dev.txt
           python setup.py build_ext -i --coverage
           python setup.py sdist
-          python -m pip install dist/*
           $env:PATH="C:\cibw\vendor\bin;$env:PATH"
           pytest
       - name: Coverage
