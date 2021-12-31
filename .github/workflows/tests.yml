@@ -148,7 +148,7 @@ jobs:
       - name: Test x64
         shell: cmd
         run: |
-          pip freeze
+          pip freeze --all
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
           pip install -r requirements-dev.txt
           python setup.py build_ext -i --coverage
