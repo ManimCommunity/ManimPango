@@ -44,6 +44,12 @@ This means older version would have a backport of bugs fixes.
 9. Go to `Github`_, and `draft a new release`_ with the same tag pushed.
    You can copy the same changelog you copied when you created the tag.
 
+.. important::
+   
+   You should actually "draft of a new release" instead of just publishing
+   a previously present draft release created by the Github Action. This is
+   important so that the wheels build workflow triggers.
+
 10. Check whether the CI uploads the wheels and the ``.tar.gz`` file to
     PyPi.
 
