@@ -99,6 +99,7 @@ jobs:
       - name: Run tests
         shell: msys2 {0}
         run: |
+          export SETUPTOOLS_USE_DISTUTILS=stdlib
           pip install .
           python setup.py build_ext -i --coverage
           python setup.py sdist
@@ -122,7 +123,7 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        os: [windows-2019]
+        os: [windows-2022]
         python-version: ['3.7', '3.8', '3.9', '3.10']
     steps:
       - uses: actions/checkout@v2
@@ -146,12 +147,10 @@ jobs:
           echo "$env:Path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Test x64
         run: |
+          pip install -U setuptools wheel
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
           pip install -r requirements-dev.txt
           python setup.py build_ext -i --coverage
-          python setup.py sdist
-          python -m pip install dist/*
-          $env:PATH="C:\cibw\vendor\bin;$env:PATH"
           pytest
       - name: Coverage
         run: |
