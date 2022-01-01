@@ -45,8 +45,8 @@ This means older version would have a backport of bugs fixes.
    You can copy the same changelog you copied when you created the tag.
 
 .. important::
-   
-   You should actually "draft of a new release" instead of just publishing
+
+   You should actually "draft a new release" instead of just publishing
    a previously present draft release created by the Github Action. This is
    important so that the wheels build workflow triggers.
 
