@@ -4,7 +4,7 @@
     <a href="https://pypi.org/project/manimpango/"><img src="https://img.shields.io/pypi/v/manimpango.svg?style=flat&logo=pypi" alt="PyPI Latest Release"></a>
     <a href="https://pypi.org/project/manimpango/"><img alt="PyPI - Wheel" src="https://img.shields.io/pypi/wheel/manimpango"></a>
     <a href="https://pypi.org/project/manimpango/"><img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/manimpango"></a>
-    <a href="https://choosealicense.com/licenses/gpl-3.0/"><img alt="PyPI - License" src="https://img.shields.io/pypi/l/manimpango"></a>
+    <a href="https://choosealicense.com/licenses/mit/"><img alt="PyPI - License" src="https://img.shields.io/pypi/l/manimpango"></a>
     <a href="https://pypi.org/project/manimpango/"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/pangocffi.svg?style=flat"></a>
     <a href='https://manimpango.readthedocs.io/en/latest/?badge=latest'><img src='https://readthedocs.org/projects/manimpango/badge/?version=latest' alt='Documentation Status' /></a>
     <br>
@@ -175,3 +175,7 @@ os.add_dll_directory('C:\cibw\vendor\bin')
 ## Code of Conduct
 
 Our full code of conduct, and how we enforce it, can be read on [our website](https://docs.manim.community/en/latest/conduct.html).
+
+## License
+
+This project is licensed under MIT License. The wheels distributed on PyPI contains compiled version of Pango and Cairo subject to terms of the GNU LGPL and other licenses. Consult the licenses of each library for more informations.
