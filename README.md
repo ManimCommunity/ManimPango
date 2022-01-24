@@ -5,7 +5,7 @@
     <a href="https://pypi.org/project/manimpango/"><img alt="PyPI - Wheel" src="https://img.shields.io/pypi/wheel/manimpango"></a>
     <a href="https://pypi.org/project/manimpango/"><img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/manimpango"></a>
     <a href="https://choosealicense.com/licenses/mit/"><img alt="PyPI - License" src="https://img.shields.io/pypi/l/manimpango"></a>
-    <a href="https://pypi.org/project/manimpango/"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/pangocffi.svg?style=flat"></a>
+    <a href="https://pypi.org/project/manimpango/"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/ManimPango.svg?style=flat"></a>
     <a href='https://manimpango.readthedocs.io/en/latest/?badge=latest'><img src='https://readthedocs.org/projects/manimpango/badge/?version=latest' alt='Documentation Status' /></a>
     <br>
     <img src="https://github.com/ManimCommunity/manimpango/workflows/Build%20Wheels/badge.svg">
