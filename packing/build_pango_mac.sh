@@ -49,7 +49,7 @@ export PATH="$PATH:$PREFIX/bin"
 
 echo "::group::Install Meson"
 echo "Installing Meson and Ninja"
-pip3 install -U meson ninja
+pip3 install -U meson==0.60.3 ninja
 echo "::endgroup::"
 
 echo "::group::Removing the things from brew"
