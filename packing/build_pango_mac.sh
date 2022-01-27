@@ -108,6 +108,7 @@ meson setup \
   -Dfontconfig=enabled \
   -Dfreetype=enabled \
   -Dtests=disabled \
+  -Dxlib=disabled \
   --force-fallback-for=expat,libpng,pixman \
   --default-library=shared \
   cairo_builddir cairo
