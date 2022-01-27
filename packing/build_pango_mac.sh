@@ -57,6 +57,10 @@ brew uninstall --ignore-dependencies brotli
 brew uninstall --ignore-dependencies pcre
 brew uninstall --ignore-dependencies libpng
 brew uninstall --ignore-dependencies freetype
+brew uninstall --ignore-dependencies libxdmcp
+brew uninstall --ignore-dependencies libxcb
+brew uninstall --ignore-dependencies xorgproto
+brew uninstall --ignore-dependencies libxau
 echo "::endgroup::"
 
 export CFLAGS=" -w" # warning are just noise. Ignore it.
@@ -135,6 +139,7 @@ meson setup \
   --prefix=$PREFIX \
   --buildtype=release \
   -Dintrospection=disabled \
+  -Dxft=disabled \
   --default-library=shared \
   pango_builddir pango
 meson compile -C pango_builddir
