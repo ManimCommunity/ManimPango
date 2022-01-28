@@ -85,7 +85,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-2019]
+        os: [macos-10.15, windows-2019]
         architecture: [x86, x64]
         python-version: ['3.7', '3.8', '3.9', '3.10']
         include:
@@ -95,11 +95,11 @@ jobs:
           - os: windows-2019
             architecture: x86
             platform_id: win32
-          - os: macos-latest
+          - os: macos-10.15
             architecture: x64
             platform_id: macosx_x86_64
         exclude:
-          - os: macos-latest
+          - os: macos-10.15
             architecture: x86
     steps:
       - uses: actions/checkout@v2

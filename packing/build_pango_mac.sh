@@ -49,7 +49,7 @@ export PATH="$PATH:$PREFIX/bin"
 
 echo "::group::Install Meson"
 echo "Installing Meson and Ninja"
-pip3 install -U meson ninja
+pip3 install -U meson==0.60.3 ninja
 echo "::endgroup::"
 
 echo "::group::Removing the things from brew"
@@ -57,6 +57,10 @@ brew uninstall --ignore-dependencies brotli
 brew uninstall --ignore-dependencies pcre
 brew uninstall --ignore-dependencies libpng
 brew uninstall --ignore-dependencies freetype
+brew uninstall --ignore-dependencies libxdmcp
+brew uninstall --ignore-dependencies libxcb
+brew uninstall --ignore-dependencies xorgproto
+brew uninstall --ignore-dependencies libxau
 echo "::endgroup::"
 
 export CFLAGS=" -w" # warning are just noise. Ignore it.
@@ -104,6 +108,7 @@ meson setup \
   -Dfontconfig=enabled \
   -Dfreetype=enabled \
   -Dtests=disabled \
+  -Dxlib=disabled \
   --force-fallback-for=expat,libpng,pixman \
   --default-library=shared \
   cairo_builddir cairo
@@ -135,6 +140,7 @@ meson setup \
   --prefix=$PREFIX \
   --buildtype=release \
   -Dintrospection=disabled \
+  -Dxft=disabled \
   --default-library=shared \
   pango_builddir pango
 meson compile -C pango_builddir
