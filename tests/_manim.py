@@ -5,11 +5,7 @@ from pathlib import Path
 import manimpango
 
 
-def markup_to_svg_test(
-    markup_str: str,
-    file_name: str = "test.svg",
-    **kwargs
-):
+def markup_to_svg_test(markup_str: str, file_name: str = "test.svg", **kwargs):
     dir_name = Path(file_name).parent
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)

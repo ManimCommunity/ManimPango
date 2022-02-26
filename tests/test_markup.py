@@ -59,7 +59,7 @@ def test_markup_text(tmpdir):
     loc = Path(tmpdir, "test.svg")
     assert not loc.exists()
     markup_to_svg_test(
-        "<span underline="error"><b><i>Hello Manim</i></b></span>",
+        "<span underline='error'><b><i>Hello Manim</i></b></span>",
         str(loc)
     )
     assert loc.exists()
