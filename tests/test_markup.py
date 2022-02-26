@@ -24,17 +24,12 @@ ipsum_text = (
 
 @pytest.mark.parametrize("text", ["foo", "<b>bar</b>", "வணக்கம்"])
 def test_good_markup(text):
-
-    assert not manimpango.validate(
-        text,
-    ), f"{text} should not fail validation"
+    assert not manimpango.validate(text), f"{text} should not fail validation"
 
 
 @pytest.mark.parametrize("text", ["<b>foo", "<xyz>foo</xyz>"])
 def test_bad_markup(text):
-    assert manimpango.validate(
-        text
-    ), f"{text} should fail validation (unbalanced tags)"
+    assert manimpango.validate(text), f"{text} should fail validation (unbalanced tags)"
 
 
 @pytest.mark.parametrize(
@@ -58,10 +53,7 @@ def test_bad_markup_error_message(text, error):
 def test_markup_text(tmpdir):
     loc = Path(tmpdir, "test.svg")
     assert not loc.exists()
-    markup_to_svg_test(
-        "<span underline='error'><b><i>Hello Manim</i></b></span>",
-        str(loc)
-    )
+    markup_to_svg_test("<span underline='error'><b><i>Hello Manim</i></b></span>", str(loc))
     assert loc.exists()
 
 
@@ -71,11 +63,7 @@ def test_markup_justify(tmpdir):
     # just check whether it runs
     loc = Path(tmpdir, "test.svg")
     assert not loc.exists()
-    markup_to_svg_test(
-        ipsum_text,
-        str(loc),
-        justify=True
-    )
+    markup_to_svg_test(ipsum_text, str(loc), justify=True)
     assert loc.exists()
 
 
@@ -85,11 +73,7 @@ def test_markup_indent(tmpdir):
     # just check whether it runs
     loc = Path(tmpdir, "test.svg")
     assert not loc.exists()
-    markup_to_svg_test(
-        ipsum_text,
-        str(loc),
-        indent=10
-    )
+    markup_to_svg_test(ipsum_text, str(loc), indent=10)
     assert loc.exists()
 
 
@@ -99,11 +83,7 @@ def test_markup_alignment(tmpdir):
     # just check whether it runs
     loc = Path(tmpdir, "test.svg")
     assert not loc.exists()
-    markup_to_svg_test(
-        ipsum_text,
-        str(loc),
-        alignment="CENTER"
-    )
+    markup_to_svg_test(ipsum_text, str(loc), alignment="CENTER")
     assert loc.exists()
 
 
@@ -111,10 +91,7 @@ def test_markup_style(tmpdir):
     test_case = CASES_DIR / "hello_blue_world_green.svg"
     expected = tmpdir / "expected.svg"
     text = "<span foreground='BLUE'>Hello</span>\n<span foreground='GREEN'>World</span>"
-    markup_to_svg_test(
-        text,
-        str(expected),
-    )
+    markup_to_svg_test(text, str(expected))
     s = SVGStyleTester(gotSVG=expected, expectedSVG=test_case)
     assert len(s.got_svg_style) == len(s.expected_svg_style)
     assert s.got_svg_style == s.expected_svg_style
