@@ -85,7 +85,7 @@ def test_markup_alignment(tmpdir):
     # just check whether it runs
     loc = Path(tmpdir, "test.svg")
     assert not loc.exists()
-    markup_to_svg_test(ipsum_text, str(loc), alignment="CENTER")
+    markup_to_svg_test(ipsum_text, str(loc), alignment=1)
     assert loc.exists()
 
 
