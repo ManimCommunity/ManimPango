@@ -25,6 +25,7 @@ Please make sure the following versions are what you expect:
 
 If you believe there is a greater problem,
 feel free to contact us or create an issue on GitHub:
+
     * Discord: https://www.manim.community/discord/
     * GitHub: https://github.com/ManimCommunity/ManimPango/issues
 
