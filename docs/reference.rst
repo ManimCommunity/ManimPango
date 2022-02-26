@@ -1,22 +1,13 @@
-Manimpango Reference
+ManimGLPango Reference
 ====================
 
 .. autosummary::
    :toctree: reference
 
-   manimpango.TextSetting
-   manimpango.PangoUtils
-   manimpango.text2svg
-   manimpango.MarkupUtils
-   manimpango.register_font
-   manimpango.unregister_font
-   manimpango.list_fonts
-
-Enums
-=====
-.. autosummary::
-   :toctree: reference
-
-   manimpango.Style
-   manimpango.Weight
-   manimpango.Variant
+   manimglpango.markup_to_svg
+   manimglpango.validate
+   manimglpango.pango_version
+   manimglpango.cairo_version
+   manimglpango.register_font
+   manimglpango.unregister_font
+   manimglpango.list_fonts

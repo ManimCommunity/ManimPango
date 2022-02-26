@@ -1,4 +1,4 @@
-ManimPango's documentation!
+ManimGLPango's documentation!
 ===========================
 
 .. toctree::

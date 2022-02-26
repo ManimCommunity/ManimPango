@@ -21,11 +21,11 @@ from pathlib import Path
 # -- Project information -----------------------------------------------------
 from pkg_resources import get_distribution
 
-project = "ManimPango"
+project = "ManimGLPango"
 copyright = "2021, The Manim Community Dev Team"
 author = "The Manim Community Dev Team"
 
-release = get_distribution("ManimPango").version
+release = get_distribution("ManimGLPango").version
 version = ".".join(release.split(".")[:2])
 
 

@@ -121,7 +121,7 @@ jobs:
 
       - name: Install wheels
         run: |
-          pip install --no-index --find-links ~/wheelhouse ManimPango
+          pip install --no-index --find-links ~/wheelhouse ManimGLPango
 
       - name: Run tests
         shell: bash
@@ -184,7 +184,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           path: dist/*.tar.gz
-          name: manimpango.tar.gz
+          name: manimglpango.tar.gz
       - name: Install Dependency
         run: pip install requests
       - name: Get Upload URL
@@ -214,8 +214,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/ManimPango-${{ steps.create_release.outputs.tag_name }}.tar.gz
-          asset_name: ManimPango-${{ steps.create_release.outputs.tag_name }}.tar.gz
+          asset_path: dist/ManimGLPango-${{ steps.create_release.outputs.tag_name }}.tar.gz
+          asset_name: ManimGLPango-${{ steps.create_release.outputs.tag_name }}.tar.gz
           asset_content_type: application/gzip
 
   success:

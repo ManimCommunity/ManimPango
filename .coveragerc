@@ -3,7 +3,7 @@ plugins = Cython.Coverage
 omit =
     packing
 data_file = .coverage/data
-source = manimpango
+source = manimglpango
 
 [report]
 skip_empty = true
