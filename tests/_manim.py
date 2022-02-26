@@ -2,7 +2,7 @@
 import os
 from pathlib import Path
 
-import manimglpango
+import manimpango
 
 
 def markup_to_svg_test(
@@ -14,7 +14,7 @@ def markup_to_svg_test(
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
 
-    return manimglpango.markup_to_svg(
+    return manimpango.markup_to_svg(
         markup_str,
         file_name,
         600,  # width

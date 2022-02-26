@@ -26,14 +26,14 @@ if sys.argv[-1] == "--coverage":
 
 
 def get_version():
-    version_file = "manimglpango/_version.py"
+    version_file = "manimpango/_version.py"
     with open(version_file) as f:
         exec(compile(f.read(), version_file, "exec"))
     return locals()["__version__"]
 
 
-NAME = "ManimGLPango"
-MANIMGLPANGO_VERSION = get_version()
+NAME = "ManimPango"
+MANIMPANGO_VERSION = get_version()
 MINIMUM_PANGO_VERSION = "1.30.0"
 DEBUG = False
 
@@ -42,7 +42,7 @@ if sys.platform == "win32" and sys.version_info >= (3, 10):
 
     atexit.register(
         lambda: warnings.warn(
-            f"ManimGLPango {MANIMGLPANGO_VERSION} does not support Python "
+            f"ManimPango {MANIMPANGO_VERSION} does not support Python "
             f"{sys.version_info.major}.{sys.version_info.minor} and does not provide "
             "prebuilt Windows binaries. We do not recommend building from source on "
             "Windows.",
@@ -190,7 +190,7 @@ def update_dict(dict1: dict, dict2: dict):
 
 
 ext = ".pyx" if USE_CYTHON else ".c"
-base_file = Path(__file__).parent / "manimglpango"
+base_file = Path(__file__).parent / "manimpango"
 _pkg_config_pangocairo = PKG_CONFIG("pangocairo")
 _pkg_config_fontconfig = PKG_CONFIG("pangofc")
 if _pkg_config_pangocairo.check_pkgconfig:
@@ -213,12 +213,12 @@ if coverage:
 
 ext_modules = [
     Extension(
-        "manimglpango.cmanimpango",
+        "manimpango.cmanimpango",
         [str(base_file / ("cmanimpango" + ext))],
         **returns,
     ),
     Extension(
-        "manimglpango.register_font",
+        "manimpango.register_font",
         [str(base_file / ("register_font" + ext))],
         **returns,
     ),
@@ -227,7 +227,7 @@ if USE_CYTHON:
     ext_modules = cythonize(
         ext_modules,
         language_level=3,
-        include_path=["manimglpango"],
+        include_path=["manimpango"],
         gdb_debug=DEBUG,
         compiler_directives={"linetrace": coverage},
     )
@@ -236,7 +236,7 @@ with open("README.md") as fh:
 
 setup(
     name=NAME,
-    version=MANIMGLPANGO_VERSION,
+    version=MANIMPANGO_VERSION,
     author="Naveen M K",
     author_email="naveen@manim.community",
     maintainer="The Manim Community Developers",
@@ -245,7 +245,7 @@ setup(
     long_description=long_description,
     zip_safe=False,
     long_description_content_type="text/markdown",
-    packages=["manimglpango"],
+    packages=["manimpango"],
     python_requires=">=3.7",
     platforms=["Linux", "macOS", "Windows"],
     keywords=["cython", "pango", "cairo", "manim"],
@@ -269,6 +269,6 @@ setup(
     },
     ext_modules=ext_modules,
     package_data={
-        "manimglpango": ["*.pxd", "*.pyx"],
+        "manimpango": ["*.pxd", "*.pyx"],
     },
 )

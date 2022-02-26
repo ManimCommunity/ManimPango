@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-import manimglpango
+import manimpango
 
 from . import CASES_DIR
 from ._manim import markup_to_svg_test
@@ -25,14 +25,14 @@ ipsum_text = (
 @pytest.mark.parametrize("text", ["foo", "<b>bar</b>", "வணக்கம்"])
 def test_good_markup(text):
 
-    assert not manimglpango.validate(
+    assert not manimpango.validate(
         text,
     ), f"{text} should not fail validation"
 
 
 @pytest.mark.parametrize("text", ["<b>foo", "<xyz>foo</xyz>"])
 def test_bad_markup(text):
-    assert manimglpango.validate(
+    assert manimpango.validate(
         text
     ), f"{text} should fail validation (unbalanced tags)"
 
@@ -52,7 +52,7 @@ def test_bad_markup(text):
     ],
 )
 def test_bad_markup_error_message(text, error):
-    assert manimglpango.validate(text) == error
+    assert manimpango.validate(text) == error
 
 
 def test_markup_text(tmpdir):

@@ -1,4 +1,4 @@
-name: manimglpango
+name: manimpango
 channels:
   - defaults
 dependencies:

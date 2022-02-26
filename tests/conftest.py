@@ -4,14 +4,14 @@ from textwrap import dedent
 
 import pytest
 
-import manimglpango
+import manimpango
 
 
 def pytest_report_header(config):
     return (
-        f"ManimGLPango version {manimglpango.__version__}\n"
-        f"Pango version {manimglpango.pango_version()}\n"
-        f"Cairo version {manimglpango.cairo_version()}"
+        f"ManimPango version {manimpango.__version__}\n"
+        f"Pango version {manimpango.pango_version()}\n"
+        f"Cairo version {manimpango.cairo_version()}"
     )
 
 
