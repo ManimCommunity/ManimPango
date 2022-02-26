@@ -1,8 +1,8 @@
 def markup_to_svg(
     markup_str: str,
     file_name: str,
-    width: int,
-    height: int,
+    width: int = 1920,
+    height: int = 1080,
     *, # keyword only arguments below
     justify: bool = False,
     indent: int = 0,
