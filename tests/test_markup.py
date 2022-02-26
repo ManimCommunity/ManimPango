@@ -87,7 +87,7 @@ def test_markup_indent(tmpdir):
     assert not loc.exists()
     markup_to_svg_test(
         ipsum_text,
-        str(loc)
+        str(loc),
         indent=10
     )
     assert loc.exists()
