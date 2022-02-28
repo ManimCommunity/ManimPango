@@ -1,62 +1,7 @@
 from typing import Any, Union
 import copy
-import itertools as it
-import xml.sax as sax
-import warnings
-
-
-class MarkupHandler(sax.ContentHandler):
-    def __init__(self, text_str):
-        super().__init__()
-        self._line_chars_count = list(map(len, text_str.splitlines()))
-        # Each element of `tag_data`, `_tag_data_heap` is:
-        # [
-        #     start_tag_span_start,
-        #     start_tag_span_end,
-        #     end_tag_span_start,
-        #     end_tag_span_end,
-        #     tag_name,
-        #     attr_dict
-        # ]
-        self.tag_data = []
-        self._tag_data_heap = []
-        # 0 for not open, 1 for start tag opening, -1 for end tag opening
-        self._tag_open_status = 0
-
-    @property
-    def curr_index(self):
-        col_num = self._locator.getColumnNumber()
-        line_num = self._locator.getLineNumber()
-        return sum(self._line_chars_count[:line_num - 1]) + col_num + line_num - 1
-
-    def startElement(self, name, attrs):
-        assert self._tag_open_status == 0
-        self._tag_data_heap.append([
-            self.curr_index, -1, -1, -1, name, dict(attrs)
-        ])
-        self._tag_open_status = 1
-
-    def endElement(self, name):
-        assert self._tag_open_status == 0
-        assert self._tag_data_heap[-1][4] == name
-        self._tag_data_heap[-1][2] = self.curr_index
-        self._tag_open_status = -1
-
-    def close_tag(self):
-        if self._tag_open_status == 0:
-            return
-        if self._tag_open_status == 1:
-            self._tag_data_heap[-1][1] = self.curr_index
-        else:
-            self._tag_data_heap[-1][3] = self.curr_index
-            self.tag_data.append(self._tag_data_heap.pop())
-        self._tag_open_status = 0
-
-    def characters(self, content):
-        self.close_tag()
-
-    def endDocument(self):
-        self.close_tag()
+import re
+import xml.sax.saxutils as saxutils
 
 
 class FormattedString:
@@ -114,60 +59,39 @@ class FormattedString:
         "u": {"underline": "single"},
     }
 
-    # TODO: paragraph properties, e.g. `justify`, `indent`, `insert_hypens`
+    # TODO: paragraph properties, e.g. `justify`, `indent`, `insert_hyphens`
 
-    def __init__(self, text: str = "", need_escape: bool = False, **kwargs):
+    def __init__(self, text: str = "", is_markup: bool = True, **kwargs):
         self.text = text
-        self.need_escape = need_escape
-        self.global_attrs = {}
-        filtered_kwargs = FormattedString.filter_attrs(kwargs)
+        self.is_markup = is_markup
+        self._global_attrs = {}
+        filtered_kwargs = FormattedString.filter_attrs(kwargs, FormattedString.SPAN_ATTR_KEY_ALIASES)
         self.update_global_attrs(filtered_kwargs)
-        self.local_attrs = {}
+        self._local_attrs = {}
+        self._tag_strings = set()
 
-        if need_escape:
-            # TODO
-            self.tag_spans = ()
-        else:
-            handler = MarkupHandler(text)
-            sax.parseString(text, handler)
-            self.tag_spans = tuple(sorted(it.chain(*(
-                ((data[0], data[1]), (data[2], data[3]))
-                for data in handler.tag_data
-            ))))
-            for data in handler.tag_data:
-                text_span = (data[1], data[2])
-                tag_name = data[4]
-                raw_attr_dict = data[5]
-                if tag_name == "span":
-                    attr_dict = FormattedString.filter_attrs(raw_attr_dict)
-                elif tag_name in FormattedString.TAG_TO_ATTR_DICT.keys():
-                    attr_dict = FormattedString.TAG_TO_ATTR_DICT[tag_name]
-                else:
-                    warnings.warn(f"Unknown tag: '{tag_name}'")
-                    continue
-                self.update_local_attrs(text_span, attr_dict)
+        if is_markup:
+            self._parse_markup()
 
     def __repr__(self) -> str:
         return f"FormattedString({repr(self.text)})"
 
     def __add__(self, string: Union[str, "FormattedString"]) -> "FormattedString":
+        # TODO
         if isinstance(string, str):
             result = self.copy()
             result.text += string
             return result
 
         if isinstance(string, FormattedString):
-            text_len = self.text_len
+            text_len = len(self.text)
             result = self.copy()
             result.text += string.text
-            result.tag_spans += tuple(
-                (text_len + sp[0], text_len + sp[1])
-                for sp in string.tag_spans
-            )
-            result.local_attrs.update({
+            result._local_attrs.update({
                 (text_len + sp[0], text_len + sp[1]): attr_dict
-                for sp, attr_dict in string.local_attrs.items()
+                for sp, attr_dict in string._local_attrs.items()
             })
+            result._tag_strings.update(string._tag_strings)
             return result
 
         raise TypeError(f"Unsupported operand type(s) for +: 'FormattedString' and '{type(string)}'")
@@ -175,94 +99,123 @@ class FormattedString:
     def copy(self) -> "FormattedString":
         return copy.deepcopy(self)
 
-    @property
-    def text_len(self) -> int:
-        return len(self.text)
-
-    @property
-    def text_without_tags(self) -> str:
-        piece_ends, piece_starts = zip(*self.tag_spans)
-        return "".join(
-            self.text[piece_start:piece_end]
-            for piece_start, piece_end in zip(
-                (0, *piece_starts), (*piece_ends, self.text_len)
-            )
-        )
-
-    def convert_index(self, index: int) -> int:
-        if not 0 <= index <= self.text_len:
-            raise ValueError(f"Index {index} out of range")
-        if any(
-            span[0] < index < span[1]
-            for span in self.tag_spans
-        ):
-            raise ValueError(f"Index {index} is inside tag")
-        skipped_length = sum(
-            span[1] - span[0]
-            for span in self.tag_spans
-            if span[1] <= index
-        )
-        return index - skipped_length
+    @staticmethod
+    def filter_attrs(attr_dict: dict[str, Any], key_range: list[str]) -> dict[str, Any]:
+        return {
+            key: value
+            for key, value in attr_dict.items()
+            if key in key_range
+        }
 
     @staticmethod
-    def filter_attrs(attr_dict: dict[str, Any]) -> dict[str, Any]:
-        filtered_out_keys = set(filter(
-            lambda key: key not in FormattedString.SPAN_ATTR_KEY_ALIASES,
-            attr_dict.keys()
-        ))
-        if filtered_out_keys:
-            warnings.warn(f"Unknown key(s): {str(filtered_out_keys)[1:-1]}")
-            return {
-                key: value
-                for key, value in attr_dict.items()
-                if key not in filtered_out_keys
-            }
-        return attr_dict
-
-    @staticmethod
-    def convert_key_alias(key: str) -> str:
+    def _convert_key_alias(key: str) -> str:
         return FormattedString.SPAN_ATTR_KEY_CONVERSION[key]
 
     @staticmethod
-    def update_attr_dict(attr_dict: dict[str, str], key: str, value: Any) -> None:
-        converted_key = FormattedString.convert_key_alias(key)
+    def _update_attr_dict(attr_dict: dict[str, str], key: str, value: Any) -> None:
+        converted_key = FormattedString._convert_key_alias(key)
         attr_dict[converted_key] = str(value)
 
     def update_global_attr(self, key: str, value: Any) -> None:
-        FormattedString.update_attr_dict(self.global_attrs, key, value)
+        FormattedString._update_attr_dict(self._global_attrs, key, value)
 
     def update_global_attrs(self, attr_dict: dict[str, Any]) -> None:
-        for key, value in attr_dict:
+        for key, value in attr_dict.items():
             self.update_global_attr(key, value)
 
-    def update_local_attr(self, text_span: tuple[int, int], key: str, value: Any) -> None:
-        span = tuple(map(self.convert_index, text_span))
-        if span[0] >= span[1]:
-            warnings.warn(f"Span {text_span} doesn't match any part of the string")
-            return
-
-        if span in self.local_attrs.keys():
-            FormattedString.update_attr_dict(self.local_attrs[span], key, value)
+    def update_local_attr(self, span: tuple[int, int], key: str, value: Any) -> None:
+        assert span[0] < span[1], f"Span {span} doesn't match any part of the string"
+        if span in self._local_attrs.keys():
+            FormattedString._update_attr_dict(self._local_attrs[span], key, value)
             return
 
         span_triplets = []
-        for sp, attr_dict in self.local_attrs.items():
+        gap_spans = [span]
+        for sp, attr_dict in self._local_attrs.items():
             if sp[1] <= span[0] or span[1] <= sp[0]:
                 continue
+            span_to_become = (max(sp[0], span[0]), min(sp[1], span[1]))
             spans_to_add = []
             if sp[0] < span[0]:
                 spans_to_add.append((sp[0], span[0]))
             if span[1] < sp[1]:
                 spans_to_add.append((span[1], sp[1]))
-            span_to_become = (max(sp[0], span[0]), min(sp[1], span[1]))
             span_triplets.append((sp, span_to_become, spans_to_add))
+            new_gap_spans = []
+            for gsp in gap_spans:
+                if gsp[1] <= sp[0] or sp[1] <= gsp[0]:
+                    continue
+                if gsp[0] < sp[0]:
+                    new_gap_spans.append((gsp[0], sp[0]))
+                if sp[1] < gsp[1]:
+                    new_gap_spans.append((sp[1], gsp[1]))
+            gap_spans = new_gap_spans
         for span_to_remove, span_to_become, spans_to_add in span_triplets:
-            attr_dict = self.local_attrs.pop(span_to_remove)
-            self.local_attrs[span_to_become] = attr_dict
+            attr_dict = self._local_attrs.pop(span_to_remove)
+            self._local_attrs[span_to_become] = attr_dict
             for span_to_add in spans_to_add:
-                self.local_attrs[span_to_add] = attr_dict.copy()
-            FormattedString.update_attr_dict(self.local_attrs[span_to_become], key, value)
+                self._local_attrs[span_to_add] = attr_dict.copy()
+            FormattedString._update_attr_dict(self._local_attrs[span_to_become], key, value)
+        for gsp in gap_spans:
+            self._local_attrs[gsp] = {}
+            FormattedString._update_attr_dict(self._local_attrs[gsp], key, value)
 
     def update_local_attrs(self, text_span: tuple[int, int], attr_dict: dict[str, Any]) -> None:
-        for key, value in attr_dict:
+        for key, value in attr_dict.items():
             self.update_local_attr(text_span, key, value)
+
+    def _parse_markup(self) -> None:
+        tag_pattern = r"""<(/?)(\w+)\s*((\w+\s*\=\s*('[^']*'|"[^"]*")\s*)*)>"""
+        attr_pattern = r"""(\w+)\s*\=\s*(?:(?:'([^']*)')|(?:"([^"]*)"))"""
+        start_match_obj_stack = []
+        match_obj_pairs = []
+        for match_obj in re.finditer(tag_pattern, self.text):
+            if not match_obj.group(1):
+                start_match_obj_stack.append(match_obj)
+            else:
+                match_obj_pairs.append((start_match_obj_stack.pop(), match_obj))
+            self._tag_strings.add(match_obj.group())
+        assert not start_match_obj_stack, "Unclosed tag(s) detected"
+
+        for start_match_obj, end_match_obj in match_obj_pairs:
+            tag_name = start_match_obj.group(2)
+            assert tag_name == end_match_obj.group(2), "Unmatched tag names"
+            assert not end_match_obj.group(3), "Attributes shan't exist in ending tags"
+            if tag_name == "span":
+                raw_attr_dict = {
+                    match.group(1): match.group(2) or match.group(3)
+                    for match in re.finditer(attr_pattern, start_match_obj.group(3))
+                }
+                attr_dict = FormattedString.filter_attrs(raw_attr_dict, FormattedString.SPAN_ATTR_KEY_ALIASES)
+            elif tag_name in FormattedString.TAG_TO_ATTR_DICT.keys():
+                assert not start_match_obj.group(3), f"Attributes shan't exist in tag '{tag_name}'"
+                attr_dict = FormattedString.TAG_TO_ATTR_DICT[tag_name]
+            else:
+                raise AssertionError(f"Unknown tag: '{tag_name}'")
+
+            text_span = (start_match_obj.end(), end_match_obj.start())
+            self.update_local_attrs(text_span, attr_dict)
+
+    def get_text_pieces(self) -> list[tuple[str, dict[str, str]]]:
+        result = []
+
+        def add_item(span: tuple[int, int], local_attr_dict: dict[str, str]) -> None:
+            text_piece = self.text[slice(*span)]
+            for tag_string in self._tag_strings:
+                text_piece = text_piece.replace(tag_string, "")
+            if self.is_markup:
+                text_piece = saxutils.unescape(text_piece)
+            if not text_piece:
+                return
+            attr_dict = self._global_attrs.copy()
+            attr_dict.update(local_attr_dict)
+            result.append((text_piece, attr_dict))
+
+        local_spans = sorted(self._local_attrs.keys())
+        next_span_starts = [span[0] for span in local_spans]
+        next_span_starts.append(len(self.text))
+        add_item((0, next_span_starts.pop(0)), {})
+        for span, next_span_start in zip(local_spans, next_span_starts):
+            add_item(span, self._local_attrs[span])
+            add_item((span[1], next_span_start), {})
+        return result
