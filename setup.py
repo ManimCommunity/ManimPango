@@ -5,6 +5,7 @@ import os
 import shlex
 import subprocess
 import sys
+import sysconfig
 import warnings
 from pathlib import Path
 from shlex import quote
@@ -18,6 +19,11 @@ try:
     USE_CYTHON = True
 except ImportError:
     USE_CYTHON = False
+
+# Below is a set of libraries which shouldn't be linked
+# if we are using MSVC. Currently, pkg-config returns some of
+# these libraries when building using conda.
+IGNORE_LIBS_WIN = {"m", "c", "pthread", "dl", "rt"}
 
 coverage = False
 if sys.argv[-1] == "--coverage":
@@ -203,6 +209,10 @@ else:
     returns["libraries"] = NEEDED_LIBS
 if sys.platform == "win32":
     returns["libraries"] += ["Gdi32"]
+    if not sysconfig.get_platform().startswith("mingw"):  # MSVC compilers
+        returns["libraries"] = list(
+            set(returns["libraries"]).difference(IGNORE_LIBS_WIN)
+        )
     if hasattr(returns, "define_macros"):
         returns["define_macros"] += [("UNICODE", 1)]
     else:
