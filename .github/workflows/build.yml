@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - macos-wheels-fix
+      - fix-wheel-build
   release:
     types: [created]
 
