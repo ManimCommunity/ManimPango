@@ -126,7 +126,7 @@ meson setup \
   -Dcoretext=enabled \
   -Dfreetype=enabled \
   -Dintrospection=disabled \
-  -Dglib=disabled \
+  -Dglib=enabled \
   --default-library=shared \
   harfbuzz_builddir harfbuzz
 meson compile -C harfbuzz_builddir
