@@ -1,6 +1,5 @@
 from pathlib import Path
 from pango cimport *
-import copy
 import os
 
 cpdef bint fc_register_font(str font_path):
@@ -211,7 +210,7 @@ cpdef list list_fonts():
     :class:`list` :
         List of fonts sorted alphabetically.
     """
-    cdef PangoFontMap* fontmap=pango_cairo_font_map_new()
+    cdef PangoFontMap* fontmap = pango_cairo_font_map_new()
     if fontmap == NULL:
         raise MemoryError("Pango.FontMap can't be created.")
     cdef int n_families=0
@@ -221,16 +220,16 @@ cpdef list list_fonts():
         &families,
         &n_families
     )
-    if families is NULL or n_families==0:
+    if families is NULL or n_families == 0:
         raise MemoryError("Pango returned unexpected length on families.")
-    family_list=[]
+    family_list = []
     for i in range(n_families):
-        name = copy.deepcopy(pango_font_family_get_name(families[i]).decode('utf-8'))
+        name = pango_font_family_get_name(families[i])
         # according to pango's docs, the `char *` returned from
         # `pango_font_family_get_name`is owned by pango, and python
-        # shouldn't interfere with it. So, rather we are making a
-        # deepcopy so that we don't worry about it.
-        family_list.append(name)
+        # shouldn't interfere with it. I hope Cython handles it.
+        # https://cython.readthedocs.io/en/stable/src/tutorial/strings.html#dealing-with-const
+        family_list.append(name.decode())
     g_free(families)
     g_object_unref(fontmap)
     family_list.sort()
