@@ -1,6 +1,7 @@
 from pathlib import Path
 from pango cimport *
 import copy
+import os
 
 cpdef bint fc_register_font(str font_path):
     """This function registers the font file using ``fontconfig`` so that
@@ -27,9 +28,9 @@ cpdef bint fc_register_font(str font_path):
     AssertionError
         Font is missing.
     """
-    a=Path(font_path)
+    a = Path(font_path)
     assert a.exists(), f"font doesn't exist at {a.absolute()}"
-    font_path = str(a.absolute())
+    font_path = os.fspath(a.absolute())
     font_path_bytes=font_path.encode('utf-8')
     cdef const unsigned char* fontPath = font_path_bytes
     fontAddStatus = FcConfigAppFontAddFile(FcConfigGetCurrent(), fontPath)
@@ -93,7 +94,7 @@ ELIF UNAME_SYSNAME == "Windows":
         """
         a=Path(font_path)
         assert a.exists(), f"font doesn't exist at {a.absolute()}"
-        font_path = str(a.absolute())
+        font_path = os.fspath(a.absolute())
         fontAddStatus = AddFontResourceExW(
             <bytes>font_path,
             FR_PRIVATE,
@@ -125,7 +126,7 @@ ELIF UNAME_SYSNAME == "Windows":
         """
         a=Path(font_path)
         assert a.exists(), f"font doesn't exist at {a.absolute()}"
-        font_path = str(a.absolute())
+        font_path = os.fspath(a.absolute())
         return RemoveFontResourceExW(
             <bytes>font_path,
             FR_PRIVATE,
