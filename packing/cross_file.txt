@@ -1,4 +1,8 @@
+[binaries]
+c = 'clang'
+cpp = 'clang++'
+
 [host_machine]
-system="darwin"
-cpu_family="aarch64"
-cpu="armv8"
+system = 'darwin'
+cpu_family = 'aarch64'
+cpu = 'armv8'
