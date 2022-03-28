@@ -1,0 +1,8 @@
+[binaries]
+c = "/usr/bin/clang"
+cpp = "/usr/bin/clang++"
+
+[host_machine]
+system="darwin"
+cpu_family="aarch64"
+cpu="armv8"
