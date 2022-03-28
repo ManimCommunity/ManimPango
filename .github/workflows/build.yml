@@ -34,7 +34,7 @@ jobs:
     env:
       CIBW_BUILD: cp37-${{ matrix.platform_id }} cp38-${{ matrix.platform_id }} cp39-${{ matrix.platform_id }} cp310-${{ matrix.platform_id }}
       CIBW_SKIP: pp* cp35* cp36*
-      CIBW_BEFORE_BUILD_MACOS: "source packing/build_pango_mac.sh"
+      CIBW_BEFORE_BUILD_MACOS: "source packing/build_pango_mac.sh arm"
       CIBW_BEFORE_BUILD_WINDOWS: "python packing/download_dlls.py"
       CIBW_ENVIRONMENT_WINDOWS: "PKG_CONFIG_PATH='C:\\cibw\\vendor\\lib\\pkgconfig'"
       CIBW_ENVIRONMENT_MACOS: "PKG_CONFIG_PATH='/Users/runner/pangobuild/lib/pkgconfig'"
