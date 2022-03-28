@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - fix-wheel-build
+      - playground
   release:
     types: [created]
 
