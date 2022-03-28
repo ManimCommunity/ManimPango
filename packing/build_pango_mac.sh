@@ -73,6 +73,14 @@ echo "::endgroup::"
 
 echo "::group::Building and installing Fontconfig"
 rm -rf /usr/local/share/fontconfig/conf.avail
+
+if [[ "$1" == arm ]]; then
+    echo Compiling for arm64
+    meson fontconfig fontconfig_builddir --cross-file cross_file.txt
+else
+    echo Compiling for x86
+fi
+
 meson setup \
   --buildtype=release \
   --prefix=$PREFIX \
@@ -88,6 +96,14 @@ echo "::endgroup::"
 
 
 echo "::group::Building and installing Glib"
+
+if [[ "$1" == arm ]]; then
+    echo Compiling for arm64
+    meson glib glib_builddir --cross-file cross_file.txt
+else
+    echo Compiling for x86
+fi
+
 meson setup \
   --prefix=$PREFIX \
   --buildtype=release \
@@ -102,6 +118,14 @@ meson install -C glib_builddir
 echo "::endgroup::"
 
 echo "::group::Building and installing Cairo"
+
+if [[ "$1" == arm ]]; then
+    echo Compiling for arm64
+    meson cairo cairo_builddir --cross-file cross_file.txt
+else
+    echo Compiling for x86
+fi
+
 meson setup \
   --prefix=$PREFIX \
   --buildtype=release \
@@ -117,6 +141,14 @@ meson install -C cairo_builddir
 echo "::endgroup::"
 
 echo "::group::Building and installing Harfbuzz"
+
+if [[ "$1" == arm ]]; then
+    echo Compiling for arm64
+    meson harfbuzz harfbuzz_builddir --cross-file cross_file.txt
+else
+    echo Compiling for x86
+fi
+
 meson setup \
   --prefix=$PREFIX \
   --buildtype=release \
@@ -136,6 +168,14 @@ echo "::endgroup::"
 
 echo "::group::Building and installing Pango"
 export LDFLAGS=" -framework Foundation "
+
+if [[ "$1" == arm ]]; then
+    echo Compiling for arm64
+    meson pango pango_builddir --cross-file cross_file.txt
+else
+    echo Compiling for x86
+fi
+
 meson setup \
   --prefix=$PREFIX \
   --buildtype=release \
