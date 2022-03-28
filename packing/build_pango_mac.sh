@@ -76,7 +76,7 @@ rm -rf /usr/local/share/fontconfig/conf.avail
 
 if [[ "$1" == arm ]]; then
     echo Compiling for arm64
-    meson fontconfig fontconfig_builddir --cross-file cross_file.txt
+    meson fontconfig fontconfig_builddir --cross-file $FILE_PATH/packing/cross_file.txt
 else
     echo Compiling for x86
 fi
@@ -99,7 +99,7 @@ echo "::group::Building and installing Glib"
 
 if [[ "$1" == arm ]]; then
     echo Compiling for arm64
-    meson glib glib_builddir --cross-file cross_file.txt
+    meson glib glib_builddir --cross-file $FILE_PATH/packing/cross_file.txt
 else
     echo Compiling for x86
 fi
@@ -121,7 +121,7 @@ echo "::group::Building and installing Cairo"
 
 if [[ "$1" == arm ]]; then
     echo Compiling for arm64
-    meson cairo cairo_builddir --cross-file cross_file.txt
+    meson cairo cairo_builddir --cross-file $FILE_PATH/packing/cross_file.txt
 else
     echo Compiling for x86
 fi
@@ -144,7 +144,7 @@ echo "::group::Building and installing Harfbuzz"
 
 if [[ "$1" == arm ]]; then
     echo Compiling for arm64
-    meson harfbuzz harfbuzz_builddir --cross-file cross_file.txt
+    meson harfbuzz harfbuzz_builddir --cross-file $FILE_PATH/packing/cross_file.txt
 else
     echo Compiling for x86
 fi
@@ -171,7 +171,7 @@ export LDFLAGS=" -framework Foundation "
 
 if [[ "$1" == arm ]]; then
     echo Compiling for arm64
-    meson pango pango_builddir --cross-file cross_file.txt
+    meson pango pango_builddir --cross-file $FILE_PATH/packing/cross_file.txt
 else
     echo Compiling for x86
 fi
