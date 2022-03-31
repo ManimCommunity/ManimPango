@@ -76,7 +76,7 @@ autoclass_content = "both"
 add_module_names = False
 
 intersphinx_mapping = {
-    "manim": ("https://docs.manim.community/en/v0.2.0", None),
+    "manim": ("https://docs.manim.community/en/stable", None),
     "python": ("https://docs.python.org/3", None),
 }
 
