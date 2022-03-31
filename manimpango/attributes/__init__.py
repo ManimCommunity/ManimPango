@@ -1,5 +1,5 @@
-# from ._attributes import *
-
+from ._attributes import *
+import typing as T
 __all__ = ["TextAttribute"]
 
 
@@ -33,11 +33,6 @@ class TextAttribute:
     @property
     def start_index(self) -> int:
         """It is the end index of the range.
-
-        Returns
-        -------
-        int
-            The end index.
         
         Raises
         ------
@@ -57,11 +52,6 @@ class TextAttribute:
         """It is the start of the range. The character at this index is not
         included in the range.
 
-        Returns
-        -------
-        int
-            The start index.
-        
         Raises
         ------
         ValueError
@@ -74,3 +64,37 @@ class TextAttribute:
         if not isinstance(val, int):
             raise ValueError("'end_index' should be an int")
         self._end_index = val
+
+    @property
+    def allow_breaks(self) -> T.Union[bool, None]:
+        """Whether to break text or not.
+
+        If breaks are disabled, the range will be kept in a single run,
+        as far as possible.
+        """
+        if hasattr(self, '_allow_breaks'):
+            return self._allow_breaks
+        return None
+
+    @allow_breaks.setter
+    def allow_breaks(self, val: bool) -> None:
+        self._allow_breaks = bool(val)
+
+    @property
+    def background_alpha(self) -> float:
+        """The background_alpha of the text.
+
+        Raises
+        ------
+        ValueError
+            If the value is not between 0 and 1.
+        """
+        if hasattr(self, '_background_alpha'):
+            return self._background_alpha
+        return None
+    
+    @background_alpha.setter
+    def background_alpha(self, val: float) -> None:
+        if not (0 <= val <= 1):
+            raise ValueError("'val' should be between 0 and 1")
+        self._background_alpha = val
