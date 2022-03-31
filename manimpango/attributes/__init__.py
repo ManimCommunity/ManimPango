@@ -32,12 +32,17 @@ class TextAttribute:
 
     @property
     def start_index(self) -> int:
-        """start_index is the start of the range.
+        """It is the end index of the range.
 
         Returns
         -------
         int
-            The start index saved.
+            The end index.
+        
+        Raises
+        ------
+        ValueError
+            If the value is not an :class:`int`.
         """
         return self._start_index
 
@@ -49,6 +54,19 @@ class TextAttribute:
 
     @property
     def end_index(self) -> int:
+        """It is the start of the range. The character at this index is not
+        included in the range.
+
+        Returns
+        -------
+        int
+            The start index.
+        
+        Raises
+        ------
+        ValueError
+            If the value is not an :class:`int`.
+        """
         return self._end_index
 
     @end_index.setter
