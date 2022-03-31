@@ -40,3 +40,18 @@ def test_background_alpha():
         _a.background_alpha = 5
     _a.background_alpha = 0.6
     assert _a.background_alpha == 0.6
+
+
+def test_background_color():
+    _a = TextAttribute()
+    assert _a.background_color is None
+    with pytest.raises(ValueError):
+        _a.background_color = "#ppppppppppppppppppppppppppppps"
+    _a.background_color = "#ffffff"
+    assert _a.background_color == (65535, 65535, 65535)
+    _a.background_color = (0, 0, 0)
+    assert _a.background_color == (0, 0, 0)
+    with pytest.raises(ValueError):
+        _a.background_color = (0,)
+    with pytest.raises(ValueError):
+        _a.background_color = (-1, 0, 0)

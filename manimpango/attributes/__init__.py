@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import typing as T
 
+from ._attributes import parse_color
+
 __all__ = ["TextAttribute"]
 
 
@@ -99,3 +101,52 @@ class TextAttribute:
         if not (0 <= val <= 1):
             raise ValueError("'val' should be between 0 and 1")
         self._background_alpha = val
+
+    @property
+    def background_color(self) -> T.Union[T.Tuple[int], None]:
+        """The background color of the region.
+
+        If the input is a :class:`str` the value is considered as
+        string representation of color from
+        `CSS Specification <https://www.w3.org/TR/css-color-4/#named-colors>`_.
+        The color is then parsed and :class:`ValueError` is raised
+        if the color is invalid.
+
+        If the input is a :class:`collections.abc.Iterable` then the items
+        in them are parsed in the order of ``red, green, blue`` and checked
+        whether they are valid (between 0 and 65535).
+
+
+        Returns either ``None`` or a :class:`tuple` with 3 elements
+        representing red, green, blue respectively. The value of each
+        items in that tuple ranges from 0 to 65535.
+
+        Raises
+        ------
+        ValueError
+            If the value passed isn't a :class:`collections.abc.Iterable` of 3
+            elements or a string. Another condition when `ValueError` is
+            raised is when the color passed is invalid.
+
+        """
+        if hasattr(self, "_background_color"):
+            return self._background_color
+        return None
+
+    @background_color.setter
+    def background_color(self, val: T.Union[str, T.Iterable[int]]) -> None:
+        color_hex = None
+        red, green, blue = None, None, None
+        if isinstance(val, str):
+            color_hex = val
+        else:
+            if len(val) != 3:
+                raise ValueError(
+                    "Either a Iterable of 3 items or a string must be passed."
+                )
+            red, green, blue = val
+        if color_hex:
+            red, green, blue = parse_color(color_hex)
+        if not ((0 <= red <= 65535) and (0 <= green <= 65535) and (0 <= blue <= 65535)):
+            raise ValueError("red, green, blue should be between 0 and 65535.")
+        self._background_color = (red, green, blue)
