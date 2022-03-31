@@ -10,15 +10,15 @@ if os.name == "nt":  # pragma: no cover
         f"{os.pathsep}"
         f"{os.environ['PATH']}"
     )
-    if hasattr(os, 'add_dll_directory'):
-        _path = r'C:\cibw\vendor\bin'
+    if hasattr(os, "add_dll_directory"):
+        _path = r"C:\cibw\vendor\bin"
         if os.path.exists(_path):
             os.add_dll_directory(_path)
 try:
+    from .attributes import *  # noqa: F403,F401
     from .cmanimpango import *  # noqa: F403,F401
     from .enums import *  # noqa: F403,F401
     from .register_font import *  # noqa: F403,F401
-    from .attributes import *
 except ImportError as ie:  # pragma: no cover
     py_ver = ".".join(map(str, sys.version_info[:3]))
     msg = f"""

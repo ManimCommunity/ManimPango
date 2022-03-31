@@ -1,5 +1,7 @@
-from manimpango.attributes import *
+# -*- coding: utf-8 -*-
 import pytest
+
+from manimpango import TextAttribute
 
 
 @pytest.mark.parametrize("values", [(1.0, 2), (1, 2.0), (1.0, 2.0)])

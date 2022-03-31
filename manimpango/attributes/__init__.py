@@ -1,5 +1,6 @@
-from ._attributes import *
+# -*- coding: utf-8 -*-
 import typing as T
+
 __all__ = ["TextAttribute"]
 
 
@@ -18,7 +19,7 @@ class TextAttribute:
 
     def __init__(self, start_index: int = 0, end_index: int = -1) -> None:
         """Initialize :class:`TextAttribute`.
- 
+
         Parameters
         ----------
         start_index : int, optional
@@ -33,7 +34,7 @@ class TextAttribute:
     @property
     def start_index(self) -> int:
         """It is the end index of the range.
-        
+
         Raises
         ------
         ValueError
@@ -72,7 +73,7 @@ class TextAttribute:
         If breaks are disabled, the range will be kept in a single run,
         as far as possible.
         """
-        if hasattr(self, '_allow_breaks'):
+        if hasattr(self, "_allow_breaks"):
             return self._allow_breaks
         return None
 
@@ -89,10 +90,10 @@ class TextAttribute:
         ValueError
             If the value is not between 0 and 1.
         """
-        if hasattr(self, '_background_alpha'):
+        if hasattr(self, "_background_alpha"):
             return self._background_alpha
         return None
-    
+
     @background_alpha.setter
     def background_alpha(self, val: float) -> None:
         if not (0 <= val <= 1):
