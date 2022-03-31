@@ -1,9 +1,10 @@
-{{ fullname | escape | underline}}
+{{ name | escape | underline}}
+
+Qualified name: ``{{ fullname | escape }}``
 
 .. currentmodule:: {{ module }}
 
 .. autoclass:: {{ objname }}
-   :show-inheritance:
    :members:
 
    {% block methods %}

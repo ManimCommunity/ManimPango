@@ -27,4 +27,4 @@ Text Attributes
 .. autosummary::
    :toctree: reference
 
-   manimpango.TextAttribute
+   manimpango.attributes
