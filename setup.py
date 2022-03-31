@@ -43,7 +43,7 @@ MANIMPANGO_VERSION = get_version()
 MINIMUM_PANGO_VERSION = "1.30.0"
 DEBUG = False
 
-if sys.platform == "win32" and sys.version_info >= (3, 10):
+if sys.platform == "win32" and sys.version_info >= (3, 11):
     import atexit
 
     atexit.register(
@@ -237,12 +237,17 @@ ext_modules = [
         [str(base_file / ("register_font" + ext))],
         **returns,
     ),
+    Extension(
+        "manimpango.attributes._attributes",
+        [str(base_file / "attributes" / ("attributes" + ext))],
+        **returns,
+    ),
 ]
 if USE_CYTHON:
     ext_modules = cythonize(
         ext_modules,
         language_level=3,
-        include_path=["manimpango"],
+        include_path=["manimpango", "manimpango.attributes"],
         gdb_debug=DEBUG,
         compiler_directives={"linetrace": coverage},
     )
