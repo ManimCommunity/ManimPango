@@ -108,3 +108,18 @@ class Alignment(Enum):
     LEFT = PANGO_ALIGN_LEFT
     CENTER = PANGO_ALIGN_CENTER
     RIGHT = PANGO_ALIGN_RIGHT
+
+class Alignment(Enum):
+    """
+    An enumeration specifying alignment.
+    Attributes
+    ----------
+    NORMAL :
+        A normal font.
+    SMALL_CAPS :
+        A font with the lower case characters replaced by smaller variants
+        of the capital characters.
+    """
+    LEFT = PANGO_ALIGN_LEFT
+    CENTER = PANGO_ALIGN_CENTER
+    RIGHT = PANGO_ALIGN_RIGHT

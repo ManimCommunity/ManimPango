@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
 
-from .enums import Style, Weight
+from ..enums import Style, Weight
 
 
 class PangoUtils:
