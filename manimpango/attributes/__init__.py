@@ -1,9 +1,25 @@
 # -*- coding: utf-8 -*-
 import typing as T
 
-from ._attributes import parse_color
+from ._attributes import covert_hex_to_rbg
 
 __all__ = ["TextAttribute"]
+
+
+def _parse_color_output(val: T.Union[str, T.Iterable[int]]):
+    color_hex = None
+    red, green, blue = None, None, None
+    if isinstance(val, str):
+        color_hex = val
+    else:
+        if len(val) != 3:
+            raise ValueError("Either a Iterable of 3 items or a string must be passed.")
+        red, green, blue = val
+    if color_hex:
+        red, green, blue = covert_hex_to_rbg(color_hex)
+    if not ((0 <= red <= 65535) and (0 <= green <= 65535) and (0 <= blue <= 65535)):
+        raise ValueError("red, green, blue should be between 0 and 65535.")
+    return (red, green, blue)
 
 
 class TextAttribute:
@@ -135,18 +151,41 @@ class TextAttribute:
 
     @background_color.setter
     def background_color(self, val: T.Union[str, T.Iterable[int]]) -> None:
-        color_hex = None
-        red, green, blue = None, None, None
-        if isinstance(val, str):
-            color_hex = val
-        else:
-            if len(val) != 3:
-                raise ValueError(
-                    "Either a Iterable of 3 items or a string must be passed."
-                )
-            red, green, blue = val
-        if color_hex:
-            red, green, blue = parse_color(color_hex)
-        if not ((0 <= red <= 65535) and (0 <= green <= 65535) and (0 <= blue <= 65535)):
-            raise ValueError("red, green, blue should be between 0 and 65535.")
-        self._background_color = (red, green, blue)
+        self._background_color = _parse_color_output(val)
+
+    @property
+    def fallback(self) -> bool:
+        """Enable or disable fallbacks. 
+
+        If fallback is disabled, characters will only be used from the
+        closest matching font on the system. No fallback will be done to 
+        other fonts on the system that might contain the characters in
+        the text.
+        """
+        if hasattr(self, "_fallback"):
+            return self._fallback
+        return None
+
+    @fallback.setter
+    def fallback(self, val: bool) -> None:
+        self._fallback = bool(val)
+
+    @property
+    def family(self) -> str:
+        """The font family the text should render. Can be a comma seperated
+        list of fonts in a string.
+
+        Raises
+        ------
+        ValueError
+            If value isn't a str.
+        """
+        if hasattr(self, "_family"):
+            return self._family
+        return None
+
+    @family.setter
+    def family(self, val: str) -> None:
+        if not isinstance(val, str):
+            raise ValueError("'family' must be a string")
+        self._family = val

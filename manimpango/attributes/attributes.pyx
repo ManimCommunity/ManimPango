@@ -1,7 +1,7 @@
 from pango_attributes cimport *
 from pango cimport *
 
-def parse_color(color_hex: str):
+def covert_hex_to_rbg(color_hex: str):
     cdef PangoColor color
     if not pango_color_parse(&color, color_hex.encode('utf-8')):
         raise ValueError('Invalid color specfied.')
