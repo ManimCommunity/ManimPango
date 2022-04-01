@@ -265,7 +265,7 @@ setup(
     long_description=long_description,
     zip_safe=False,
     long_description_content_type="text/markdown",
-    packages=["manimpango"],
+    packages=["manimpango", "manimpango.attributes"],
     python_requires=">=3.7",
     platforms=["Linux", "macOS", "Windows"],
     keywords=["cython", "pango", "cairo", "manim"],
