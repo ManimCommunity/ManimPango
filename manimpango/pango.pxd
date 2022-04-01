@@ -41,6 +41,10 @@ cdef extern from "pango/pangocairo.h":
         PANGO_ALIGN_LEFT
         PANGO_ALIGN_CENTER
         PANGO_ALIGN_RIGHT
+    ctypedef struct PangoColor:
+        guint16 red
+        guint16 green
+        guint16 blue
     PangoLayout* pango_cairo_create_layout(cairo_t* cr)
     void pango_cairo_show_layout(
         cairo_t* cr,
@@ -136,6 +140,10 @@ cdef extern from "pango/pangocairo.h":
     void pango_layout_set_alignment(
         PangoLayout *layout,
         PangoAlignment alignment
+    )
+    gboolean pango_color_parse(
+        PangoColor* color,
+        const char* spec
     )
 
 cdef extern from *:
