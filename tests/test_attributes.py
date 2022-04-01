@@ -56,6 +56,7 @@ def test_background_color():
     with pytest.raises(ValueError):
         _a.background_color = (-1, 0, 0)
 
+
 def test_fallback():
     _a = TextAttribute()
     assert _a.fallback is None
@@ -64,10 +65,11 @@ def test_fallback():
     _a.fallback = False
     assert _a.fallback is False
 
+
 def test_family():
     _a = TextAttribute()
     assert _a.family is None
-    _a.family = 'hello'
-    assert _a.family == 'hello'
+    _a.family = "hello"
+    assert _a.family == "hello"
     with pytest.raises(ValueError):
         _a.family = []

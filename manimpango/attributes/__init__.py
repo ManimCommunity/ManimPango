@@ -155,10 +155,10 @@ class TextAttribute:
 
     @property
     def fallback(self) -> bool:
-        """Enable or disable fallbacks. 
+        """Enable or disable fallbacks.
 
         If fallback is disabled, characters will only be used from the
-        closest matching font on the system. No fallback will be done to 
+        closest matching font on the system. No fallback will be done to
         other fonts on the system that might contain the characters in
         the text.
         """
