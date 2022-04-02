@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import re
 
-from .enums import Style, Weight
+from ..enums import Style, Weight
+
+__all__ = ["PangoUtils"]
 
 
 class PangoUtils:

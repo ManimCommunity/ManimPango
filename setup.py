@@ -242,6 +242,11 @@ ext_modules = [
         [str(base_file / "attributes" / ("attributes" + ext))],
         **returns,
     ),
+    Extension(
+        "manimpango.utils._utils",
+        [str(base_file / "utils" / ("utils" + ext))],
+        **returns,
+    ),
 ]
 if USE_CYTHON:
     ext_modules = cythonize(
@@ -265,7 +270,12 @@ setup(
     long_description=long_description,
     zip_safe=False,
     long_description_content_type="text/markdown",
-    packages=["manimpango", "manimpango.attributes"],
+    packages=[
+        "manimpango",
+        "manimpango.attributes",
+        "manimpango.utils",
+        "manimpango.layout",
+    ],
     python_requires=">=3.7",
     platforms=["Linux", "macOS", "Windows"],
     keywords=["cython", "pango", "cairo", "manim"],

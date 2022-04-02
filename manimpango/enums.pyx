@@ -108,3 +108,11 @@ class Alignment(Enum):
     LEFT = PANGO_ALIGN_LEFT
     CENTER = PANGO_ALIGN_CENTER
     RIGHT = PANGO_ALIGN_RIGHT
+
+class Alignment(Enum):
+    """
+    An enumeration specifying alignment.
+    """
+    LEFT = PANGO_ALIGN_LEFT
+    CENTER = PANGO_ALIGN_CENTER
+    RIGHT = PANGO_ALIGN_RIGHT
