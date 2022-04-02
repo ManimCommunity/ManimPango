@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 
+from ..enums import Alignment
 from ..exceptions import MarkupParseError
 from ..utils import validate_markup
-from ..enums import Alignment
 
 __all__ = ["Layout"]
 
