@@ -34,8 +34,10 @@ class Layout:
         ValueError
             If both ``text`` and ``markup`` is None.
         """
-        self.text = text
-        self.markup = markup
+        if text:
+            self.text = text
+        if markup:
+            self.markup = markup
         if self.markup is None and self.text is None:
             raise ValueError("Either 'markup' or 'text' is required.")
 
