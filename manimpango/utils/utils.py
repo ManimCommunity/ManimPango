@@ -3,6 +3,8 @@ import re
 
 from ..enums import Style, Weight
 
+__all__ = ["PangoUtils"]
+
 
 class PangoUtils:
     @staticmethod
