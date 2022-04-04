@@ -252,7 +252,7 @@ if USE_CYTHON:
     ext_modules = cythonize(
         ext_modules,
         language_level=3,
-        include_path=["manimpango", "manimpango.attributes"],
+        include_path=["manimpango/include"],
         gdb_debug=DEBUG,
         compiler_directives={"linetrace": coverage},
     )
