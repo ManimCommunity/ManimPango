@@ -75,6 +75,35 @@ cdef extern from "pango/pangocairo.h":
         PangoFontDescription* desc,
         PangoVariant variant
     )
+    char* pango_font_description_to_string(
+        const PangoFontDescription* desc
+    )
+    gboolean pango_font_description_equal(
+        const PangoFontDescription* desc1,
+        const PangoFontDescription* desc2
+    )
+    PangoFontDescription* pango_font_description_copy(
+        const PangoFontDescription* desc
+    )
+    const char* pango_font_description_get_family(
+        const PangoFontDescription* desc
+    )
+    gint pango_font_description_get_size(
+        const PangoFontDescription* desc
+    )
+    PangoStyle pango_font_description_get_style(
+        const PangoFontDescription* desc
+    )
+    PangoWeight pango_font_description_get_weight(
+        const PangoFontDescription* desc
+    )
+    PangoVariant pango_font_description_get_variant(
+        const PangoFontDescription* desc
+    )
+    PangoFontDescription* pango_font_description_from_string(
+        const char* str
+    )
+
 
     void pango_layout_set_width(
         PangoLayout* layout,
