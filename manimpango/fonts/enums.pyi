@@ -29,5 +29,6 @@ class Variant(Enum):
         A font with the lower case characters replaced by smaller variants
         of the capital characters.
     """
+
     NORMAL = ...
     SMALL_CAPS = ...

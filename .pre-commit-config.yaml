@@ -9,18 +9,16 @@ repos:
       - id: mixed-line-ending
       - id: check-merge-conflict
   - repo: https://github.com/psf/black
-    rev: e66be67b9b6811913470f70c28b4d50f94d05b22 # frozen: 20.8b1
+    rev: 22.3.0
     hooks:
       - id: black
-        args: ["--target-version", "py38"]
-        files: \.py$
-        types: []
-  - repo: https://github.com/PyCQA/isort
+        args: ["--target-version", "py37"]
+  - repo: https://github.com/pycqa/isort
     rev: 377d260ffa6f746693f97b46d95025afc4bd8275  # frozen: 5.4.2
     hooks:
       - id: isort
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 05f6544aef321e2fee03a1277ce2eef8880fb927  # frozen: 3.8.3
+    rev: 4.0.1
     hooks:
       - id: flake8
         additional_dependencies: [flake8-2020, flake8-implicit-str-concat]
