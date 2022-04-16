@@ -27,7 +27,7 @@ cdef class FontDescription:
 
     @property
     def family(self):
-        cdef char* _family = \
+        cdef const char* _family = \
             pango_font_description_get_family(self.pango_font_desc)
         if _family is NULL:
             return None
