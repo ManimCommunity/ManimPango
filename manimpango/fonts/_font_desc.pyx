@@ -87,7 +87,7 @@ cdef class FontDescription:
             pango_font_description_to_string(self.pango_font_desc)
         p_desc = <bytes>desc
         g_free(desc)
-        return desc.decode()
+        return p_desc.decode()
 
     def __str__(self):
         return self.__repr__()
