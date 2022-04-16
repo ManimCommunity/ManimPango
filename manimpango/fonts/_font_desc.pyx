@@ -3,6 +3,8 @@ from .enums import Style, Weight, Variant
 cdef class FontDescription:
     def __cinit__(self):
         self.pango_font_desc = pango_font_description_new()
+        if self.pango_font_desc is NULL:
+            raise MemoryError("pango_font_description_new() returned NULL")
 
     def __init__(
         self,
@@ -101,7 +103,7 @@ cdef class FontDescription:
             pango_font_description_copy(self.pango_font_desc)
         return _t
 
-    def __deepcopy__(self):
+    def __deepcopy__(self, memo):
         return self.__copy__()
 
     def __dealloc__(self):
