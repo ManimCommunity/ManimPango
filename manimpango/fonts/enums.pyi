@@ -19,16 +19,5 @@ class Weight(Enum):
     ULTRAHEAVY = ...
 
 class Variant(Enum):
-    """
-    An enumeration specifying capitalization variant of the font.
-    Attributes
-    ----------
-    NORMAL :
-        A normal font.
-    SMALL_CAPS :
-        A font with the lower case characters replaced by smaller variants
-        of the capital characters.
-    """
-
     NORMAL = ...
     SMALL_CAPS = ...
