@@ -1,23 +1,6 @@
 from .enums import Style, Weight, Variant
 
-cdef class FontDescription:
-    """A :class:`FontDescription` describes a font.
-
-    This describes the characteristics of a font to load.
-
-    Parameters
-    ----------
-    family : str
-        Sets :attr:`family`.
-    size : int
-        Sets :attr:`size`.
-    style : Style
-        Sets :attr:`style`.
-    weight : Weight
-        Sets :attr:`weight`.
-    variant : Variant
-        Sets :attr:`variant`.
-    """
+cdef class _FontDescription:
     def __cinit__(self):
         self.pango_font_desc = pango_font_description_new()
         if self.pango_font_desc is NULL:
@@ -94,7 +77,7 @@ cdef class FontDescription:
 
     @classmethod
     def from_string(cls, string: str):
-        _t = FontDescription()
+        _t = _FontDescription()
         _t.pango_font_desc = \
             pango_font_description_from_string(string.encode())
         return _t
@@ -109,12 +92,12 @@ cdef class FontDescription:
     def __str__(self):
         return self.__repr__()
 
-    def __eq__(self, other: FontDescription):
+    def __eq__(self, other: _FontDescription):
         return bool(pango_font_description_equal(
             self.pango_font_desc, other.pango_font_desc))
 
     def __copy__(self):
-        _t = FontDescription()
+        _t = _FontDescription()
         pango_font_description_free(_t.pango_font_desc)
         _t.pango_font_desc = \
             pango_font_description_copy(self.pango_font_desc)

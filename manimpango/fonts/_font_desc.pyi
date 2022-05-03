@@ -1,7 +1,7 @@
 from __future__ import annotations
 from manimpango.fonts.enums import Style, Variant, Weight
 
-class FontDescription:
+class _FontDescription:
     def __init__(
         self,
         family: str = None,
