@@ -142,12 +142,12 @@ class FontDescription:
         return repr(self._font_desc)
 
     def __str__(self):
-        return self.__repr__()
+        return repr(self._font_desc)
 
     def __eq__(self, other: FontDescription):
         return self._font_desc == other._font_desc
 
     def __deepcopy__(self, memo):
         _a = FontDescription()
-        _a._font_desc = _a._font_desc.__copy__()
+        _a._font_desc = self._font_desc.__deepcopy__(memo)
         return _a
