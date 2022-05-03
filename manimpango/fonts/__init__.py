@@ -149,5 +149,5 @@ class FontDescription:
 
     def __deepcopy__(self, memo):
         _a = FontDescription()
-        _a._font_desc = _a.__deepcopy__()
+        _a._font_desc = _a.__copy__()
         return _a
