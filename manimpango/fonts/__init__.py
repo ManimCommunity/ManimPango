@@ -2,6 +2,7 @@
 """This module contains the definition of :class:`FontDescription`,
 and other enums related to it.
 """
+from __future__ import annotations
 
 __all__ = ["FontDescription", "Style", "Weight", "Variant"]
 from ._font_desc import _FontDescription
@@ -143,8 +144,8 @@ class FontDescription:
     def __str__(self):
         return self.__repr__()
 
-    def __eq__(self, other: _FontDescription):
-        return self._font_desc == other
+    def __eq__(self, other: FontDescription):
+        return self._font_desc == other._font_desc
 
     def __deepcopy__(self, memo):
         _a = FontDescription()
