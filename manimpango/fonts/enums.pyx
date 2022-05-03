@@ -1,5 +1,12 @@
-from enum import Enum
+"""Contains Enums which defines text properties from Pango.
+
+Most of these are used in :class:`FontDescription`.
+"""
 from pango cimport *
+from enum import Enum
+
+__all__ = ['Style', 'Weight', 'Variant']
+
 class Style(Enum):
     """
     An enumeration specifying the various slant styles possible for a font.
@@ -7,12 +14,10 @@ class Style(Enum):
     Attributes
     ----------
 
-    NORMAL :
+    NORMAL:
         the font is upright.
-
-    ITALIC :
+    ITALIC:
         the font is slanted, but in a roman style.
-
     OBLIQUE:
         the font is slanted in an italic style.
     """
@@ -28,38 +33,27 @@ class Weight(Enum):
 
     Attributes
     ----------
-
-    NORMAL :
+    NORMAL:
         the default weight (= 400)
-
-    BOLD :
+    BOLD:
         the bold weight( = 700)
-
-    THIN :
+    THIN:
         the thin weight( = 100; Since: 1.24)
-
-    ULTRALIGHT :
+    ULTRALIGHT:
         the ultralight weight( = 200)
-
-    LIGHT :
+    LIGHT:
         the light weight( = 300)
-
-    BOOK :
+    BOOK:
         the book weight( = 380; Since: 1.24)
-
-    MEDIUM :
+    MEDIUM:
         the normal weight( = 500; Since: 1.24)
-
-    SEMIBOLD :
+    SEMIBOLD:
         the semibold weight( = 600)
-
-    ULTRABOLD :
+    ULTRABOLD:
         the ultrabold weight( = 800)
-
-    HEAVY :
+    HEAVY:
         the heavy weight( = 900)
-
-    ULTRAHEAVY :
+    ULTRAHEAVY:
         the ultraheavy weight( = 1000; Since: 1.24)
     """
     NORMAL = PANGO_WEIGHT_NORMAL
@@ -80,22 +74,11 @@ class Variant(Enum):
 
     Attributes
     ----------
-
-    NORMAL :
+    NORMAL:
         A normal font.
-
-    SMALL_CAPS :
+    SMALL_CAPS:
         A font with the lower case characters replaced by smaller variants
         of the capital characters.
     """
     NORMAL = PANGO_VARIANT_NORMAL
     SMALL_CAPS = PANGO_VARIANT_SMALL_CAPS
-
-
-class Alignment(Enum):
-    """
-    An enumeration specifying alignment.
-    """
-    LEFT = PANGO_ALIGN_LEFT
-    CENTER = PANGO_ALIGN_CENTER
-    RIGHT = PANGO_ALIGN_RIGHT

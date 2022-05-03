@@ -12,14 +12,6 @@ Manimpango Reference
    manimpango.unregister_font
    manimpango.list_fonts
 
-Enums
-=====
-.. autosummary::
-   :toctree: reference
-
-   manimpango.Style
-   manimpango.Weight
-   manimpango.Variant
 
 Text Attributes
 ===============
@@ -28,3 +20,12 @@ Text Attributes
    :toctree: reference
 
    manimpango.attributes
+
+Font Description
+================
+
+.. autosummary::
+   :toctree: reference
+
+   manimpango.fonts.enums
+   manimpango.fonts.FontDescription

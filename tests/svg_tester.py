@@ -114,6 +114,31 @@ class SVGStyleTester(SVGUtils):
             if name == "g":
                 if "style" in attrs:
                     styles.append(self.parse_style(attrs["style"]))
+                elif "fill" in attrs:
+                    _temp_style = {}
+                    _temp_style["fill_opacity"] = float(
+                        attrs.get(
+                            "fill-opacity", self.SVG_DEFAULT_ATTRIBUTES["fill-opacity"]
+                        )
+                    )
+                    _temp_style["stroke_opacity"] = float(
+                        attrs.get(
+                            "stroke-opacity",
+                            self.SVG_DEFAULT_ATTRIBUTES["stroke-opacity"],
+                        )
+                    )
+                    if "fill" in attrs:
+                        _temp_style["fill_color"] = self.parse_color_string(
+                            attrs["fill"]
+                        )
+                        # In order to not break animations.creation.Write,
+                        # we interpret no stroke as stroke-width of zero and
+                        # color the same as the fill color, if it exists.
+                    _temp_style["stroke_width"] = 0
+                    if "fill_color" in _temp_style:
+                        _temp_style["stroke_color"] = _temp_style["fill_color"]
+                    styles.append(_temp_style)
+
             if styles:
                 # need to think of better way than this.
                 exec(f"self.{final_setter} += [styles]")

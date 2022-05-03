@@ -18,6 +18,7 @@ try:
     from .attributes import *  # noqa: F403,F401
     from .cmanimpango import *  # noqa: F403,F401
     from .enums import *  # noqa: F403,F401
+    from .fonts import *  # noqa: F403,F401
     from .layout import *  # noqa: F403,F401
     from .register_font import *  # noqa: F403,F401
 except ImportError as ie:  # pragma: no cover

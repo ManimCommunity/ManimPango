@@ -247,6 +247,16 @@ ext_modules = [
         [str(base_file / "utils" / ("utils" + ext))],
         **returns,
     ),
+    Extension(
+        "manimpango.fonts._font_desc",
+        [str(base_file / "fonts" / ("_font_desc" + ext))],
+        **returns,
+    ),
+    Extension(
+        "manimpango.fonts.enums",
+        [str(base_file / "fonts" / ("enums" + ext))],
+        **returns,
+    ),
 ]
 if USE_CYTHON:
     ext_modules = cythonize(
@@ -275,6 +285,7 @@ setup(
         "manimpango.attributes",
         "manimpango.utils",
         "manimpango.layout",
+        "manimpango.fonts",
     ],
     python_requires=">=3.7",
     platforms=["Linux", "macOS", "Windows"],
