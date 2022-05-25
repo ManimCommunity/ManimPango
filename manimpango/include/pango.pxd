@@ -109,6 +109,10 @@ cdef extern from "pango/pangocairo.h":
         PangoLayout* layout,
         int width
     )
+    void pango_layout_set_height(
+        PangoLayout* layout,
+        int height
+    )
     void pango_layout_set_font_description(
         PangoLayout* layout,
         const PangoFontDescription* desc
