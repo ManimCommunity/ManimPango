@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
+from ..fonts import FontDescription
 from ..enums import Alignment
 from ..exceptions import MarkupParseError
 from ..utils import validate_markup
@@ -20,7 +21,7 @@ class Layout:
     the formatting of a :class:`Layout`.
     """
 
-    def __init__(self, text: str = None, markup: str = None):
+    def __init__(self, text: str = None, markup: str = None, font_desc: FontDescription = None):
         """
         Parameters
         ----------
@@ -28,6 +29,8 @@ class Layout:
             The text to be set, by default None
         markup : str, optional
             The text encoded in PangoMarkup, by default None
+        font_desc: FontDescription, optional
+            The font description to be used while rendering.
 
         Raises
         ------
@@ -40,6 +43,8 @@ class Layout:
             self.markup = markup
         if self.markup is None and self.text is None:
             raise ValueError("Either 'markup' or 'text' is required.")
+        if font_desc:
+            self.font_desc = font_desc
 
     def __len__(self):
         return len(self.text) if self.text is not None else len(self.markup)
@@ -106,3 +111,15 @@ class Layout:
         if not isinstance(val, Alignment):
             raise TypeError("'alignment' should be an Alignment")
         self._alignment = val
+
+    @property
+    def font_desc(self) -> FontDescription:
+        if hasattr(self, "_font_desc"):
+            return self._font_desc
+        return FontDescription()
+
+    @font_desc.setter
+    def font_desc(self, val: FontDescription):
+        if not isinstance(val, FontDescription):
+            raise TypeError("'font_desc' should be an FontDescription")
+        self._font_desc = val
