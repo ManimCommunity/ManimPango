@@ -2,6 +2,17 @@ from cairo cimport *
 from pango cimport *
 from ..layout import Layout
 
+cdef str is_context_fine(cairo_t* context):
+    cdef cairo_status_t status
+    status = cairo_status(context)
+    if status == CAIRO_STATUS_NO_MEMORY:
+        cairo_destroy(context)
+        raise MemoryError("Cairo returned memory error")
+    elif status != CAIRO_STATUS_SUCCESS:
+        temp_bytes = <bytes>cairo_status_to_string(status)
+        return temp_bytes.decode('utf-8')
+    return ""
+
 cdef cairo_t* create_cairo_context_from_surface(cairo_surface_t* surface):
     cr = cairo_create(surface)
     status = cairo_status(cr)
@@ -24,6 +35,14 @@ cdef PangoLayout* create_pango_layout(cairo_t* context):
         cairo_destroy(context)
         raise MemoryError("Pango.Layout can't be created from Cairo Context.")
     return layout
+
+cdef PangoFontDescription* create_font_desc():
+    # the resulting font_desc should be freed seperately
+    pango_font_desc = pango_font_description_new()
+    if pango_font_desc is NULL:
+        raise MemoryError("pango_font_description_new() returned NULL")
+
+    return pango_font_desc
 
 cdef pylayout_to_pango_layout(PangoLayout* layout, object py_layout):
     if py_layout.text:
@@ -59,3 +78,17 @@ cdef pylayout_to_pango_layout(PangoLayout* layout, object py_layout):
             layout,
             py_layout.alignment.value,
         )
+
+cdef pyfontdesc_to_pango_font_desc(PangoFontDescription* font_desc, object py_font_desc):
+    if py_font_desc.family:
+        pango_font_description_set_family(
+            font_desc, py_font_desc.family.encode())
+    if py_font_desc.size:
+        pango_font_description_set_size(font_desc,
+            py_font_desc.size)
+    pango_font_description_set_style(font_desc,
+        py_font_desc.style.value)
+    pango_font_description_set_weight(font_desc,
+        py_font_desc.weight.value)
+    pango_font_description_set_variant(font_desc,
+        py_font_desc.variant.value)
