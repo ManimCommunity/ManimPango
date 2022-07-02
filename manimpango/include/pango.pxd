@@ -59,6 +59,10 @@ cdef extern from "pango/pangocairo.h":
         PangoFontDescription* desc,
         gint size
     )
+    void pango_font_description_set_absolute_size(
+        PangoFontDescription* desc,
+        double size
+    )
     void pango_font_description_set_family(
         PangoFontDescription* desc,
         const char* family
