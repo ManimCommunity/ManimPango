@@ -85,7 +85,7 @@ cdef pyfontdesc_to_pango_font_desc(PangoFontDescription* font_desc, object py_fo
             font_desc, py_font_desc.family.encode())
     if py_font_desc.size:
         pango_font_description_set_size(font_desc,
-            py_font_desc.size)
+            py_font_desc.size * PANGO_SCALE)
     pango_font_description_set_style(font_desc,
         py_font_desc.style.value)
     pango_font_description_set_weight(font_desc,
