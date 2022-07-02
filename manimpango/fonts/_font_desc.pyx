@@ -40,11 +40,11 @@ cdef class _FontDescription:
 
     @property
     def size(self):
-        return pango_font_description_get_size(self.pango_font_desc)
+        return pango_font_description_get_size(self.pango_font_desc) // PANGO_SCALE
 
     @size.setter
     def size(self, size: int):
-        pango_font_description_set_size(self.pango_font_desc, size)
+        pango_font_description_set_size(self.pango_font_desc, size * PANGO_SCALE)
 
     @property
     def style(self):
