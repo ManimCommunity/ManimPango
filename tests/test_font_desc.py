@@ -33,10 +33,10 @@ class TestFontDescription:
     def test_from_string(self):
         _a = FontDescription.from_string("OhNO 12")
         assert _a.family == "OhNO"
-        assert _a.size == 12288  # 12 -> pango units
+        assert _a.size == 12
         _a = FontDescription.from_string("Cantarell Italic Light 15")
         assert _a.family == "Cantarell"
-        assert _a.size == 15360
+        assert _a.size == 15
         assert _a.style == Style.ITALIC
         assert _a.weight == Weight.LIGHT
         assert _a.variant == Variant.NORMAL
