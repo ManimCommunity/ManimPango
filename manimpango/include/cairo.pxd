@@ -6,6 +6,8 @@ cdef extern from "cairo.h":
     ctypedef enum cairo_status_t:
         CAIRO_STATUS_SUCCESS
         CAIRO_STATUS_NO_MEMORY
+    ctypedef enum cairo_format_t:
+        CAIRO_FORMAT_ARGB32
     cairo_t* cairo_create(cairo_surface_t* target)
     void cairo_move_to(
         cairo_t* cr,
@@ -18,6 +20,16 @@ cdef extern from "cairo.h":
     cairo_status_t cairo_status(cairo_t *cr)
     const char* cairo_status_to_string(cairo_status_t status)
     const char* cairo_version_string()
+    cairo_surface_t* cairo_image_surface_create(
+        cairo_format_t format,
+        int width,
+        int height
+    )
+    cairo_status_t cairo_surface_write_to_png(
+        cairo_surface_t *surface,
+        const char *filename
+    )
+
 
 cdef extern from "cairo-svg.h":
     cairo_surface_t* cairo_svg_surface_create(

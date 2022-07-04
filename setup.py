@@ -261,7 +261,12 @@ ext_modules = [
         "manimpango.renderer.svg_renderer",
         [str(base_file / "renderer" / ("svg_renderer" + ext))],
         **returns,
-    )
+    ),
+    Extension(
+        "manimpango.renderer.png_renderer",
+        [str(base_file / "renderer" / ("png_renderer" + ext))],
+        **returns,
+    ),
 ]
 if USE_CYTHON:
     ext_modules = cythonize(
@@ -291,7 +296,7 @@ setup(
         "manimpango.utils",
         "manimpango.layout",
         "manimpango.fonts",
-        "manimpango.renderer"
+        "manimpango.renderer",
     ],
     python_requires=">=3.7",
     platforms=["Linux", "macOS", "Windows"],
