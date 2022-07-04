@@ -60,7 +60,7 @@ cdef class PNGRenderer:
         _err = is_context_fine(self.cairo_context)
         if _err != "":
             raise Exception(_err)
-        
+
         cdef cairo_status_t _status = cairo_surface_write_to_png(self.cairo_surface,
             self.file_name.encode('utf-8'))
         if _status == CAIRO_STATUS_NO_MEMORY:

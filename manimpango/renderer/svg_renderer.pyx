@@ -47,7 +47,7 @@ cdef class SVGRenderer:
         _err = is_context_fine(self.cairo_context)
         if _err != "":
             raise Exception(_err)
-        
+
         # Assign the font description to the layout
         pango_layout_set_font_description(self.pango_layout,
             self.pango_font_desc)
@@ -55,7 +55,7 @@ cdef class SVGRenderer:
         # Render the actual layout into the cairo context
         pango_cairo_show_layout(self.cairo_context,
             self.pango_layout)
-    
+
         # Check if the context is fine again
         _err = is_context_fine(self.cairo_context)
         if _err != "":

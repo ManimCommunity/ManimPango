@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 
-from ..fonts import FontDescription
 from ..enums import Alignment
 from ..exceptions import MarkupParseError
+from ..fonts import FontDescription
 from ..utils import validate_markup
 
 __all__ = ["Layout"]
@@ -21,7 +21,9 @@ class Layout:
     the formatting of a :class:`Layout`.
     """
 
-    def __init__(self, text: str = None, markup: str = None, font_desc: FontDescription = None):
+    def __init__(
+        self, text: str = None, markup: str = None, font_desc: FontDescription = None
+    ):
         """
         Parameters
         ----------
