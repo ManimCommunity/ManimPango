@@ -65,7 +65,11 @@ cdef class SVGRenderer:
         self.start_renderering()
 
     def __dealloc__(self):
-        g_object_unref(self.pango_layout)
-        cairo_destroy(self.cairo_context)
-        cairo_surface_destroy(self.cairo_surface)
-        pango_font_description_free(self.pango_font_desc)
+        if self.pango_layout:
+            g_object_unref(self.pango_layout)
+        if self.cairo_context:
+            cairo_destroy(self.cairo_context)
+        if self.cairo_surface:
+            cairo_surface_destroy(self.cairo_surface)
+        if self.pango_font_desc:
+            pango_font_description_free(self.pango_font_desc)
