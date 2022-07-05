@@ -29,3 +29,20 @@ Font Description
 
    manimpango.fonts.enums
    manimpango.fonts.FontDescription
+
+Layout
+======
+
+.. autosummary::
+   :toctree: reference
+
+   manimpango.Layout
+
+Renderers
+=========
+
+.. autosummary::
+   :toctree: reference
+
+   manimpango.SVGRenderer
+   manimpango.PNGRenderer
