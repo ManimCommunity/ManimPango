@@ -1,6 +1,8 @@
-import manimpango
-from pathlib import Path
+# -*- coding: utf-8 -*-
 import os
+from pathlib import Path
+
+import manimpango
 
 
 def test_svg_renderer(tmpdir, monkeypatch):
@@ -13,6 +15,7 @@ def test_svg_renderer(tmpdir, monkeypatch):
     assert _s.file_name == "test.svg"
     assert _s.width == 200
     assert _s.height == 200
+
 
 def test_png_renderer(tmpdir, monkeypatch):
     monkeypatch.chdir(tmpdir)
