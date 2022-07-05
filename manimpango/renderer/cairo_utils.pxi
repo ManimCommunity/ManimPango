@@ -24,6 +24,7 @@ cdef cairo_t* create_cairo_context_from_surface(cairo_surface_t* surface):
     elif status != CAIRO_STATUS_SUCCESS:
         cairo_destroy(cr)
         cairo_surface_destroy(surface)
+        # TODO: raise specific excpetions
         raise Exception(cairo_status_to_string(status))
 
     return cr
