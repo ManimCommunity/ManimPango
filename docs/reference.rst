@@ -46,3 +46,11 @@ Renderers
 
    manimpango.SVGRenderer
    manimpango.PNGRenderer
+
+Exceptions
+==========
+
+.. autosummary::
+   :toctree: reference
+
+   manimpango.exceptions.MarkupParseError
