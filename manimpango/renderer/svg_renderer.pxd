@@ -11,11 +11,11 @@ cdef class SVGRenderer:
     cdef PangoLayout* pango_layout
     cdef PangoFontDescription* pango_font_desc
 
-    cdef str file_name
-    cdef float width
-    cdef float height
+    cdef str _file_name
+    cdef float _width
+    cdef float _height
     cdef object py_layout
     cdef object py_font_desc
 
-    cdef start_renderering(self)
-    cpdef render(self)
+    cdef bint start_renderering(self)
+    cpdef bint render(self)

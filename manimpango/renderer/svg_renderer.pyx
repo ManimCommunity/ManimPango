@@ -4,6 +4,38 @@ from ..layout import Layout
 include "cairo_utils.pxi"
 
 cdef class SVGRenderer:
+    """:class:`SVGRenderer` is a renderer which renders the
+    :class:`~.Layout` to an SVG file.
+
+    The :attr:`file_name` is opened when the class is initialised
+    and only closed when the renderer is destroyed.
+
+    Parameters
+    ==========
+    file_name: :class:`str`
+        The path to SVG file.
+    width: :class:`float`
+        The width of the SVG.
+    height: :class:`float`
+        The height of the SVG.
+    layout: :class:`Layout`
+        The :class:`~.Layout` that needs to be rendered.
+
+    Example
+    =======
+    >>> import manimpango as mp
+    >>> a = mp.SVGRenderer('test.svg', 100, 100, mp.Layout('hello'))
+    >>> a
+    <SVGRenderer file_name='test.svg' width=100.0 height=100.0 layout=<Layout text='hello' markup=None>
+    >>> a.render()
+    True
+
+
+    Raises
+    ======
+    Exception
+        Any error reported by cairo.
+    """
     def __cinit__(
         self,
         file_name: str,
@@ -30,13 +62,13 @@ cdef class SVGRenderer:
         height: float,
         layout: Layout
     ):
-        self.file_name = file_name
-        self.width = width
-        self.height = height
+        self._file_name = file_name
+        self._width = width
+        self._height = height
         self.py_layout = layout
         self.py_font_desc = layout.font_desc
 
-    cdef start_renderering(self):
+    cdef bint start_renderering(self):
         pylayout_to_pango_layout(self.pango_layout, self.py_layout)
         pyfontdesc_to_pango_font_desc(self.pango_font_desc, self.py_font_desc)
         pango_layout_set_font_description(
@@ -60,9 +92,26 @@ cdef class SVGRenderer:
         _err = is_context_fine(self.cairo_context)
         if _err != "":
             raise Exception(_err)
+        return 1
 
-    cpdef render(self):
-        self.start_renderering()
+    cpdef bint render(self):
+        """:meth:`render` actually does the rendering.
+        Any error reported by Cairo is reported as an exception.
+        If this method suceeds you can expect an valid SVG file at
+        :attr:`file_name`.
+
+        Returns
+        =======
+        bool
+            ``True`` if the function worked, else ``False``.
+        """
+        return self.start_renderering()
+
+    def __repr__(self) -> str:
+        return (f"<SVGRenderer file_name={repr(self.file_name)}"
+            f" width={repr(self.width)}"
+            f" height={repr(self.height)}"
+            f" layout={repr(self.layout)}")
 
     def __dealloc__(self):
         if self.pango_layout:
@@ -76,12 +125,23 @@ cdef class SVGRenderer:
 
     @property
     def file_name(self) -> str:
-        return self.file_name
+        """The file_name where the file is rendered onto"""
+        return self._file_name
 
     @property
     def width(self) -> float:
-        return self.width
+        """The width of the SVG.
+        """
+        return self._width
 
     @property
     def height(self) -> float:
-        return self.height
+        """The height of the SVG.
+        """
+        return self._height
+
+    @property
+    def layout(self) -> Layout:
+        """The :class:`~.Layout` which is being rendered.
+        """
+        return self.py_layout
