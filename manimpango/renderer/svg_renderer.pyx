@@ -73,3 +73,15 @@ cdef class SVGRenderer:
             cairo_surface_destroy(self.cairo_surface)
         if self.pango_font_desc:
             pango_font_description_free(self.pango_font_desc)
+
+    @property
+    def file_name(self) -> str:
+        return self.file_name
+
+    @property
+    def width(self) -> float:
+        return self.width
+
+    @property
+    def height(self) -> float:
+        return self.height
