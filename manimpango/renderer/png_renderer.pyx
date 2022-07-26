@@ -94,6 +94,7 @@ cdef class PNGRenderer:
 
         cdef cairo_status_t _status = cairo_surface_write_to_png(self.cairo_surface,
             self.file_name.encode('utf-8'))
+
         if _status == CAIRO_STATUS_NO_MEMORY:
             raise MemoryError("Cairo didn't find memory")
         elif _status != CAIRO_STATUS_SUCCESS:
@@ -112,7 +113,7 @@ cdef class PNGRenderer:
         bool
             ``True`` if the function worked, else ``False``.
         """
-        self.start_renderering()
+        return self.start_renderering()
 
     def __repr__(self) -> str:
         return (f"<PNGRenderer file_name={repr(self.file_name)}"
@@ -133,17 +134,17 @@ cdef class PNGRenderer:
     @property
     def file_name(self) -> str:
         """The file_name where the file is rendered onto"""
-        return self.file_name
+        return self._file_name
 
     @property
     def width(self) -> int:
         """The width of the PNG."""
-        return self.width
+        return self._width
 
     @property
     def height(self) -> int:
         """The height of the PNG."""
-        return self.height
+        return self._height
 
     @property
     def layout(self) -> Layout:
