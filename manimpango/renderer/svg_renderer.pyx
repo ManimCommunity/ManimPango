@@ -30,7 +30,6 @@ cdef class SVGRenderer:
     >>> a.render()
     True
 
-
     Raises
     ======
     Exception
@@ -130,14 +129,12 @@ cdef class SVGRenderer:
 
     @property
     def width(self) -> float:
-        """The width of the SVG.
-        """
+        """The width of the SVG."""
         return self._width
 
     @property
     def height(self) -> float:
-        """The height of the SVG.
-        """
+        """The height of the SVG."""
         return self._height
 
     @property
