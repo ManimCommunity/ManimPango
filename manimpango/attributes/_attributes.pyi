@@ -1,0 +1,3 @@
+import typing as T
+
+def covert_hex_to_rbg(color_hex: str) -> T.Tuple[int, int, int]: ...

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 import typing as T
 
 from ._attributes import covert_hex_to_rbg
@@ -6,17 +7,16 @@ from ._attributes import covert_hex_to_rbg
 __all__ = ["TextAttribute"]
 
 
-def _parse_color_output(val: T.Union[str, T.Iterable[int]]):
+def _parse_color_output(val: T.Union[str, T.Tuple[int, int, int]]):
     color_hex = None
     red, green, blue = None, None, None
     if isinstance(val, str):
         color_hex = val
+        red, green, blue = covert_hex_to_rbg(color_hex)
     else:
         if len(val) != 3:
             raise ValueError("Either a Iterable of 3 items or a string must be passed.")
         red, green, blue = val
-    if color_hex:
-        red, green, blue = covert_hex_to_rbg(color_hex)
     if not ((0 <= red <= 65535) and (0 <= green <= 65535) and (0 <= blue <= 65535)):
         raise ValueError("red, green, blue should be between 0 and 65535.")
     return (red, green, blue)
@@ -100,7 +100,7 @@ class TextAttribute:
         self._allow_breaks = bool(val)
 
     @property
-    def background_alpha(self) -> float:
+    def background_alpha(self) -> float | None:
         """The background_alpha of the text.
 
         Raises
@@ -150,11 +150,11 @@ class TextAttribute:
         return None
 
     @background_color.setter
-    def background_color(self, val: T.Union[str, T.Iterable[int]]) -> None:
+    def background_color(self, val: T.Union[str, T.Tuple[int, int, int]]) -> None:
         self._background_color = _parse_color_output(val)
 
     @property
-    def fallback(self) -> bool:
+    def fallback(self) -> bool | None:
         """Enable or disable fallbacks.
 
         If fallback is disabled, characters will only be used from the
@@ -171,7 +171,7 @@ class TextAttribute:
         self._fallback = bool(val)
 
     @property
-    def family(self) -> str:
+    def family(self) -> str | None:
         """The font family the text should render. Can be a comma seperated
         list of fonts in a string.
 

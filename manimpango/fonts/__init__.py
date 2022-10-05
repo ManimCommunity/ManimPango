@@ -61,7 +61,10 @@ class FontDescription:
         possible to use a comma separated list of family names for
         this field.
         """
-        return self._font_desc.family
+        fam = self._font_desc.family
+        if not fam:
+            return ""
+        return fam
 
     @family.setter
     def family(self, family: str) -> None:
@@ -144,7 +147,9 @@ class FontDescription:
     def __str__(self):
         return repr(self._font_desc)
 
-    def __eq__(self, other: FontDescription):
+    def __eq__(self, other: object):
+        if not isinstance(other, FontDescription):
+            return NotImplemented
         return self._font_desc == other._font_desc
 
     def __deepcopy__(self, memo):
