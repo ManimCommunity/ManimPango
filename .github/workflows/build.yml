@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - fix-wheel-build
+      - v*
   release:
     types: [created]
 
