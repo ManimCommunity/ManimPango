@@ -9,7 +9,7 @@ repos:
       - id: mixed-line-ending
       - id: check-merge-conflict
   - repo: https://github.com/psf/black
-    rev: e66be67b9b6811913470f70c28b4d50f94d05b22 # frozen: 20.8b1
+    rev: 22.10.1 # frozen: 20.8b1
     hooks:
       - id: black
         args: ["--target-version", "py38"]
