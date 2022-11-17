@@ -116,13 +116,18 @@ class SVGStyleTester(SVGUtils):
             if name == "g":
                 if "style" in attrs:
                     styles.append(self.parse_style(attrs["style"]))
-                if "fill" in attrs or "fill-opacity" in attrs or "stroke" in attrs or "stroke-opacity" in attrs:
+                if (
+                    "fill" in attrs
+                    or "fill-opacity" in attrs
+                    or "stroke" in attrs
+                    or "stroke-opacity" in attrs
+                ):
                     styles.append(
                         self.parse_style(
-                            f"fill:{attrs.get('fill', self.SVG_DEFAULT_ATTRIBUTES['fill'])};"
-                            f"fill-opacity:{attrs.get('fill-opacity', self.SVG_DEFAULT_ATTRIBUTES['fill-opacity'])};"
-                            f"stroke:{attrs.get('stroke', self.SVG_DEFAULT_ATTRIBUTES['stroke'])};"
-                            f"stroke-opacity:{attrs.get('stroke-opacity', self.SVG_DEFAULT_ATTRIBUTES['stroke-opacity'])};"
+                            f"fill:{attrs.get('fill', self.SVG_DEFAULT_ATTRIBUTES['fill'])};"  # noqa: E501
+                            f"fill-opacity:{attrs.get('fill-opacity', self.SVG_DEFAULT_ATTRIBUTES['fill-opacity'])};"  # noqa: E501
+                            f"stroke:{attrs.get('stroke', self.SVG_DEFAULT_ATTRIBUTES['stroke'])};"  # noqa: E501
+                            f"stroke-opacity:{attrs.get('stroke-opacity', self.SVG_DEFAULT_ATTRIBUTES['stroke-opacity'])};"  # noqa: E501
                         )
                     )
             if styles:

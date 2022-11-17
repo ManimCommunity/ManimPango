@@ -58,7 +58,7 @@ jobs:
           coverage report
           coverage html
           coverage xml
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v3
         with:
           file: ./.coverage/coverage.xml
       - uses: actions/upload-artifact@v3
