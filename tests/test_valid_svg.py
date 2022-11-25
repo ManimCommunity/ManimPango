@@ -1,6 +1,9 @@
-from ._manim import Text
+# -*- coding: utf-8 -*-
 from pathlib import Path
 from xml.parsers.expat import ParserCreate
+
+from ._manim import Text
+
 
 def test_whether_valid_svg_file(tmpdir):
     loc = Path(tmpdir, "test.svg")
