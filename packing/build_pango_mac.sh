@@ -48,7 +48,6 @@ echo "::endgroup::"
 
 echo "::group::Removing the things from brew"
 brew uninstall --ignore-dependencies brotli
-brew uninstall --ignore-dependencies pcre
 brew uninstall --ignore-dependencies libpng
 brew uninstall --ignore-dependencies freetype
 brew uninstall --ignore-dependencies libxdmcp
