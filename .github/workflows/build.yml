@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-2019]
+        os: [macos-11, windows-2019]
         bitness: [32, 64]
         include:
           # Run 32 and 64 bit version in parallel for Windows
@@ -26,11 +26,11 @@ jobs:
           - os: windows-2019
             bitness: 32
             platform_id: win32
-          - os: macos-latest
+          - os: macos-11
             bitness: 64
             platform_id: macosx_x86_64
         exclude:
-          - os: macos-latest
+          - os: macos-11
             bitness: 32
     env:
       CIBW_BUILD: cp37-${{ matrix.platform_id }} cp38-${{ matrix.platform_id }} cp39-${{ matrix.platform_id }} cp310-${{ matrix.platform_id }} cp311-${{ matrix.platform_id }}
