@@ -28,6 +28,13 @@ python $FILE_PATH/packing/download_and_extract.py "https://gitlab.freedesktop.or
 python $FILE_PATH/packing/download_and_extract.py "https://www.freedesktop.org/software/fontconfig/release/fontconfig-${FONTCONFIG_VERSION}.tar.xz" fontconfig
 python $FILE_PATH/packing/download_and_extract.py "https://github.com/harfbuzz/harfbuzz/releases/download/${HARFBUZZ_VERSION}/harfbuzz-${HARFBUZZ_VERSION}.tar.xz" harfbuzz
 
+
+echo "Fetching and applying patch for Cairo build"
+curl -L https://gitlab.freedesktop.org/cairo/cairo/-/merge_requests/101.diff -o 101.diff
+cd cairo
+patch -Nbp1 -i "$PWD/../101.diff" || true
+cd ..
+
 curl -L "https://github.com/frida/proxy-libintl/archive/0.2.tar.gz" -o 0.2.tar.gz
 tar -xf 0.2.tar.gz
 mv proxy-libintl-0.2 proxy-libintl
