@@ -4,7 +4,7 @@ set -e
 
 PANGO_VERSION=1.50.11
 GLIB_VERSION=2.74.0
-CAIRO_VERSION=1.17.4
+CAIRO_VERSION=1.17.6
 FONTCONFIG_VERSION=2.14.0
 HARFBUZZ_VERSION=5.3.1
 
@@ -30,9 +30,9 @@ python $FILE_PATH/packing/download_and_extract.py "https://github.com/harfbuzz/h
 
 
 echo "Fetching and applying patch for Cairo build"
-curl -L https://gitlab.freedesktop.org/cairo/cairo/-/merge_requests/101.diff -o 101.diff
+curl -L https://gitlab.freedesktop.org/cairo/cairo/-/commit/cdb7c298c7b89307ad69b94a1126221bd7c06579.patch -o test.diff
 cd cairo
-patch -Nbp1 -i "$PWD/../101.diff" || true
+patch -Nbp1 -i "$PWD/../test.diff" || true
 cd ..
 
 curl -L "https://github.com/frida/proxy-libintl/archive/0.2.tar.gz" -o 0.2.tar.gz
