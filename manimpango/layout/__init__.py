@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from __future__ import annotations
 
 from ..attributes import TextAttribute
 from ..enums import Alignment
