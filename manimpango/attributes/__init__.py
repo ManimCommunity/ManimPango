@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 import typing as T
 
 from ..utils import covert_hex_to_rbg
