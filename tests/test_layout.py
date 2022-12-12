@@ -67,6 +67,7 @@ def test_layout_with_attributes():
     assert _a.attributes[0].start_index == 0
     assert _a.attributes[0].end_index == 5
 
+
 @pytest.mark.parametrize(
     "values",
     [

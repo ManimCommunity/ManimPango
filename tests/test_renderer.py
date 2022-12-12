@@ -2,8 +2,9 @@
 import os
 from pathlib import Path
 
-import manimpango
 import pytest
+
+import manimpango
 
 
 def test_svg_renderer(tmpdir, monkeypatch):
