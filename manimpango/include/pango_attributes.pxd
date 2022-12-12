@@ -179,4 +179,3 @@ cdef extern from "pango/pango.h":
     char* pango_attr_list_to_string (
         PangoAttrList* list
     )
-

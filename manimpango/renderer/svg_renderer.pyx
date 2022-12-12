@@ -75,7 +75,7 @@ cdef class SVGRenderer:
             self.py_layout,
             self.pango_attr_list
         )
-        
+
         pyfontdesc_to_pango_font_desc(self.pango_font_desc, self.py_font_desc)
         pango_layout_set_font_description(
             self.pango_layout,

@@ -3,6 +3,7 @@ from pango_attributes cimport *
 
 from manimpango.attributes import TextAttribute
 
+
 cdef PangoAttribute* raise_on_null_attr(PangoAttribute* ptr):
     if not ptr:
         raise MemoryError("Could not allocate memory for attribute")
@@ -129,7 +130,7 @@ cdef GQueue* create_attr_list_for_attribute (
             attr.start_index,
             attr.end_index,
         )
-    
+
     return queue
 
 
@@ -153,7 +154,7 @@ cdef convert_to_pango_attributes(
 
     if not pango_attr_list:
         raise ValueError("pango_attr_list must not be NULL.")
-    
+
     # Use pango_attr_list_change() to add the attributes to the list.
     for attr in attrs:
         temp_queue = create_attr_list_for_attribute(attr)

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 
+from ..attributes import TextAttribute
 from ..enums import Alignment
 from ..exceptions import MarkupParseError
 from ..fonts import FontDescription
 from ..utils import validate_markup
-from ..attributes import TextAttribute
 
 __all__ = ["Layout"]
 
