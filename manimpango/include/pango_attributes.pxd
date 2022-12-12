@@ -152,3 +152,31 @@ cdef extern from "pango/pango.h":
     PangoAttribute* pango_attr_weight_new (
         PangoWeight weight
     )
+    void pango_attribute_destroy (
+        PangoAttribute* attr
+    )
+
+# Functions related to PangoAttrList
+cdef extern from "pango/pango.h":
+    ctypedef struct PangoAttrList:
+        pass
+    PangoAttrList* pango_attr_list_new ()
+    void pango_attr_list_change (
+        PangoAttrList* list,
+        PangoAttribute* attr,
+    )
+    PangoAttrList* pango_attr_list_ref (
+        PangoAttrList* list
+    )
+    void pango_attr_list_unref (
+        PangoAttrList* list
+    )
+    void pango_attr_list_insert (
+        PangoAttrList* list,
+        PangoAttribute* attr
+    )
+    # for debugging
+    char* pango_attr_list_to_string (
+        PangoAttrList* list
+    )
+

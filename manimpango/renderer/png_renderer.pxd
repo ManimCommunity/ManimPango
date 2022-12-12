@@ -11,6 +11,7 @@ cdef class PNGRenderer:
     cdef cairo_t* cairo_context
     cdef PangoLayout* pango_layout
     cdef PangoFontDescription* pango_font_desc
+    cdef PangoAttrList* pango_attr_list
 
     cdef str _file_name
     cdef float _width

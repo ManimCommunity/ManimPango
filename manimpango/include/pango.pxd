@@ -1,6 +1,6 @@
 from cairo cimport *
 from glib cimport *
-
+from pango_attributes cimport *
 
 cdef extern from "pango/pangocairo.h":
     int PANGO_SCALE
@@ -179,6 +179,10 @@ cdef extern from "pango/pangocairo.h":
     void pango_layout_set_alignment(
         PangoLayout *layout,
         PangoAlignment alignment
+    )
+    void pango_layout_set_attributes (
+        PangoLayout* layout,
+        PangoAttrList* attrs
     )
     gboolean pango_color_parse(
         PangoColor* color,
