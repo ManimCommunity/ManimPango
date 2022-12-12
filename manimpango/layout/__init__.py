@@ -5,6 +5,7 @@ from ..enums import Alignment
 from ..exceptions import MarkupParseError
 from ..fonts import FontDescription
 from ..utils import validate_markup
+from ..attributes import TextAttribute
 
 __all__ = ["Layout"]
 
@@ -49,6 +50,7 @@ class Layout:
         text: str = None,
         markup: str = None,
         font_desc: FontDescription = None,
+        attributes: list[TextAttribute] = None,
     ):
         if text:
             self.text = text
@@ -58,6 +60,8 @@ class Layout:
             raise ValueError("Either 'markup' or 'text' is required.")
         if font_desc:
             self.font_desc = font_desc
+        if attributes:
+            self.attributes = attributes
 
     def __len__(self):
         return len(self.text) if self.text is not None else len(self.markup)
@@ -167,6 +171,21 @@ class Layout:
         if not isinstance(val, FontDescription):
             raise TypeError("'font_desc' should be an FontDescription")
         self._font_desc = val
+
+    @property
+    def attributes(self) -> list[TextAttribute]:
+        if hasattr(self, "_attributes"):
+            return self._attributes
+        return []
+
+    @attributes.setter
+    def attributes(self, val: list[TextAttribute]):
+        if not isinstance(val, list):
+            raise TypeError("'attributes' should be a list")
+        # check if all element of val is of type TextAttribute
+        if not all(isinstance(x, TextAttribute) for x in val):
+            raise TypeError("'attributes' should be a list of TextAttribute")
+        self._attributes = val
 
     def __repr__(self):
         return f"<Layout text={repr(self.text)} markup={repr(self.markup)}>"
