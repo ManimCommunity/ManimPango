@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from manimpango import Alignment, Layout
+from manimpango import Alignment, Layout, TextAttribute
 from manimpango.exceptions import MarkupParseError
 
 
@@ -56,3 +56,27 @@ def test_alignment():
     assert _a.alignment == Alignment.LEFT
     with pytest.raises(TypeError):
         _a.alignment = 2
+
+
+def test_layout_with_attributes():
+    _a = Layout(
+        "hello",
+    )
+    assert _a.attributes == []
+    _a = Layout("hello", attributes=[TextAttribute(0, 5)])
+    assert _a.attributes[0].start_index == 0
+    assert _a.attributes[0].end_index == 5
+
+@pytest.mark.parametrize(
+    "values",
+    [
+        [1],
+        [TextAttribute(0, 5), 1],
+        (1,),
+        (TextAttribute(0, 5), 1),
+        "hello",
+    ],
+)
+def test_layout_attribute_parameter(values):
+    with pytest.raises(TypeError):
+        Layout("hi", attributes=values)
