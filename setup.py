@@ -238,11 +238,6 @@ ext_modules = [
         **returns,
     ),
     Extension(
-        "manimpango.attributes._attributes",
-        [str(base_file / "attributes" / ("attributes" + ext))],
-        **returns,
-    ),
-    Extension(
         "manimpango.utils._utils",
         [str(base_file / "utils" / ("utils" + ext))],
         **returns,

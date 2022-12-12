@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import typing as T
 
-from ._attributes import covert_hex_to_rbg
+from ..utils import covert_hex_to_rbg
 
 __all__ = ["TextAttribute"]
 
