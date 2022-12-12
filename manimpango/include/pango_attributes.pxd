@@ -1,6 +1,7 @@
 from glib cimport *
 from pango cimport *
 
+
 cdef extern from "pango/pango.h":
     ctypedef struct PangoAttribute:
         guint start_index

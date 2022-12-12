@@ -1,6 +1,9 @@
 from pathlib import Path
+
 from pango cimport *
+
 import os
+
 
 cpdef bint fc_register_font(str font_path):
     """This function registers the font file using ``fontconfig`` so that

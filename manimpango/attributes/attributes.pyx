@@ -1,5 +1,6 @@
-from pango_attributes cimport *
 from pango cimport *
+from pango_attributes cimport *
+
 
 def covert_hex_to_rbg(color_hex: str):
     cdef PangoColor color

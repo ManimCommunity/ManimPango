@@ -1,5 +1,6 @@
 from pango cimport *
 
+
 cpdef str validate_markup(str text):
     cdef GError *err = NULL
     text_bytes = text.encode("utf-8")

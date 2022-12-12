@@ -1,6 +1,8 @@
 from cairo cimport *
 from pango cimport *
+
 from ..layout import Layout
+
 
 cdef str is_context_fine(cairo_t* context):
     cdef cairo_status_t status

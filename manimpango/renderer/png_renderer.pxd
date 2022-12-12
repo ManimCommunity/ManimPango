@@ -1,9 +1,10 @@
 from cairo cimport *
-from pango cimport *
 from glib cimport *
+from pango cimport *
 
-from ..layout import Layout
 from ..fonts import FontDescription
+from ..layout import Layout
+
 
 cdef class PNGRenderer:
     cdef cairo_surface_t* cairo_surface
