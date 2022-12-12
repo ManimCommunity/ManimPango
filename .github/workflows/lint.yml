@@ -10,17 +10,17 @@ jobs:
     name: Lint
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: pip cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/.cache/pip
         key: lint-pip-${{ hashFiles('**/setup.py') }}
         restore-keys: |
           lint-pip-
     - name: pre-commit cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ~/.cache/pre-commit
         key: lint-pre-commit-${{ hashFiles('**/.pre-commit-config.yaml') }}
