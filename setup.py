@@ -43,7 +43,7 @@ MANIMPANGO_VERSION = get_version()
 MINIMUM_PANGO_VERSION = "1.30.0"
 DEBUG = False
 
-if sys.platform == "win32" and sys.version_info >= (3, 11):
+if sys.platform == "win32" and sys.version_info >= (3, 12):
     import atexit
 
     atexit.register(
