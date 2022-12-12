@@ -189,7 +189,7 @@ class PKG_CONFIG:
 def update_dict(dict1: dict, dict2: dict):
     for key in dict1:
         if key in dict2:
-            dict2[key] = dict1[key] + dict2[key]
+            dict2[key] = list(set(dict1[key] + dict2[key]))
         else:
             dict2[key] = dict1[key]
     return dict2
