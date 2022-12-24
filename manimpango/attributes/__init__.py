@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
+
 import typing as T
 
-from ._attributes import covert_hex_to_rbg
+from ..utils import covert_hex_to_rbg
 
 __all__ = ["TextAttribute"]
 
@@ -35,7 +37,17 @@ class TextAttribute:
     end of the text ``-1``, ie. ``[0, -1]``.
     """
 
-    def __init__(self, start_index: int = 0, end_index: int = -1) -> None:
+    def __init__(
+        self,
+        start_index: int = 0,
+        end_index: int = -1,
+        *,
+        allow_breaks: bool | None = None,
+        background_alpha: float | None = None,
+        background_color: T.Union[str, T.Iterable[int]] | None = None,
+        fallback: bool | None = None,
+        family: str | None = None,
+    ) -> None:
         """Initialize :class:`TextAttribute`.
 
         Parameters
@@ -48,6 +60,16 @@ class TextAttribute:
         """
         self.start_index = start_index
         self.end_index = end_index
+        if allow_breaks:
+            self.allow_breaks = allow_breaks
+        if background_alpha:
+            self.background_alpha = background_alpha
+        if background_color:
+            self.background_color = background_color
+        if fallback:
+            self.fallback = fallback
+        if family:
+            self.family = family
 
     @property
     def start_index(self) -> int:
