@@ -50,7 +50,6 @@ def test_png_renderer(tmpdir, monkeypatch):
 def test_rendering_with_attributes(tmpdir, monkeypatch, attributes):
     monkeypatch.chdir(tmpdir)
     pth = Path("test.png")
-    attribute = manimpango.TextAttribute(0, 5)
     _l = manimpango.Layout("hello world", attributes=attributes)
     _s = manimpango.PNGRenderer(os.fspath(pth), 200, 200, _l)
     # make sure rendering works
