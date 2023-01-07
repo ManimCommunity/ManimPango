@@ -98,6 +98,7 @@ def test_family():
     with pytest.raises(ValueError):
         _a.family = []
 
+
 def test_weight():
     _a = TextAttribute()
     assert _a.weight is None
