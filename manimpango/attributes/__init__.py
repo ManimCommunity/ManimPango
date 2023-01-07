@@ -128,7 +128,7 @@ class TextAttribute:
         self._allow_breaks = bool(val)
 
     @property
-    def background_alpha(self) -> float:
+    def background_alpha(self) -> T.Union[float, None]:
         """The background_alpha of the text.
 
         Raises
@@ -182,7 +182,7 @@ class TextAttribute:
         self._background_color = _parse_color_output(val)
 
     @property
-    def foreground_alpha(self) -> float:
+    def foreground_alpha(self) -> T.Union[float, None]:
         """The foreground_alpha of the text.
 
         Raises
@@ -253,7 +253,7 @@ class TextAttribute:
         self._fallback = bool(val)
 
     @property
-    def family(self) -> str:
+    def family(self) -> T.Union[str, None]:
         """The font family the text should render. Can be a comma seperated
         list of fonts in a string.
 
