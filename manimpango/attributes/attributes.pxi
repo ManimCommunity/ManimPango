@@ -107,6 +107,33 @@ cdef GQueue* create_attr_list_for_attribute (
             attr.end_index,
         )
 
+    # foreground_alpha
+    if attr.foreground_alpha is not None:
+        pango_attr = raise_on_null_attr(
+            pango_attr_foreground_alpha_new(attr.foreground_alpha))
+        insert_into_queue(
+            queue,
+            pango_attr,
+            attr.start_index,
+            attr.end_index,
+        )
+
+    # foreground_color
+    if attr.foreground_color is not None:
+        pango_attr = raise_on_null_attr(
+            pango_attr_foreground_new(
+                attr.foreground_color[0],
+                attr.foreground_color[1],
+                attr.foreground_color[2],
+            ),
+        )
+        insert_into_queue(
+            queue,
+            pango_attr,
+            attr.start_index,
+            attr.end_index,
+        )
+
     # fallback
     if attr.fallback is not None:
         pango_attr = raise_on_null_attr(

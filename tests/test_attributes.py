@@ -57,6 +57,30 @@ def test_background_color():
         _a.background_color = (-1, 0, 0)
 
 
+def test_foreground_alpha():
+    _a = TextAttribute()
+    assert _a.foreground_alpha is None
+    with pytest.raises(ValueError):
+        _a.foreground_alpha = 5
+    _a.foreground_alpha = 0.6
+    assert _a.foreground_alpha == 0.6
+
+
+def test_foreground_color():
+    _a = TextAttribute()
+    assert _a.foreground_color is None
+    with pytest.raises(ValueError):
+        _a.foreground_color = "#ppppppppppppppppppppppppppppps"
+    _a.foreground_color = "#ffffff"
+    assert _a.foreground_color == (65535, 65535, 65535)
+    _a.foreground_color = (0, 0, 0)
+    assert _a.foreground_color == (0, 0, 0)
+    with pytest.raises(ValueError):
+        _a.foreground_color = (0,)
+    with pytest.raises(ValueError):
+        _a.foreground_color = (-1, 0, 0)
+
+
 def test_fallback():
     _a = TextAttribute()
     assert _a.fallback is None

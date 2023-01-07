@@ -45,6 +45,7 @@ class TextAttribute:
         allow_breaks: bool | None = None,
         background_alpha: float | None = None,
         background_color: T.Union[str, T.Iterable[int]] | None = None,
+        foreground_alpha: float | None = None,
         fallback: bool | None = None,
         family: str | None = None,
     ) -> None:
@@ -66,6 +67,8 @@ class TextAttribute:
             self.background_alpha = background_alpha
         if background_color:
             self.background_color = background_color
+        if foreground_alpha:
+            self.foreground_alpha = foreground_alpha
         if fallback:
             self.fallback = fallback
         if family:
@@ -174,6 +177,60 @@ class TextAttribute:
     @background_color.setter
     def background_color(self, val: T.Union[str, T.Iterable[int]]) -> None:
         self._background_color = _parse_color_output(val)
+
+    @property
+    def foreground_alpha(self) -> float:
+        """The foreground_alpha of the text.
+
+        Raises
+        ------
+        ValueError
+            If the value is not between 0 and 1.
+        """
+        if hasattr(self, "_foreground_alpha"):
+            return self._foreground_alpha
+        return None
+
+    @foreground_alpha.setter
+    def foreground_alpha(self, val: float) -> None:
+        if not (0 <= val <= 1):
+            raise ValueError("'val' should be between 0 and 1")
+        self._foreground_alpha = val
+
+    @property
+    def foreground_color(self) -> T.Union[T.Tuple[int], None]:
+        """The foreground color attribute.
+
+        If the input is a :class:`str` the value is considered as
+        string representation of color from
+        `CSS Specification <https://www.w3.org/TR/css-color-4/#named-colors>`_.
+        The color is then parsed and :class:`ValueError` is raised
+        if the color is invalid.
+
+        If the input is a :class:`collections.abc.Iterable` then the items
+        in them are parsed in the order of ``red, green, blue`` and checked
+        whether they are valid (between 0 and 65535).
+
+
+        Returns either ``None`` or a :class:`tuple` with 3 elements
+        representing red, green, blue respectively. The value of each
+        items in that tuple ranges from 0 to 65535.
+
+        Raises
+        ------
+        ValueError
+            If the value passed isn't a :class:`collections.abc.Iterable` of 3
+            elements or a string. Another condition when `ValueError` is
+            raised is when the color passed is invalid.
+
+        """
+        if hasattr(self, "_foreground_color"):
+            return self._foreground_color
+        return None
+
+    @foreground_color.setter
+    def foreground_color(self, val: T.Union[str, T.Iterable[int]]) -> None:
+        self._foreground_color = _parse_color_output(val)
 
     @property
     def fallback(self) -> bool:
