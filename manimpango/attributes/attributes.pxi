@@ -158,6 +158,17 @@ cdef GQueue* create_attr_list_for_attribute (
             attr.end_index,
         )
 
+    # weight
+    if attr.weight is not None:
+        pango_attr = raise_on_null_attr(
+            pango_attr_weight_new(attr.weight.value))
+        insert_into_queue(
+            queue,
+            pango_attr,
+            attr.start_index,
+            attr.end_index,
+        )
+
     return queue
 
 

@@ -5,6 +5,8 @@ import typing as T
 
 from ..utils import covert_hex_to_rbg
 
+from ..fonts.enums import Weight
+
 __all__ = ["TextAttribute"]
 
 
@@ -49,6 +51,7 @@ class TextAttribute:
         foreground_color: T.Union[str, T.Iterable[int]] | None = None,
         fallback: bool | None = None,
         family: str | None = None,
+        weight: Weight | None = None,
     ) -> None:
         """Initialize :class:`TextAttribute`.
 
@@ -76,6 +79,8 @@ class TextAttribute:
             self.fallback = fallback
         if family:
             self.family = family
+        if weight:
+            self.weight = weight
 
     @property
     def start_index(self) -> int:
@@ -271,3 +276,22 @@ class TextAttribute:
         if not isinstance(val, str):
             raise ValueError("'family' must be a string")
         self._family = val
+
+    @property
+    def weight(self) -> T.Union[Weight, None]:
+        """The font weight of the text.
+
+        Raises
+        ------
+        ValueError
+            If value isn't a str.
+        """
+        if hasattr(self, "_weight"):
+            return self._weight
+        return None
+
+    @weight.setter
+    def weight(self, val: Weight) -> None:
+        if not isinstance(val, Weight):
+            raise ValueError("'weight' must be a Weight")
+        self._weight = val
