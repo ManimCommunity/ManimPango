@@ -46,6 +46,7 @@ class TextAttribute:
         background_alpha: float | None = None,
         background_color: T.Union[str, T.Iterable[int]] | None = None,
         foreground_alpha: float | None = None,
+        foreground_color: T.Union[str, T.Iterable[int]] | None = None,
         fallback: bool | None = None,
         family: str | None = None,
     ) -> None:
