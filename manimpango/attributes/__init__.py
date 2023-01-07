@@ -69,6 +69,8 @@ class TextAttribute:
             self.background_color = background_color
         if foreground_alpha:
             self.foreground_alpha = foreground_alpha
+        if foreground_color:
+            self.foreground_color = foreground_color
         if fallback:
             self.fallback = fallback
         if family:
