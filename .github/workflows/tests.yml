@@ -65,59 +65,6 @@ jobs:
         with:
           name: test-artifacts-${{matrix.os}}-${{matrix.python-version}}
           path: .pytest_temp/
-  msys:
-    name: Test on Msys2
-    runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - msystem: MINGW64
-            arch: x86_64
-          - msystem: MINGW32
-            arch: i686
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: setup-msys2
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: ${{ matrix.msystem }}
-          release: false
-          install: >-
-            mingw-w64-${{ matrix.arch }}-toolchain
-            mingw-w64-${{ matrix.arch }}-pango
-            mingw-w64-${{ matrix.arch }}-python
-            mingw-w64-${{ matrix.arch }}-python-pip
-            mingw-w64-${{ matrix.arch }}-cython
-
-      - name: Install dependencies
-        shell: msys2 {0}
-        run: |
-          pip install -r requirements-dev.txt
-      - name: Run tests
-        shell: msys2 {0}
-        run: |
-          export SETUPTOOLS_USE_DISTUTILS=stdlib
-          pip install .
-          python setup.py build_ext -i --coverage
-          python setup.py sdist
-          python -m pip install dist/*
-          pytest
-      - name: Coverage
-        shell: msys2 {0}
-        run: |
-          coverage report
-          coverage html
-          coverage xml
-      - uses: codecov/codecov-action@v3
-        with:
-          file: ./.coverage/coverage.xml
-      - uses: actions/upload-artifact@v3
-        with:
-          name: test-artifacts-${{matrix.os}}
-          path: .pytest_temp/
 
   msvc:
     name: ${{matrix.os}} - ${{matrix.python-version}}
@@ -189,7 +136,7 @@ jobs:
           name: test-artifacts-${{matrix.os}}-${{matrix.python-version}}
           path: .pytest_temp/
   success-win:
-    needs: [msvc, msys]
+    needs: [msvc]
     runs-on: ubuntu-latest
     name: Windows Test Successful
     steps:
