@@ -1,16 +1,6 @@
+====================
 Manimpango Reference
 ====================
-
-.. autosummary::
-   :toctree: reference
-
-   manimpango.TextSetting
-   manimpango.PangoUtils
-   manimpango.text2svg
-   manimpango.MarkupUtils
-   manimpango.register_font
-   manimpango.unregister_font
-   manimpango.list_fonts
 
 
 Text Attributes
@@ -19,7 +9,7 @@ Text Attributes
 .. autosummary::
    :toctree: reference
 
-   manimpango.attributes
+   manimpango.attributes.TextAttribute
 
 Font Description
 ================
@@ -27,8 +17,9 @@ Font Description
 .. autosummary::
    :toctree: reference
 
-   manimpango.fonts.enums
    manimpango.fonts.FontDescription
+   manimpango.fonts.enums
+
 
 Layout
 ======
@@ -54,3 +45,26 @@ Exceptions
    :toctree: reference
 
    manimpango.exceptions.MarkupParseError
+
+
+Utilities
+=========
+
+.. autosummary::
+   :toctree: reference
+
+   manimpango.register_font
+   manimpango.unregister_font
+   manimpango.list_fonts
+
+
+Deprecated API
+==============
+
+.. autosummary::
+   :toctree: reference
+
+   manimpango.TextSetting
+   manimpango.PangoUtils
+   manimpango.text2svg
+   manimpango.MarkupUtils

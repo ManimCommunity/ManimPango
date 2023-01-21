@@ -1,8 +1,10 @@
-from xml.sax.saxutils import escape
-from .utils import *
-from .enums import Alignment
-import warnings
 import typing
+import warnings
+from xml.sax.saxutils import escape
+
+from .enums import Alignment
+from .utils import *
+
 
 class TextSetting:
     """Formatting for slices of a :class:`manim.mobject.svg.text_mobject.Text` object."""

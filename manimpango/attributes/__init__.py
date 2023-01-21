@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
+
 import typing as T
 
-from ._attributes import covert_hex_to_rbg
+from ..fonts.enums import Weight
+from ..utils import covert_hex_to_rbg
 
 __all__ = ["TextAttribute"]
 
@@ -35,7 +38,20 @@ class TextAttribute:
     end of the text ``-1``, ie. ``[0, -1]``.
     """
 
-    def __init__(self, start_index: int = 0, end_index: int = -1) -> None:
+    def __init__(
+        self,
+        start_index: int = 0,
+        end_index: int = -1,
+        *,
+        allow_breaks: bool | None = None,
+        background_alpha: float | None = None,
+        background_color: T.Union[str, T.Iterable[int]] | None = None,
+        foreground_alpha: float | None = None,
+        foreground_color: T.Union[str, T.Iterable[int]] | None = None,
+        fallback: bool | None = None,
+        family: str | None = None,
+        weight: Weight | None = None,
+    ) -> None:
         """Initialize :class:`TextAttribute`.
 
         Parameters
@@ -48,6 +64,22 @@ class TextAttribute:
         """
         self.start_index = start_index
         self.end_index = end_index
+        if allow_breaks:
+            self.allow_breaks = allow_breaks
+        if background_alpha:
+            self.background_alpha = background_alpha
+        if background_color:
+            self.background_color = background_color
+        if foreground_alpha:
+            self.foreground_alpha = foreground_alpha
+        if foreground_color:
+            self.foreground_color = foreground_color
+        if fallback:
+            self.fallback = fallback
+        if family:
+            self.family = family
+        if weight:
+            self.weight = weight
 
     @property
     def start_index(self) -> int:
@@ -100,7 +132,7 @@ class TextAttribute:
         self._allow_breaks = bool(val)
 
     @property
-    def background_alpha(self) -> float:
+    def background_alpha(self) -> T.Union[float, None]:
         """The background_alpha of the text.
 
         Raises
@@ -154,6 +186,60 @@ class TextAttribute:
         self._background_color = _parse_color_output(val)
 
     @property
+    def foreground_alpha(self) -> T.Union[float, None]:
+        """The foreground_alpha of the text.
+
+        Raises
+        ------
+        ValueError
+            If the value is not between 0 and 1.
+        """
+        if hasattr(self, "_foreground_alpha"):
+            return self._foreground_alpha
+        return None
+
+    @foreground_alpha.setter
+    def foreground_alpha(self, val: float) -> None:
+        if not (0 <= val <= 1):
+            raise ValueError("'val' should be between 0 and 1")
+        self._foreground_alpha = val
+
+    @property
+    def foreground_color(self) -> T.Union[T.Tuple[int], None]:
+        """The foreground color attribute.
+
+        If the input is a :class:`str` the value is considered as
+        string representation of color from
+        `CSS Specification <https://www.w3.org/TR/css-color-4/#named-colors>`_.
+        The color is then parsed and :class:`ValueError` is raised
+        if the color is invalid.
+
+        If the input is a :class:`collections.abc.Iterable` then the items
+        in them are parsed in the order of ``red, green, blue`` and checked
+        whether they are valid (between 0 and 65535).
+
+
+        Returns either ``None`` or a :class:`tuple` with 3 elements
+        representing red, green, blue respectively. The value of each
+        items in that tuple ranges from 0 to 65535.
+
+        Raises
+        ------
+        ValueError
+            If the value passed isn't a :class:`collections.abc.Iterable` of 3
+            elements or a string. Another condition when `ValueError` is
+            raised is when the color passed is invalid.
+
+        """
+        if hasattr(self, "_foreground_color"):
+            return self._foreground_color
+        return None
+
+    @foreground_color.setter
+    def foreground_color(self, val: T.Union[str, T.Iterable[int]]) -> None:
+        self._foreground_color = _parse_color_output(val)
+
+    @property
     def fallback(self) -> bool:
         """Enable or disable fallbacks.
 
@@ -171,7 +257,7 @@ class TextAttribute:
         self._fallback = bool(val)
 
     @property
-    def family(self) -> str:
+    def family(self) -> T.Union[str, None]:
         """The font family the text should render. Can be a comma seperated
         list of fonts in a string.
 
@@ -189,3 +275,22 @@ class TextAttribute:
         if not isinstance(val, str):
             raise ValueError("'family' must be a string")
         self._family = val
+
+    @property
+    def weight(self) -> T.Union[Weight, None]:
+        """The font weight of the text.
+
+        Raises
+        ------
+        ValueError
+            If value isn't a str.
+        """
+        if hasattr(self, "_weight"):
+            return self._weight
+        return None
+
+    @weight.setter
+    def weight(self, val: Weight) -> None:
+        if not isinstance(val, Weight):
+            raise ValueError("'weight' must be a Weight")
+        self._weight = val

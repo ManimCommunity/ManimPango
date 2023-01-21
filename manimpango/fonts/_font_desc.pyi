@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from manimpango.fonts.enums import Style, Variant, Weight
 
 class _FontDescription:

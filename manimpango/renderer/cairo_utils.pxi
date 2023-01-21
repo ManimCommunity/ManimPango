@@ -1,6 +1,9 @@
 from cairo cimport *
 from pango cimport *
+
 from ..layout import Layout
+
+include "../attributes/attributes.pxi"
 
 cdef str is_context_fine(cairo_t* context):
     cdef cairo_status_t status
@@ -45,7 +48,19 @@ cdef PangoFontDescription* create_font_desc():
 
     return pango_font_desc
 
-cdef pylayout_to_pango_layout(PangoLayout* layout, object py_layout):
+cdef PangoAttrList* create_attr_list():
+    # the resulting attr_list should be freed seperately
+    attr_list = pango_attr_list_new()
+    if attr_list is NULL:
+        raise MemoryError("pango_attr_list_new() returned NULL")
+
+    return attr_list
+
+cdef pylayout_to_pango_layout(
+    PangoLayout* layout,
+    object py_layout,
+    PangoAttrList* attr_list,
+):
     if py_layout.text:
         pango_layout_set_text(
             layout,
@@ -78,6 +93,15 @@ cdef pylayout_to_pango_layout(PangoLayout* layout, object py_layout):
         pango_layout_set_alignment(
             layout,
             py_layout.alignment.value,
+        )
+    if py_layout.attributes:
+        convert_to_pango_attributes(
+            py_layout.attributes,
+            attr_list,
+        )
+        pango_layout_set_attributes(
+            layout,
+            attr_list,
         )
 
 cdef pyfontdesc_to_pango_font_desc(PangoFontDescription* font_desc, object py_font_desc):

@@ -2,11 +2,11 @@
 # build and install pango
 set -e
 
-PANGO_VERSION=1.50.5
-GLIB_VERSION=2.70.2
-CAIRO_VERSION=1.17.4
-FONTCONFIG_VERSION=2.13.93
-HARFBUZZ_VERSION=2.7.3
+PANGO_VERSION=1.50.11
+GLIB_VERSION=2.74.0
+CAIRO_VERSION=1.17.6
+FONTCONFIG_VERSION=2.14.0
+HARFBUZZ_VERSION=5.3.1
 
 FILE_PATH=$PWD
 PREFIX=$HOME/pangobuild
@@ -28,10 +28,11 @@ python $FILE_PATH/packing/download_and_extract.py "https://gitlab.freedesktop.or
 python $FILE_PATH/packing/download_and_extract.py "https://www.freedesktop.org/software/fontconfig/release/fontconfig-${FONTCONFIG_VERSION}.tar.xz" fontconfig
 python $FILE_PATH/packing/download_and_extract.py "https://github.com/harfbuzz/harfbuzz/releases/download/${HARFBUZZ_VERSION}/harfbuzz-${HARFBUZZ_VERSION}.tar.xz" harfbuzz
 
+
 echo "Fetching and applying patch for Cairo build"
-curl -L https://gitlab.freedesktop.org/cairo/cairo/-/merge_requests/101.diff -o 101.diff
+curl -L https://gitlab.freedesktop.org/cairo/cairo/-/commit/cdb7c298c7b89307ad69b94a1126221bd7c06579.patch -o test.diff
 cd cairo
-patch -Nbp1 -i "$PWD/../101.diff" || true
+patch -Nbp1 -i "$PWD/../test.diff" || true
 cd ..
 
 curl -L "https://github.com/frida/proxy-libintl/archive/0.2.tar.gz" -o 0.2.tar.gz
@@ -49,12 +50,11 @@ export PATH="$PATH:$PREFIX/bin"
 
 echo "::group::Install Meson"
 echo "Installing Meson and Ninja"
-pip3 install -U meson==0.60.3 ninja
+pip3 install -U meson==0.63.3 ninja
 echo "::endgroup::"
 
 echo "::group::Removing the things from brew"
 brew uninstall --ignore-dependencies brotli
-brew uninstall --ignore-dependencies pcre
 brew uninstall --ignore-dependencies libpng
 brew uninstall --ignore-dependencies freetype
 brew uninstall --ignore-dependencies libxdmcp
