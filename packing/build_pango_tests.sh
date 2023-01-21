@@ -2,11 +2,11 @@
 # build and install pango
 set -e
 
-PANGO_VERSION=1.50.5
-GLIB_VERSION=2.67.6
+PANGO_VERSION=1.50.11
+GLIB_VERSION=2.74.0
 FRIBIDI_VERSION=1.0.10
-CAIRO_VERSION=1.17.4
-HARFBUZZ_VERSION=2.7.4
+CAIRO_VERSION=1.17.6
+HARFBUZZ_VERSION=5.3.1
 
 FILE_PATH=$PWD
 PREFIX="$HOME/pangoprefix"
@@ -51,9 +51,9 @@ echo "::endgroup::"
 
 echo "::group::Building and Installing Cairo"
 echo "Getting patch"
-curl -L https://gitlab.freedesktop.org/cairo/cairo/-/merge_requests/101.diff -o 101.diff
+curl -L https://gitlab.freedesktop.org/cairo/cairo/-/commit/cdb7c298c7b89307ad69b94a1126221bd7c06579.patch -o test.diff
 cd cairo
-patch -Nbp1 -i "$PWD/../101.diff" || true
+patch -Nbp1 -i "$PWD/../test.diff" || true
 # it is fine to fail because the CI config is missing.
 cd ..
 meson setup --prefix=$PREFIX --default-library=shared --buildtype=release -Dfontconfig=enabled -Dfreetype=enabled -Dglib=enabled -Dzlib=enabled -Dtee=enabled cairo_builddir cairo

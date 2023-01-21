@@ -1,5 +1,8 @@
 from enum import Enum
+
 from pango cimport *
+
+
 class Style(Enum):
     """
     An enumeration specifying the various slant styles possible for a font.

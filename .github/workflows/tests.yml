@@ -2,7 +2,7 @@ name: Test
 
 on:
   push:
-    branches: [main,tests-build]
+    branches: [main,tests-build,v*]
   pull_request:
     branches: [main]
 
@@ -14,11 +14,11 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: ['3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.8', '3.9', '3.10', '3.11']
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Dependency and Configure
@@ -34,7 +34,7 @@ jobs:
           echo "PKG_CONFIG_PATH=$HOME/pangoprefix/lib/x86_64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
       - name: Cache Pango
         id: cache-pango
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/pangoprefix
           key: ${{ hashFiles('packing/build_pango_tests.sh') }}-${{ runner.os }}
@@ -58,83 +58,31 @@ jobs:
           coverage report
           coverage html
           coverage xml
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v3
         with:
           file: ./.coverage/coverage.xml
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: test-artifacts-${{matrix.os}}-${{matrix.python-version}}
           path: .pytest_temp/
-  msys:
-    name: Test on Msys2
-    runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - msystem: MINGW64
-            arch: x86_64
-          - msystem: MINGW32
-            arch: i686
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
 
-      - name: setup-msys2
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: ${{ matrix.msystem }}
-          release: false
-          install: >-
-            mingw-w64-${{ matrix.arch }}-toolchain
-            mingw-w64-${{ matrix.arch }}-pango
-            mingw-w64-${{ matrix.arch }}-python
-            mingw-w64-${{ matrix.arch }}-python-pip
-            mingw-w64-${{ matrix.arch }}-cython
-
-      - name: Install dependencies
-        shell: msys2 {0}
-        run: |
-          pip install -r requirements-dev.txt
-      - name: Run tests
-        shell: msys2 {0}
-        run: |
-          export SETUPTOOLS_USE_DISTUTILS=stdlib
-          pip install .
-          python setup.py build_ext -i --coverage
-          python setup.py sdist
-          python -m pip install dist/*
-          pytest
-      - name: Coverage
-        shell: msys2 {0}
-        run: |
-          coverage report
-          coverage html
-          coverage xml
-      - uses: codecov/codecov-action@v1
-        with:
-          file: ./.coverage/coverage.xml
-      - uses: actions/upload-artifact@v2
-        with:
-          name: test-artifacts-${{matrix.os}}
-          path: .pytest_temp/
   msvc:
     name: ${{matrix.os}} - ${{matrix.python-version}}
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
         os: [windows-2022]
-        python-version: ['3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.8', '3.9', '3.10', '3.11']
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }} for x64
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: "x64"
       - name: Cache Windows
         id: cache-windows
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: C:\cibw\pkg-config
           key: ${{ hashFiles('packing/download_dlls.py') }}-${{ hashFiles('packing/build_pkgconfig.ps1') }}-1
@@ -158,7 +106,7 @@ jobs:
           coverage html
           coverage xml
       - name: Set up Python ${{ matrix.python-version }} for x86
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: "x86"
@@ -180,15 +128,15 @@ jobs:
           coverage report
           coverage html
           coverage xml
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v3
         with:
           file: ./.coverage/coverage.xml
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: test-artifacts-${{matrix.os}}-${{matrix.python-version}}
           path: .pytest_temp/
   success-win:
-    needs: [msvc, msys]
+    needs: [msvc]
     runs-on: ubuntu-latest
     name: Windows Test Successful
     steps:

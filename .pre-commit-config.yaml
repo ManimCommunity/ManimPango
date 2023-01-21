@@ -9,22 +9,24 @@ repos:
       - id: mixed-line-ending
       - id: check-merge-conflict
   - repo: https://github.com/psf/black
-    rev: 22.3.0
+    rev: 22.10.0
     hooks:
       - id: black
-        args: ["--target-version", "py37"]
-  - repo: https://github.com/pycqa/isort
-    rev: 377d260ffa6f746693f97b46d95025afc4bd8275  # frozen: 5.4.2
+        args: ["--target-version", "py38"]
+        files: \.py$
+        types: []
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.10.1  # frozen: 5.4.2
     hooks:
       - id: isort
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: 4.0.1
+  - repo: https://github.com/pycqa/flake8
+    rev: 5.0.4
     hooks:
       - id: flake8
         additional_dependencies: [flake8-2020, flake8-implicit-str-concat]
 
   - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: eae6397e4c259ed3d057511f6dd5330b92867e62  # frozen: v1.6.0
+    rev: v1.9.0
     hooks:
       - id: python-check-blanket-noqa
       - id: rst-backticks

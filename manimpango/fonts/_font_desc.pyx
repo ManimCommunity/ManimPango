@@ -1,4 +1,5 @@
-from .enums import Style, Weight, Variant
+from .enums import Style, Variant, Weight
+
 
 cdef class _FontDescription:
     def __cinit__(self):

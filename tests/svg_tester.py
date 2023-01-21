@@ -16,6 +16,8 @@ class SVGUtils:
         pass
 
     def parse_color_string(self, color_spec: str) -> str:
+        if color_spec == "none":
+            return "none"
         # copied from Manim's SVG parser.
         if color_spec[0:3] == "rgb":
             # these are only in integer form,
@@ -114,31 +116,20 @@ class SVGStyleTester(SVGUtils):
             if name == "g":
                 if "style" in attrs:
                     styles.append(self.parse_style(attrs["style"]))
-                elif "fill" in attrs:
-                    _temp_style = {}
-                    _temp_style["fill_opacity"] = float(
-                        attrs.get(
-                            "fill-opacity", self.SVG_DEFAULT_ATTRIBUTES["fill-opacity"]
+                if (
+                    "fill" in attrs
+                    or "fill-opacity" in attrs
+                    or "stroke" in attrs
+                    or "stroke-opacity" in attrs
+                ):
+                    styles.append(
+                        self.parse_style(
+                            f"fill:{attrs.get('fill', self.SVG_DEFAULT_ATTRIBUTES['fill'])};"  # noqa: E501
+                            f"fill-opacity:{attrs.get('fill-opacity', self.SVG_DEFAULT_ATTRIBUTES['fill-opacity'])};"  # noqa: E501
+                            f"stroke:{attrs.get('stroke', self.SVG_DEFAULT_ATTRIBUTES['stroke'])};"  # noqa: E501
+                            f"stroke-opacity:{attrs.get('stroke-opacity', self.SVG_DEFAULT_ATTRIBUTES['stroke-opacity'])};"  # noqa: E501
                         )
                     )
-                    _temp_style["stroke_opacity"] = float(
-                        attrs.get(
-                            "stroke-opacity",
-                            self.SVG_DEFAULT_ATTRIBUTES["stroke-opacity"],
-                        )
-                    )
-                    if "fill" in attrs:
-                        _temp_style["fill_color"] = self.parse_color_string(
-                            attrs["fill"]
-                        )
-                        # In order to not break animations.creation.Write,
-                        # we interpret no stroke as stroke-width of zero and
-                        # color the same as the fill color, if it exists.
-                    _temp_style["stroke_width"] = 0
-                    if "fill_color" in _temp_style:
-                        _temp_style["stroke_color"] = _temp_style["fill_color"]
-                    styles.append(_temp_style)
-
             if styles:
                 # need to think of better way than this.
                 exec(f"self.{final_setter} += [styles]")

@@ -1,4 +1,5 @@
 import typing as T
+
 from ..layout import Layout
 
 include "cairo_utils.pxi"
@@ -53,6 +54,7 @@ cdef class PNGRenderer:
         self.cairo_context = create_cairo_context_from_surface(surface)
         self.pango_layout = create_pango_layout(self.cairo_context)
         self.pango_font_desc = create_font_desc()
+        self.pango_attr_list = create_attr_list()
 
     def __init__(
         self,
@@ -68,7 +70,11 @@ cdef class PNGRenderer:
         self.py_font_desc = layout.font_desc
 
     cdef bint start_renderering(self):
-        pylayout_to_pango_layout(self.pango_layout, self.py_layout)
+        pylayout_to_pango_layout(
+            self.pango_layout,
+            self.py_layout,
+            self.pango_attr_list
+        )
         pyfontdesc_to_pango_font_desc(self.pango_font_desc, self.py_font_desc)
         pango_layout_set_font_description(
             self.pango_layout,
