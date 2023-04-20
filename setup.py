@@ -299,7 +299,7 @@ setup(
         "manimpango.fonts",
         "manimpango.renderer",
     ],
-    python_requires=">=3.7",
+    python_requires=">=3.8",
     platforms=["Linux", "macOS", "Windows"],
     keywords=["cython", "pango", "cairo", "manim"],
     license="MIT",
