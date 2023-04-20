@@ -99,6 +99,9 @@ class TextAttribute:
     def start_index(self, val: int) -> None:
         if not isinstance(val, int):
             raise ValueError("'start_index' should be an int")
+        # check if the value is negative
+        if val < 0:
+            raise ValueError("'start_index' should be a positive int")
         self._start_index = val
 
     @property
@@ -117,6 +120,9 @@ class TextAttribute:
     def end_index(self, val: int) -> None:
         if not isinstance(val, int):
             raise ValueError("'end_index' should be an int")
+        # check if the value is negative
+        if val < 0 and val != -1:
+            raise ValueError("'end_index' should be a positive int")
         self._end_index = val
 
     @property

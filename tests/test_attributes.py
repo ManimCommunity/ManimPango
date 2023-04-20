@@ -17,6 +17,10 @@ def test_attributes_accepts_only_int(values):
     with pytest.raises(ValueError):
         TextAttribute(*values)
 
+@pytest.mark.parametrize("values", [(-1, 0), (0, -2), (-1, -1)])
+def test_attributes_accepts_only_positive_int(values):
+    with pytest.raises(ValueError):
+        TextAttribute(*values)
 
 def test_start_index(tmpdir):
     _a = TextAttribute()
@@ -31,6 +35,7 @@ def test_end_index(tmpdir):
     assert _a.end_index == -1
     _a.end_index = 5
     assert _a.end_index == 5
+    _a.end_index = -1
     render_and_test_attribute(tmpdir, _a)
 
 
