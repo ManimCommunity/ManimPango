@@ -23,7 +23,7 @@ cdef set_indexes(PangoAttribute* attr, start_index: int, end_index: int):
     """
     if start_index is not None:
         attr.start_index = start_index
-    if end_index is not None:
+    if end_index != -1:
         attr.end_index = end_index
 
 cdef insert_into_queue(
