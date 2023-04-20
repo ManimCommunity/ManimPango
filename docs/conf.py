@@ -80,6 +80,8 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
 }
 
-ogp_image = "https://www.manim.community/logo.png"
-ogp_site_name = "Manim Pango | Documentation"
+ogp_site_name = "ManimPango | Documentation"
 ogp_site_url = "https://manimpango.manim.community/"
+ogp_social_cards = {
+    "image": "_static/logo.png",
+}
