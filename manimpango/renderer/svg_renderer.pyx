@@ -120,6 +120,8 @@ cdef class SVGRenderer:
             f" layout={repr(self.layout)}")
 
     def __dealloc__(self):
+        if self.pango_attr_list:
+            pango_attr_list_unref(self.pango_attr_list)
         if self.pango_layout:
             g_object_unref(self.pango_layout)
         if self.cairo_context:
