@@ -14,8 +14,8 @@ cdef class PNGRenderer:
     cdef PangoAttrList* pango_attr_list
 
     cdef str _file_name
-    cdef float _width
-    cdef float _height
+    cdef int _width
+    cdef int _height
     cdef object py_layout
     cdef object py_font_desc
 

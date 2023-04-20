@@ -59,8 +59,8 @@ cdef class PNGRenderer:
     def __init__(
         self,
         file_name: str,
-        width: float,
-        height: float,
+        width: int,
+        height: int,
         layout: Layout
     ):
         self._file_name = file_name
