@@ -219,5 +219,25 @@ class Layout:
 
         return get_bbox(self)
 
+    def render(self, file_name: str) -> None:
+        """Renders the layout into a PNG or SVG file depending
+        on the filename.
+
+        Parameters
+        ==========
+        file_name:
+            The filename to which the layout should be rendered.
+        """
+        from ..renderer import PNGRenderer, SVGRenderer
+
+        bbox = self.get_bounding_box()
+        if file_name.endswith(".png"):
+            renderer = PNGRenderer(file_name, *bbox[2:], self)
+        elif file_name.endswith(".svg"):
+            renderer = SVGRenderer(file_name, *bbox[2:], self)
+        else:
+            raise ValueError("Only rendering PNG and SVG files are supported.")
+        renderer.render()
+
     def __repr__(self):
         return f"<Layout text={repr(self.text)} markup={repr(self.markup)}>"
