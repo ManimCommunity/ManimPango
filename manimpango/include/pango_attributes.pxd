@@ -152,6 +152,9 @@ cdef extern from "pango/pango.h":
     PangoAttribute* pango_attr_weight_new (
         PangoWeight weight
     )
+    PangoAttribute* pango_attr_line_height_new (
+        double factor
+    )
     void pango_attribute_destroy (
         PangoAttribute* attr
     )

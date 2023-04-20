@@ -169,6 +169,17 @@ cdef GQueue* create_attr_list_for_attribute (
             attr.end_index,
         )
 
+    # line height
+    if attr.line_height is not None:
+        pango_attr = raise_on_null_attr(
+            pango_attr_line_height_new(attr.line_height))
+        insert_into_queue(
+            queue,
+            pango_attr,
+            attr.start_index,
+            attr.end_index,
+        )
+
     return queue
 
 

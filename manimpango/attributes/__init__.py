@@ -51,6 +51,7 @@ class TextAttribute:
         fallback: bool | None = None,
         family: str | None = None,
         weight: Weight | None = None,
+        line_height: float | None = None,
     ) -> None:
         """Initialize :class:`TextAttribute`.
 
@@ -80,6 +81,8 @@ class TextAttribute:
             self.family = family
         if weight:
             self.weight = weight
+        if line_height:
+            self.line_height = line_height
 
     @property
     def start_index(self) -> int:
@@ -294,3 +297,22 @@ class TextAttribute:
         if not isinstance(val, Weight):
             raise ValueError("'weight' must be a Weight")
         self._weight = val
+
+    @property
+    def line_height(self) -> T.Union[float, None]:
+        """The line height of the text.
+
+        Raises
+        ------
+        ValueError
+            If value isn't a float.
+        """
+        if hasattr(self, "_line_height"):
+            return self._line_height
+        return None
+
+    @line_height.setter
+    def line_height(self, val: float) -> None:
+        if not isinstance(val, float):
+            raise ValueError("'line_height' must be a float")
+        self._line_height = val
