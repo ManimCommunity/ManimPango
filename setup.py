@@ -196,7 +196,7 @@ def update_dict(dict1: dict, dict2: dict):
 
 
 ext = ".pyx" if USE_CYTHON else ".c"
-base_file = Path(__file__).parent / "manimpango"
+base_file = Path("manimpango/")
 _pkg_config_pangocairo = PKG_CONFIG("pangocairo")
 _pkg_config_fontconfig = PKG_CONFIG("pangofc")
 if _pkg_config_pangocairo.check_pkgconfig:
@@ -290,6 +290,7 @@ setup(
     long_description=long_description,
     zip_safe=False,
     long_description_content_type="text/markdown",
+    include_package_data=True,
     packages=[
         "manimpango",
         "manimpango.attributes",
