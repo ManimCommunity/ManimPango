@@ -22,7 +22,7 @@ from pathlib import Path
 from pkg_resources import get_distribution
 
 project = "ManimPango"
-copyright = "2021, The Manim Community Dev Team"
+copyright = "2021-2023, The Manim Community Dev Team"
 author = "The Manim Community Dev Team"
 
 release = get_distribution("ManimPango").version
