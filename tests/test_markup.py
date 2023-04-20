@@ -24,7 +24,6 @@ ipsum_text = (
 
 @pytest.mark.parametrize("text", ["foo", "<b>bar</b>", "வணக்கம்"])
 def test_good_markup(text):
-
     assert not manimpango.MarkupUtils.validate(
         text,
     ), f"{text} should not fail validation"
