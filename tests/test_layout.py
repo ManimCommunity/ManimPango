@@ -47,6 +47,9 @@ def test_width_and_height():
         _a.height = 9.0
     with pytest.raises(TypeError):
         _a.width = 9.0
+    _b = Layout("hello", width=100, height=100)
+    assert _b.width == 100
+    assert _b.height == 100
 
 
 def test_alignment():
@@ -56,6 +59,8 @@ def test_alignment():
     assert _a.alignment == Alignment.LEFT
     with pytest.raises(TypeError):
         _a.alignment = 2
+    _b = Layout("hello", alignment=Alignment.LEFT)
+    assert _b.alignment == Alignment.LEFT
 
 
 def test_layout_with_attributes():
