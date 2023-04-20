@@ -3,24 +3,27 @@ import os
 
 import pytest
 
-from manimpango import PNGRenderer, TextAttribute, Weight, Layout
+from manimpango import Layout, PNGRenderer, TextAttribute, Weight
 
 
 def render_and_test_attribute(tmpdir, attribute, text="hello world"):
     _l = Layout(text, attributes=[attribute])
-    renderer = PNGRenderer(os.fspath(tmpdir / 'test.png'), 100, 100, _l)
+    renderer = PNGRenderer(os.fspath(tmpdir / "test.png"), 100, 100, _l)
     renderer.render()
     assert (tmpdir / "test.png").exists()
+
 
 @pytest.mark.parametrize("values", [(1.0, 2), (1, 2.0), (1.0, 2.0)])
 def test_attributes_accepts_only_int(values):
     with pytest.raises(ValueError):
         TextAttribute(*values)
 
+
 @pytest.mark.parametrize("values", [(-1, 0), (0, -2), (-1, -1)])
 def test_attributes_accepts_only_positive_int(values):
     with pytest.raises(ValueError):
         TextAttribute(*values)
+
 
 def test_start_index(tmpdir):
     _a = TextAttribute()
