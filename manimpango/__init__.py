@@ -1,19 +1,9 @@
 # -*- coding: utf-8 -*-
-import os
 import sys
 
+from . import _distributor_init  # noqa: F401
 from ._version import __version__  # noqa: F403,F401
 
-if os.name == "nt":  # pragma: no cover
-    os.environ["PATH"] = (
-        f"{os.path.abspath(os.path.dirname(__file__))}"
-        f"{os.pathsep}"
-        f"{os.environ['PATH']}"
-    )
-    if hasattr(os, "add_dll_directory"):
-        _path = r"C:\cibw\vendor\bin"
-        if os.path.exists(_path):
-            os.add_dll_directory(_path)
 try:
     from .attributes import *  # noqa: F403,F401
     from .cmanimpango import *  # noqa: F403,F401

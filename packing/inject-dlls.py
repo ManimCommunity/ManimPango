@@ -48,10 +48,15 @@ logging.info(
 )
 
 dll_dir = Path(args.dll_dir)
-archive_path = temp_dir / f"{package_name}-{version_number}" / package_name
+archive_path = temp_dir / f"{package_name}-{version_number}" / package_name / ".libs"
+archive_path.mkdir(parents=True, exist_ok=True)
 
 for local_path in dll_dir.glob("*.dll"):
     logging.info("Copying '%s' to '%s'", local_path, archive_path)
     shutil.copy(local_path, archive_path)
+
+distributor_file = Path(__file__).parent / "_distributor_init_win.py"
+shutil.copy(distributor_file, archive_path.parent / "_distributor_init.py")
+
 package_directory = temp_dir / f"{package_name}-{version_number}"
-pack(str(package_directory), args.dest_dir, None)
+pack(os.fspath(package_directory), args.dest_dir, None)
