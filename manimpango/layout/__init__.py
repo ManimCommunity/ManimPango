@@ -51,6 +51,9 @@ class Layout:
         markup: str = None,
         font_desc: FontDescription = None,
         attributes: list[TextAttribute] = None,
+        width: int = None,
+        height: int = None,
+        alignment: Alignment = None,
     ):
         if text:
             self.text = text
@@ -62,6 +65,12 @@ class Layout:
             self.font_desc = font_desc
         if attributes:
             self.attributes = attributes
+        if width:
+            self.width = width
+        if height:
+            self.height = height
+        if alignment:
+            self.alignment = alignment
 
     def __len__(self):
         return len(self.text) if self.text is not None else len(self.markup)
