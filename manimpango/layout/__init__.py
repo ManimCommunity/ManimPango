@@ -54,6 +54,7 @@ class Layout:
         width: int = None,
         height: int = None,
         alignment: Alignment = None,
+        justify: bool = None,
     ):
         if text:
             self.text = text
@@ -71,6 +72,8 @@ class Layout:
             self.height = height
         if alignment:
             self.alignment = alignment
+        if justify:
+            self.justify = justify
 
     def __len__(self):
         return len(self.text) if self.text is not None else len(self.markup)
@@ -195,6 +198,26 @@ class Layout:
         if not all(isinstance(x, TextAttribute) for x in val):
             raise TypeError("'attributes' should be a list of TextAttribute")
         self._attributes = val
+
+
+    @property
+    def justify(self) -> bool:
+        """Whether the text should be justified.
+
+        Raises
+        ======
+        TypeError
+            If ``justify`` is not a :class:`bool`.
+        """
+        if hasattr(self, "_justify"):
+            return self._justify
+        return False
+
+    @justify.setter
+    def justify(self, val: bool) -> None:
+        if not isinstance(val, bool):
+            raise TypeError("'justify' should be a bool")
+        self._justify = val
 
     def get_bounding_box(self) -> tuple[int, int, int, int]:
         """Returns the bounding box of the layout.

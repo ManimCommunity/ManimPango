@@ -45,3 +45,8 @@ cdef pylayout_to_pango_layout(
             layout,
             attr_list,
         )
+    if py_layout.justify:
+        pango_layout_set_justify(
+            layout,
+            py_layout.justify,
+        )
