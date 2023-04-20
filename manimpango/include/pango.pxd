@@ -17,6 +17,11 @@ cdef extern from "pango/pangocairo.h":
         pass
     ctypedef struct PangoFontFamily:
         pass
+    ctypedef struct PangoRectangle:
+        int x
+        int y
+        int width
+        int height
     ctypedef enum PangoStyle:
         PANGO_STYLE_NORMAL
         PANGO_STYLE_OBLIQUE
@@ -189,6 +194,12 @@ cdef extern from "pango/pangocairo.h":
         PangoColor* color,
         const char* spec
     )
+    void pango_layout_get_pixel_extents (
+        PangoLayout* layout,
+        PangoRectangle* ink_rect,
+        PangoRectangle* logical_rect
+    )
+
 
 cdef extern from *:
     """

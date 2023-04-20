@@ -253,6 +253,11 @@ ext_modules = [
         **returns,
     ),
     Extension(
+        "manimpango.layout._layout",
+        [str(base_file / "layout" / ("_layout" + ext))],
+        **returns,
+    ),
+    Extension(
         "manimpango.renderer.svg_renderer",
         [str(base_file / "renderer" / ("svg_renderer" + ext))],
         **returns,

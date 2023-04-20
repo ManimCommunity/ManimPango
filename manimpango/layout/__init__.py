@@ -196,5 +196,28 @@ class Layout:
             raise TypeError("'attributes' should be a list of TextAttribute")
         self._attributes = val
 
+    def get_bounding_box(self) -> tuple[int, int, int, int]:
+        """Returns the bounding box of the layout.
+
+        Note that it's heavy to calculate the bounding box of a layout,
+        so it's better to cache the result.
+
+        Example
+        =======
+        >>> import manimpango as mp
+        >>> layout = mp.Layout("hello world")
+        >>> layout.get_bounding_box()
+        (0, 0, 82, 19)
+
+        Returns
+        =======
+        tuple
+            The bounding box of the layout in the form of
+            ``(x, y, width, height)``.
+        """
+        from ._layout import get_bbox
+
+        return get_bbox(self)
+
     def __repr__(self):
         return f"<Layout text={repr(self.text)} markup={repr(self.markup)}>"
