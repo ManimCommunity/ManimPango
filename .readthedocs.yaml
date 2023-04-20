@@ -1,11 +1,8 @@
 version: 2
 formats: all
+conda:
+  environment: docs/environment.yml
 python:
-   version: "3.8"
    install:
       - method: pip
         path: .
-      - requirements: docs/requirements.txt
-build:
-  apt_packages:
-    - libpango1.0-dev
