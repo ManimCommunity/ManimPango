@@ -15,8 +15,9 @@
 # import sys
 # sys.path.insert(0, os.path.abspath(".."))
 
-import manimpango
 from pathlib import Path
+
+import manimpango
 
 # -- Project information -----------------------------------------------------
 

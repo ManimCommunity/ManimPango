@@ -199,7 +199,6 @@ class Layout:
             raise TypeError("'attributes' should be a list of TextAttribute")
         self._attributes = val
 
-
     @property
     def justify(self) -> bool:
         """Whether the text should be justified.
