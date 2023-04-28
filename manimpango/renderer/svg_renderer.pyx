@@ -7,7 +7,7 @@ include "cairo_utils.pxi"
 cdef class SVGRenderer:
     """:class:`SVGRenderer` is a renderer which renders the
     :class:`~.Layout` to an SVG file. Note that unlike other renderers
-    the :param:`file_name` is a required parameter.
+    the :attr:`file_name` is a required parameter.
 
     The :attr:`file_name` is opened when the class is initialised
     and only closed when the renderer is destroyed.

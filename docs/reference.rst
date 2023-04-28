@@ -35,8 +35,8 @@ Renderers
 .. autosummary::
    :toctree: reference
 
-   manimpango.SVGRenderer
-   manimpango.ImageRenderer
+   manimpango.renderer.SVGRenderer
+   manimpango.renderer.ImageRenderer
 
 Exceptions
 ==========

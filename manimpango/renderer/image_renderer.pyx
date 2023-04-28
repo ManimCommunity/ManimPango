@@ -10,7 +10,7 @@ cdef class ImageRenderer:
     the buffer or else you can save it to a file, as a png file,
     using the :meth:`save` method.
 
-    The :param:`file_name` is optional, if you don't provide it
+    The :attr:`file_name` is optional, if you don't provide it
     then you can use the :meth:`get_buffer` method to get the
     buffer.
 
@@ -108,8 +108,8 @@ cdef class ImageRenderer:
     cpdef bint render(self):
         """:meth:`render` actually does the rendering.
         Any error reported by Cairo is reported as an exception.
-        If this method suceeds you can expect an valid PNG file at
-        :attr:`file_name`.
+        If this method suceeds you can expect an valid image in the
+        buffer.
 
         Returns
         =======
@@ -119,6 +119,25 @@ cdef class ImageRenderer:
         return self.start_renderering()
 
     def save(self, file_name: T.Optional[str] = None) -> str:
+        """This method is to save the image to an PNG image.
+        Note that only PNG image are supported, if you need other
+        formats, use external libraries such as Pillow.
+
+        Parameters
+        ==========
+        file_name:
+            The file_name to write the image to.
+
+        Raises
+        ======
+        ValueError
+            Raised when the file_name parameter is ``None``.
+        
+        Returns
+        =======
+        str
+            The filepath to the saved file.
+        """
         if file_name is None:
             file_name = self.file_name
 
