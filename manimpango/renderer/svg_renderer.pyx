@@ -6,30 +6,33 @@ include "cairo_utils.pxi"
 
 cdef class SVGRenderer:
     """:class:`SVGRenderer` is a renderer which renders the
-    :class:`~.Layout` to an SVG file.
+    :class:`~.Layout` to an SVG file. Note that unlike other renderers
+    the :param:`file_name` is a required parameter.
 
     The :attr:`file_name` is opened when the class is initialised
     and only closed when the renderer is destroyed.
 
     Parameters
     ==========
-    file_name: :class:`str`
-        The path to SVG file.
     width: :class:`float`
         The width of the SVG.
     height: :class:`float`
         The height of the SVG.
     layout: :class:`Layout`
         The :class:`~.Layout` that needs to be rendered.
+    file_name: :class:`str`
+        The path to SVG file.
 
     Example
     =======
     >>> import manimpango as mp
-    >>> a = mp.SVGRenderer('test.svg', 100, 100, mp.Layout('hello'))
+    >>> a = mp.SVGRenderer(100, 100, mp.Layout('hello'), 'test.svg')
     >>> a
     <SVGRenderer file_name='test.svg' width=100.0 height=100.0 layout=<Layout text='hello' markup=None>
     >>> a.render()
     True
+    >>> a.save()
+    'test.svg'
 
     Raises
     ======
@@ -38,10 +41,10 @@ cdef class SVGRenderer:
     """
     def __cinit__(
         self,
-        file_name: str,
         width: float,
         height: float,
-        layout: Layout
+        layout: Layout,
+        file_name: str,
     ):
         surface = cairo_svg_surface_create(
             file_name.encode("utf-8"),
@@ -58,10 +61,10 @@ cdef class SVGRenderer:
 
     def __init__(
         self,
-        file_name: str,
         width: float,
         height: float,
-        layout: Layout
+        layout: Layout,
+        file_name: str,
     ):
         self._file_name = file_name
         self._width = width
@@ -112,6 +115,24 @@ cdef class SVGRenderer:
             ``True`` if the function worked, else ``False``.
         """
         return self.start_renderering()
+
+    def save(self, file_name: T.Optional[str] = None) -> str:
+        """This method save's the SVG file. Note that this method
+        is provided for compatibility with other renderers and does
+        nothing.
+
+        Parameters
+        ==========
+        file_name:
+            The filename to save the file. Note that this is not used
+            and instead only :attr:`file_name` is used
+
+        Returns
+        =======
+        str
+            The filename of the rendered SVG file.
+        """
+        return self.file_name
 
     def __repr__(self) -> str:
         return (f"<SVGRenderer file_name={repr(self.file_name)}"

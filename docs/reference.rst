@@ -36,7 +36,7 @@ Renderers
    :toctree: reference
 
    manimpango.SVGRenderer
-   manimpango.PNGRenderer
+   manimpango.ImageRenderer
 
 Exceptions
 ==========

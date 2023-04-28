@@ -250,16 +250,17 @@ class Layout:
         file_name:
             The filename to which the layout should be rendered.
         """
-        from ..renderer import PNGRenderer, SVGRenderer
+        from ..renderer import ImageRenderer, SVGRenderer
 
         bbox = self.get_bounding_box()
         if file_name.endswith(".png"):
-            renderer = PNGRenderer(file_name, *bbox[2:], self)
+            renderer = ImageRenderer(*bbox[2:], self, file_name)
         elif file_name.endswith(".svg"):
-            renderer = SVGRenderer(file_name, *bbox[2:], self)
+            renderer = SVGRenderer(*bbox[2:], self, file_name)
         else:
             raise ValueError("Only rendering PNG and SVG files are supported.")
         renderer.render()
+        renderer.save()
 
     def __repr__(self):
         return f"<Layout text={repr(self.text)} markup={repr(self.markup)}>"

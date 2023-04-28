@@ -3,13 +3,14 @@ import os
 
 import pytest
 
-from manimpango import Layout, PNGRenderer, TextAttribute, Weight
+from manimpango import ImageRenderer, Layout, TextAttribute, Weight
 
 
 def render_and_test_attribute(tmpdir, attribute, text="hello world"):
     _l = Layout(text, attributes=[attribute])
-    renderer = PNGRenderer(os.fspath(tmpdir / "test.png"), 100, 100, _l)
+    renderer = ImageRenderer(100, 100, _l, os.fspath(tmpdir / "test.png"))
     renderer.render()
+    renderer.save()
     assert (tmpdir / "test.png").exists()
 
 

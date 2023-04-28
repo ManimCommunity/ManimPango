@@ -6,7 +6,7 @@ from ..fonts import FontDescription
 from ..layout import Layout
 
 
-cdef class PNGRenderer:
+cdef class ImageRenderer:
     cdef cairo_surface_t* cairo_surface
     cdef cairo_t* cairo_context
     cdef PangoLayout* pango_layout

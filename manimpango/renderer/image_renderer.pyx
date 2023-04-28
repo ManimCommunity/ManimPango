@@ -4,32 +4,37 @@ from ..layout import Layout
 
 include "cairo_utils.pxi"
 
-cdef class PNGRenderer:
-    """:class:`PNGRenderer` is a renderer which renders the
-    :class:`~.Layout` to an PNG file.
+cdef class ImageRenderer:
+    """:class:`ImageRenderer` is a renderer which renders the
+    :class:`~.Layout` to an image buffer. You can directly use
+    the buffer or else you can save it to a file, as a png file,
+    using the :meth:`save` method.
 
-    The :attr:`file_name` is opened when the class is initialised
-    and only closed when the renderer is destroyed.
+    The :param:`file_name` is optional, if you don't provide it
+    then you can use the :meth:`get_buffer` method to get the
+    buffer.
 
     Parameters
     ==========
-    file_name: :class:`str`
-        The path to PNG file.
     width: :class:`float`
         The width of the PNG.
     height: :class:`float`
         The height of the PNG.
     layout: :class:`Layout`
         The :class:`~.Layout` that needs to be rendered.
+    file_name: :class:`str`
+        The path to render the PNG file to.
 
     Example
     =======
     >>> import manimpango as mp
-    >>> a = mp.PNGRenderer('test.svg', 100, 100, mp.Layout('hello'))
+    >>> a = mp.ImageRenderer(100, 100, mp.Layout('hello'), 'test.png')
     >>> a
-    <PNGRenderer file_name='test.svg' width=100.0 height=100.0 layout=<Layout text='hello' markup=None>
+    <ImageRenderer file_name='test.png' width=100.0 height=100.0 layout=<Layout text='hello' markup=None>
     >>> a.render()
     True
+    >>> a.save()
+    'test.png'
 
     Raises
     ======
@@ -38,10 +43,10 @@ cdef class PNGRenderer:
     """
     def __cinit__(
         self,
-        file_name: str,
         width: int,
         height: int,
-        layout: Layout
+        layout: Layout,
+        file_name: T.Optional[str] = None
     ):
         surface = cairo_image_surface_create(
             CAIRO_FORMAT_ARGB32,
@@ -58,10 +63,10 @@ cdef class PNGRenderer:
 
     def __init__(
         self,
-        file_name: str,
         width: int,
         height: int,
-        layout: Layout
+        layout: Layout,
+        file_name: T.Optional[str] = None
     ):
         self._file_name = file_name
         self._width = width
@@ -98,14 +103,6 @@ cdef class PNGRenderer:
         if _err != "":
             raise Exception(_err)
 
-        cdef cairo_status_t _status = cairo_surface_write_to_png(self.cairo_surface,
-            self.file_name.encode('utf-8'))
-
-        if _status == CAIRO_STATUS_NO_MEMORY:
-            raise MemoryError("Cairo didn't find memory")
-        elif _status != CAIRO_STATUS_SUCCESS:
-            temp_bytes = <bytes>cairo_status_to_string(_status)
-            raise Exception(temp_bytes.decode('utf-8'))
         return 1
 
     cpdef bint render(self):
@@ -121,8 +118,26 @@ cdef class PNGRenderer:
         """
         return self.start_renderering()
 
+    def save(self, file_name: T.Optional[str] = None) -> str:
+        if file_name is None:
+            file_name = self.file_name
+
+        if not file_name:
+            raise ValueError("Need a filename to save.")
+
+        cdef cairo_status_t _status = cairo_surface_write_to_png(self.cairo_surface,
+            file_name.encode('utf-8'))
+
+        if _status == CAIRO_STATUS_NO_MEMORY:
+            raise MemoryError("Cairo didn't find memory")
+        elif _status != CAIRO_STATUS_SUCCESS:
+            temp_bytes = <bytes>cairo_status_to_string(_status)
+            raise Exception(temp_bytes.decode('utf-8'))
+
+        return self.file_name
+
     def __repr__(self) -> str:
-        return (f"<PNGRenderer file_name={repr(self.file_name)}"
+        return (f"<ImageRenderer file_name={repr(self.file_name)}"
             f" width={repr(self.width)}"
             f" height={repr(self.height)}"
             f" layout={repr(self.layout)}")

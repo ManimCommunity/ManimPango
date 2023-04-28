@@ -11,20 +11,27 @@ def test_svg_renderer(tmpdir, monkeypatch):
     monkeypatch.chdir(tmpdir)
     pth = Path("test.svg")
     _l = manimpango.Layout("h")
-    _s = manimpango.SVGRenderer(os.fspath(pth), 200, 200, _l)
+    _s = manimpango.SVGRenderer(
+        200,
+        200,
+        _l,
+        os.fspath(pth),
+    )
     _s.render()
+    _s.save()
     assert pth.exists()
     assert _s.file_name == "test.svg"
     assert _s.width == 200
     assert _s.height == 200
 
 
-def test_png_renderer(tmpdir, monkeypatch):
+def test_image_renderer(tmpdir, monkeypatch):
     monkeypatch.chdir(tmpdir)
     pth = Path("test.png")
     _l = manimpango.Layout("h")
-    _s = manimpango.PNGRenderer(os.fspath(pth), 200, 200, _l)
+    _s = manimpango.ImageRenderer(200, 200, _l, os.fspath(pth))
     _s.render()
+    _s.save()
     assert pth.exists()
     assert _s.file_name == "test.png"
     assert _s.width == 200
@@ -51,9 +58,10 @@ def test_rendering_with_attributes(tmpdir, monkeypatch, attributes):
     monkeypatch.chdir(tmpdir)
     pth = Path("test.png")
     _l = manimpango.Layout("hello world", attributes=attributes)
-    _s = manimpango.PNGRenderer(os.fspath(pth), 200, 200, _l)
+    _s = manimpango.ImageRenderer(200, 200, _l, os.fspath(pth))
     # make sure rendering works
     _s.render()
+    _s.save()
     assert pth.exists()
     assert _s.file_name == "test.png"
     assert _s.width == 200

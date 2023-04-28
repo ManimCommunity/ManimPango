@@ -263,8 +263,8 @@ ext_modules = [
         **returns,
     ),
     Extension(
-        "manimpango.renderer.png_renderer",
-        [str(base_file / "renderer" / ("png_renderer" + ext))],
+        "manimpango.renderer.image_renderer",
+        [str(base_file / "renderer" / ("image_renderer" + ext))],
         **returns,
     ),
 ]
