@@ -10,6 +10,7 @@ apps for example).
    :maxdepth: 3
    :caption: Contents:
 
+   examples
    reference
    RELEASE
 
