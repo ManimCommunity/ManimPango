@@ -5,6 +5,7 @@ channels:
 dependencies:
   - pango=1.50
   - python=3.11
+  - glib
   - sphinxext-opengraph=0
   - compilers
   - pkg-config
