@@ -133,7 +133,7 @@ cdef class ImageRenderer:
         ======
         ValueError
             Raised when the file_name parameter is ``None``.
-        
+
         Returns
         =======
         str

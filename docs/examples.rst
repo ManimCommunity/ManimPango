@@ -5,7 +5,7 @@ Simple Example
 --------------
 
 The simplest way to render a text into a image create a new instance of
-:class:`Layout` and then a renderer and call the :meth:`Layout.render`. 
+:class:`Layout` and then a renderer and call the :meth:`Layout.render`.
 
 .. code-block:: python
 
@@ -34,4 +34,3 @@ form ``(x, y, width, height)``.
 
 The bounding box is the smallest rectangle that contains all the glyphs
 of the text.
-
