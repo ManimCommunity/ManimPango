@@ -8,6 +8,7 @@ cdef class ImageBuffer:
         buffer.format = 'B'
         buffer.len = self.height * self.stride
         buffer.obj = self
+        buffer.ndim = 1
         buffer.readonly = 1
 
     def __releasebuffer__(self, Py_buffer *buffer):
