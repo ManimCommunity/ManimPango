@@ -13,7 +13,7 @@ For building **ManimPango**, you need
 * `pkg-config <https://www.freedesktop.org/wiki/Software/pkg-config/>`_
 * `Pango <https://pango.gnome.org>`_ along with its development headers and its dependencies.
 
-If you are on MacOS, you can use `brew <https://brew.sh/>`_ to install those. Using 
+If you are on MacOS, you can use `brew <https://brew.sh/>`_ to install those. Using
 `MacPorts <https://www.macports.org/>`_ is also possible.
 
 .. code-block::
@@ -22,7 +22,7 @@ If you are on MacOS, you can use `brew <https://brew.sh/>`_ to install those. Us
 
 
 If you are on Linux, you can use a system package manager to do so. For example, if you
-are on Debian based system, you can use `apt`
+are on Debian based system, you can use ``apt``
 
 .. code-block::
 
@@ -59,7 +59,7 @@ your **Manimpango** with **Manim**.
     source venv/bin/activate # Linux/macOS
     venv\Scripts\activate # Windows
 
-If you are using a clone of this repository, you will need `Cython <https://cython.org>`_ 
+If you are using a clone of this repository, you will need `Cython <https://cython.org>`_
 which can be easily installed using ``pip``:
 
 .. code-block:: sh
@@ -93,7 +93,7 @@ Windows
 -------
 
 .. note::
-    
+
     If you are a normal user, don't read this, you have wheels which you can
     just install directly using pip.
 
@@ -155,8 +155,8 @@ with ``pkg-config`` and install it at ``C:\cibw\vendor``. Add ``C:\cibw\vendor\b
 ``C:\cibw\vendor\pkg-config\bin`` to PATH.
 
 .. note::
-    
-    You can change the install location by editing line 24 of the 
+
+    You can change the install location by editing line 24 of the
     file ``packing/download_dlls.py``.
 
 Then set an environment variable ``PKG_CONFIG_PATH=C:\cibw\vendor\lib\pkgconfig``.
@@ -175,7 +175,7 @@ package by typing:
     pip install -e .
 
 .. important::
-    
+
     You have to to use https://docs.python.org/3/library/os.html#os.add_dll_directory
     before running **ManimPango**. This is applicable for Python 3.8 and above.
 

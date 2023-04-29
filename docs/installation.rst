@@ -6,7 +6,7 @@ Installation
 You can install **ManimPango** using **pip**:
 
 .. code-block:: bash
-    
+
     pip install manimpango
 
 There are prebuild wheels for both Windows and macOS.
