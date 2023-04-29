@@ -34,3 +34,18 @@ form ``(x, y, width, height)``.
 
 The bounding box is the smallest rectangle that contains all the glyphs
 of the text.
+
+Changing the Font
+-----------------
+
+The font can be changed by passing a :class:`FontDescription` while
+creating the :class:`Layout`.
+
+.. code-block:: python
+
+    >>> from manimpango import *
+    >>> l = Layout("Hello World", font_desc=FontDescription.from_string("Arial 60"))
+    >>> l.render('test.png')
+
+The font description can also be changed after the :class:`Layout` has
+been created by setting the :attr:`Layout.font_desc` attribute.
