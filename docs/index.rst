@@ -13,10 +13,3 @@ apps for example).
    examples
    reference
    RELEASE
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
