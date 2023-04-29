@@ -7,6 +7,7 @@ class ImageRenderer:
         width: int,
         height: int,
         layout: Layout,
+        file_name: str,
     ): ...
     @property
     def file_name(self) -> str: ...
