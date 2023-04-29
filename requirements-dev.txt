@@ -3,3 +3,5 @@ pytest>=7.0.0,<8.0.0
 Cython>=0.29.32,<0.30.0
 coverage>=6.5.0,<7.0.0
 twine
+towncrier
+sphinx>=6.0.0,<7.0.0
