@@ -18,9 +18,15 @@ This means older version would have a backport of bugs fixes.
 
 5. Bump the version in `manimpango/_version`_ accordingly.
 
-6. Make a commit with the changes done, as ``Release v<version here>``
+6. Generate the changelog using `towncrier <https://pypi.org/project/towncrier/>`_.
 
-7. Create a tag, locally with
+.. code-block:: sh
+
+   towncrier
+
+7. Make a commit with the changes done, as ``Release v<version here>``
+
+8. Create a tag, locally with
 
 .. code-block:: sh
 
@@ -39,9 +45,9 @@ This means older version would have a backport of bugs fixes.
     with the changelog. You can edit them and copy it to the tag you
     create.
 
-8. Push the tag to remote.
+9. Push the tag to remote.
 
-9. Go to `Github`_, and `draft a new release`_ with the same tag pushed.
+10. Go to `Github`_, and `draft a new release`_ with the same tag pushed.
    You can copy the same changelog you copied when you created the tag.
 
 .. important::
@@ -50,10 +56,10 @@ This means older version would have a backport of bugs fixes.
    a previously present draft release created by the Github Action. This is
    important so that the wheels build workflow triggers.
 
-10. Check whether the CI uploads the wheels and the ``.tar.gz`` file to
+11. Check whether the CI uploads the wheels and the ``.tar.gz`` file to
     PyPi.
 
-11. Finally, test the ``.tar.gz`` which was uploaded to `PyPi`_, and install
+12. Finally, test the ``.tar.gz`` which was uploaded to `PyPi`_, and install
     it in a new virtual environment.
 
 .. _Wheels Build: https://github.com/ManimCommunity/ManimPango/actions?query=workflow%3A%22Build+Wheels%22

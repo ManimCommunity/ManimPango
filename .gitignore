@@ -147,3 +147,4 @@ cython_debug/
 
 #temp folder
 .pytest_temp
+*test.py

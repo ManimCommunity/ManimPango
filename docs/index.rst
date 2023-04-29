@@ -41,6 +41,14 @@ Reference
 
    reference
 
+Changelog
+---------
+
+.. toctree::
+   :maxdepth: 2
+
+   news
+
 Developer documentation
 -----------------------
 
