@@ -3,6 +3,7 @@ import typing as T
 from ..layout import Layout
 
 include "cairo_utils.pxi"
+include "../buffer.pxi"
 
 cdef class ImageRenderer:
     """:class:`ImageRenderer` is a renderer which renders the
@@ -189,7 +190,30 @@ cdef class ImageRenderer:
         return self._height
 
     @property
+    def stride(self) -> int:
+        """The stride of the PNG."""
+        return cairo_image_surface_get_stride(self.cairo_surface)
+
+    @property
     def layout(self) -> Layout:
         """The :class:`~.Layout` which is being rendered.
         """
         return self.py_layout
+
+    def get_buffer(self) -> object:
+        """This method returns the buffer of the image.
+        This contains the image in the format of ``ARGB32``.
+
+        Returns
+        =======
+        bytes
+            The buffer of the image.
+        """
+        b = ImageBuffer()
+        b.data = cairo_image_surface_get_data(self.cairo_surface)
+        if b.data == NULL:
+            return None
+
+        b.height = cairo_image_surface_get_height(self.cairo_surface)
+        b.stride = cairo_image_surface_get_stride(self.cairo_surface)
+        return b

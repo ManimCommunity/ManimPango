@@ -29,6 +29,15 @@ cdef extern from "cairo.h":
         cairo_surface_t *surface,
         const char *filename
     )
+    unsigned char * cairo_image_surface_get_data(
+        cairo_surface_t *surface
+    )
+    int cairo_image_surface_get_stride(
+        cairo_surface_t *surface
+    )
+    int cairo_image_surface_get_height(
+        cairo_surface_t *surface
+    )
 
 
 cdef extern from "cairo-svg.h":
