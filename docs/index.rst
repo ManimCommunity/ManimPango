@@ -6,6 +6,14 @@ using Pango. It also provides various other utilities like registering
 fonts in system library for use with Pango (could also be used with GTK
 apps for example).
 
+Installation
+------------
+
+.. toctree::
+   :maxdepth: 2
+
+   installation
+   building
 
 Examples
 --------
