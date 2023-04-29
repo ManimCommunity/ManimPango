@@ -48,7 +48,7 @@ This means older version would have a backport of bugs fixes.
 9. Push the tag to remote.
 
 10. Go to `Github`_, and `draft a new release`_ with the same tag pushed.
-   You can copy the same changelog you copied when you created the tag.
+    You can copy the same changelog you copied when you created the tag.
 
 .. important::
 
