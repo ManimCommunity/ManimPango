@@ -322,6 +322,6 @@ setup(
     },
     ext_modules=ext_modules,
     package_data={
-        "manimpango": ["*.pxd", "*.pyx", "*.pyi"],
+        "manimpango": ["*.pxd", "*.pyx", "*.pyi", "*.pxi"],
     },
 )
