@@ -79,8 +79,11 @@ cdef class _FontDescription:
     @classmethod
     def from_string(cls, string: str):
         _t = _FontDescription()
+        cdef PangoFontDescription* font_desc = NULL
         _t.pango_font_desc = \
             pango_font_description_from_string(string.encode())
+        if _t.pango_font_desc is NULL:
+            raise ValueError("pango_font_description_from_string() returned NULL")
         return _t
 
     def __repr__(self):
