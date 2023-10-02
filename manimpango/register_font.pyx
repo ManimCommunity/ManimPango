@@ -97,8 +97,9 @@ ELIF UNAME_SYSNAME == "Windows":
         a=Path(font_path)
         assert a.exists(), f"font doesn't exist at {a.absolute()}"
         font_path = os.fspath(a.absolute())
+        cdef LPCWSTR wchar_path = PyUnicode_AsWideCharString(font_path, NULL)
         fontAddStatus = AddFontResourceExW(
-            <bytes>font_path,
+            wchar_path,
             FR_PRIVATE,
             0
         )
@@ -129,8 +130,9 @@ ELIF UNAME_SYSNAME == "Windows":
         a=Path(font_path)
         assert a.exists(), f"font doesn't exist at {a.absolute()}"
         font_path = os.fspath(a.absolute())
+        cdef LPCWSTR wchar_path = PyUnicode_AsWideCharString(font_path, NULL)
         return RemoveFontResourceExW(
-            <bytes>font_path,
+            wchar_path,
             FR_PRIVATE,
             0
         )

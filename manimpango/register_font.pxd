@@ -1,4 +1,12 @@
 
+from libc.stddef cimport wchar_t
+
+cdef extern from "Python.h":
+    wchar_t* PyUnicode_AsWideCharString(
+        object unicode,
+        Py_ssize_t* size
+    )
+
 cdef extern from "fontconfig/fontconfig.h":
     ctypedef int FcBool
     ctypedef struct FcConfig:
@@ -13,8 +21,7 @@ cdef extern from "fontconfig/fontconfig.h":
 # Windows and macOS specific API's
 IF UNAME_SYSNAME == "Windows":
     cdef extern from "windows.h":
-        ctypedef Py_UNICODE WCHAR
-        ctypedef const WCHAR* LPCWSTR
+        ctypedef const wchar_t* LPCWSTR
         ctypedef enum DWORD:
             FR_PRIVATE
         int AddFontResourceExW(
