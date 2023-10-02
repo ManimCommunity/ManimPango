@@ -50,7 +50,7 @@ jobs:
           pip install -r requirements-dev.txt
       - name: Run Tests
         run: |
-          python setup.py build_ext -i --coverage
+          python setup.py build_ext -i
           python setup.py sdist
           pip install .
           pytest
