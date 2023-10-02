@@ -29,7 +29,7 @@ dependencies:
   - pip=20.3.3=py37h06a4308_0
   - pixman=0.40.0=h7b6447c_0
   - pkg-config=0.29.2=h1bed415_8
-  - python=3.7.9=h7579374_0
+  - python=3.8
   - readline=8.0=h7b6447c_0
   - setuptools=51.0.0=py37h06a4308_2
   - sqlite=3.33.0=h62c20be_0
