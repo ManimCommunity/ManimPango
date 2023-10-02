@@ -100,7 +100,7 @@ jobs:
           pip install -U setuptools wheel
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
           pip install -r requirements-dev.txt
-          python setup.py build_ext -i --coverage
+          python setup.py build_ext -i
           pytest
       - name: Coverage
         run: |
@@ -121,7 +121,7 @@ jobs:
           $env:PATH="$env:PATH;C:\cibw\vendor\pkg-config\bin;C:\cibw\vendor\bin"
           $env:PKG_CONFIG_PATH="C:\cibw\vendor\lib\pkgconfig"
           pip install -r requirements-dev.txt
-          python setup.py build_ext -i --coverage
+          python setup.py build_ext -i
           python setup.py sdist
           python -m pip install dist/*
           $env:PATH="C:\cibw\vendor\bin;$env:PATH"
