@@ -1,6 +1,7 @@
 
 from libc.stddef cimport wchar_t
 
+
 cdef extern from "Python.h":
     wchar_t* PyUnicode_AsWideCharString(
         object unicode,
