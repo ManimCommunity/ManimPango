@@ -28,16 +28,16 @@ class TextSetting:
 
 
 def text2svg(
-    settings:list,
-    size:int,
-    line_spacing:int,
-    disable_liga:bool,
-    file_name:str,
-    START_X:int,
-    START_Y:int,
-    width:int,
-    height:int,
-    orig_text:str,
+    settings: list,
+    size: float,
+    line_spacing: float,
+    disable_liga: bool,
+    file_name: str,
+    START_X: int,
+    START_Y: int,
+    width: int,
+    height: int,
+    orig_text: str,
     pango_width: typing.Union[int, None] = None,
 ) -> int:
     """Render an SVG file from a :class:`manim.mobject.svg.text_mobject.Text` object."""
@@ -183,7 +183,7 @@ class MarkupUtils:
         font: str,
         slant: str,
         weight: str,
-        size: int,
+        size: float,
         _: int, # for some there was a keyword here.
         disable_liga: bool,
         file_name: str,
