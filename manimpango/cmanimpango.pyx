@@ -10,13 +10,13 @@ class TextSetting:
     """Formatting for slices of a :class:`manim.mobject.svg.text_mobject.Text` object."""
     def __init__(
         self,
-        start:int,
-        end:int,
-        font:str,
-        slant,
-        weight,
-        line_num=-1,
-        color: str=None,
+        start: int,
+        end: int,
+        font: str,
+        slant: str,
+        weight: str,
+        line_num = -1,
+        color: str = None,
     ):
         self.start = start
         self.end = end
@@ -39,7 +39,7 @@ def text2svg(
     height: int,
     orig_text: str,
     pango_width: typing.Union[int, None] = None,
-) -> int:
+) -> str:
     """Render an SVG file from a :class:`manim.mobject.svg.text_mobject.Text` object."""
     cdef cairo_surface_t* surface
     cdef cairo_t* cr
@@ -180,11 +180,11 @@ class MarkupUtils:
     @staticmethod
     def text2svg(
         text: str,
-        font: str,
+        font: str | None,
         slant: str,
         weight: str,
         size: float,
-        _: int, # for some there was a keyword here.
+        _, # for some there was a keyword here.
         disable_liga: bool,
         file_name: str,
         START_X: int,
@@ -192,12 +192,12 @@ class MarkupUtils:
         width: int,
         height: int,
         *, # keyword only arguments below
-        justify: bool = None,
-        indent: float = None,
-        line_spacing: float = None,
-        alignment: Alignment = None,
-        pango_width: typing.Union[int, None] = None,
-    ) -> int:
+        justify: bool | None = None,
+        indent: float | int | None = None,
+        line_spacing: float | None = None,
+        alignment: Alignment | None = None,
+        pango_width: int | None = None,
+    ) -> str:
         """Render an SVG file from a :class:`manim.mobject.svg.text_mobject.MarkupText` object."""
         cdef cairo_surface_t* surface
         cdef cairo_t* context
@@ -264,7 +264,7 @@ class MarkupUtils:
             pango_layout_set_alignment(layout, alignment.value)
 
         font_desc = pango_font_description_new()
-        if font_desc==NULL:
+        if font_desc == NULL:
             cairo_destroy(context)
             cairo_surface_destroy(surface)
             g_object_unref(layout)
