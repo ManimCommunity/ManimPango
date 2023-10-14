@@ -19,7 +19,6 @@ if ($installationPath -and (test-path "$installationPath\Common7\Tools\vsdevcmd.
         set-content env:\"$name" $value
     }
 }
-python -m pip install 'pip==21.*'
 pip install --upgrade meson==0.55.3 ninja
 $env:PKG_CONFIG_PATH=""
 meson setup --prefix=$output --buildtype=release -Dtests=false pkg_conf_build pkgconf
