@@ -19,6 +19,8 @@ class TextSetting:
         weight: str,
         line_num = -1,
         color: str = None,
+        font_features: str = None,
+        font_variant: str = None,
     ):
         self.start = start
         self.end = end
@@ -27,6 +29,8 @@ class TextSetting:
         self.weight = weight
         self.line_num = line_num
         self.color = color
+        self.font_features = font_features
+        self.font_variant = font_variant
 
 
 def text2svg(
@@ -117,15 +121,27 @@ def text2svg(
 
         pango_cairo_update_layout(cr,layout)
         markup = escape(text_str)
+
+        # Build span attributes
+        span_attrs = []
         if color:
-            markup = (f"<span color='{color}'>{markup}</span>")
+            span_attrs.append(f"color='{color}'")
+        if setting.font_features:
+            span_attrs.append(f"font_features='{setting.font_features}'")
+        if setting.font_variant:
+            span_attrs.append(f"font_variant='{setting.font_variant}'")
+        if disable_liga:
+            span_attrs.append("font_features='liga=0,dlig=0,clig=0,hlig=0'")
+
+        if span_attrs:
+            attrs_str = ' '.join(span_attrs)
+            markup = f"<span {attrs_str}>{markup}</span>"
             if MarkupUtils.validate(markup):
                 cairo_destroy(cr)
                 cairo_surface_destroy(surface)
                 g_object_unref(layout)
-                raise ValueError(f"Pango cannot recognize your color '{color}' for text '{text_str}'.")
-        if disable_liga:
-            markup = f"<span font_features='liga=0,dlig=0,clig=0,hlig=0'>{markup}</span>"
+                raise ValueError(f"Pango markup validation failed for text '{text_str}' with attributes: {attrs_str}")
+
         pango_layout_set_markup(layout, markup.encode('utf-8'), -1)
         pango_cairo_show_layout(cr, layout)
         pango_layout_get_size(layout,&temp_width,NULL)
@@ -150,6 +166,105 @@ def text2svg(
     return file_name
 
 class MarkupUtils:
+    @staticmethod
+    def build_font_features(
+        liga: bool = None,
+        dlig: bool = None,
+        clig: bool = None,
+        hlig: bool = None,
+        kern: bool = None,
+        swsh: int = None,
+        calt: bool = None,
+        onum: bool = None,
+        tnum: bool = None,
+        frac: bool = None,
+        afrc: bool = None,
+        custom_features: str = None
+    ) -> str:
+        """Build a font_features string from individual feature parameters.
+
+        Parameters
+        ==========
+        liga : bool, optional
+            Common ligatures (default True in most fonts)
+        dlig : bool, optional
+            Discretionary ligatures
+        clig : bool, optional
+            Contextual ligatures
+        hlig : bool, optional
+            Historical ligatures
+        kern : bool, optional
+            Kerning (default True in most fonts)
+        swsh : int, optional
+            Swash (stylistic set number, 1-20)
+        calt : bool, optional
+            Contextual alternates
+        onum : bool, optional
+            Oldstyle figures
+        tnum : bool, optional
+            Tabular figures
+        frac : bool, optional
+            Fractions
+        afrc : bool, optional
+            Alternative fractions
+        custom_features : str, optional
+            Additional custom OpenType features
+
+        Returns
+        =======
+        str
+            Formatted font_features string for Pango markup
+        """
+        features = []
+
+        if liga is not None:
+            features.append(f"liga={'1' if liga else '0'}")
+        if dlig is not None:
+            features.append(f"dlig={'1' if dlig else '0'}")
+        if clig is not None:
+            features.append(f"clig={'1' if clig else '0'}")
+        if hlig is not None:
+            features.append(f"hlig={'1' if hlig else '0'}")
+        if kern is not None:
+            features.append(f"kern={'1' if kern else '0'}")
+        if swsh is not None:
+            features.append(f"swsh={swsh}")
+        if calt is not None:
+            features.append(f"calt={'1' if calt else '0'}")
+        if onum is not None:
+            features.append(f"onum={'1' if onum else '0'}")
+        if tnum is not None:
+            features.append(f"tnum={'1' if tnum else '0'}")
+        if frac is not None:
+            features.append(f"frac={'1' if frac else '0'}")
+        if afrc is not None:
+            features.append(f"afrc={'1' if afrc else '0'}")
+
+        if custom_features:
+            features.append(custom_features)
+
+        return ', '.join(features) if features else ''
+
+    @staticmethod
+    def validate_font_variant(variant: str) -> bool:
+        """Validate a font_variant value.
+
+        Parameters
+        ==========
+        variant : str
+            The font variant to validate
+
+        Returns
+        =======
+        bool
+            True if valid, False otherwise
+        """
+        valid_variants = {
+            'normal', 'small-caps', 'all-small-caps',
+            'petite-caps', 'all-petite-caps', 'unicase', 'title-caps'
+        }
+        return variant in valid_variants
+
     @staticmethod
     def validate(markup: str) -> str:
         """Validates whether markup is a valid Markup
@@ -205,6 +320,8 @@ class MarkupUtils:
         line_spacing: float | None = None,
         alignment: Alignment | None = None,
         pango_width: int | None = None,
+        font_features: str | None = None,
+        font_variant: str | None = None,
     ) -> str:
         """Render an SVG file from a :class:`manim.mobject.svg.text_mobject.MarkupText` object."""
         cdef cairo_surface_t* surface
@@ -218,8 +335,18 @@ class MarkupUtils:
 
         file_name_bytes = file_name.encode("utf-8")
 
+        # Build span attributes for global text formatting
+        span_attrs = []
+        if font_features:
+            span_attrs.append(f"font_features='{font_features}'")
+        if font_variant:
+            span_attrs.append(f"font_variant='{font_variant}'")
         if disable_liga:
-            text_bytes = f"<span font_features='liga=0,dlig=0,clig=0,hlig=0'>{text}</span>".encode("utf-8")
+            span_attrs.append("font_features='liga=0,dlig=0,clig=0,hlig=0'")
+
+        if span_attrs:
+            attrs_str = ' '.join(span_attrs)
+            text_bytes = f"<span {attrs_str}>{text}</span>".encode("utf-8")
         else:
             text_bytes = text.encode("utf-8")
 
