@@ -36,7 +36,7 @@ jobs:
       CIBW_BEFORE_BUILD_MACOS: "python packing/download_pango_macos.py ${{ matrix.architecture }}"
       CIBW_BEFORE_BUILD_WINDOWS: "python packing/download_dlls.py"
       CIBW_ENVIRONMENT_WINDOWS: "PKG_CONFIG_PATH='C:\\cibw\\vendor\\lib\\pkgconfig'"
-      CIBW_ENVIRONMENT_MACOS: "PKG_CONFIG_PATH='/Users/runner/pangobuild/lib/pkgconfig'"
+      CIBW_ENVIRONMENT_MACOS: "PKG_CONFIG_PATH='/Users/runner/pangobuild/lib/pkgconfig' MACOSX_DEPLOYMENT_TARGET='10.13'"
       CIBW_TEST_REQUIRES: pytest pytest-cov
       CIBW_TEST_COMMAND: "bash {project}/packing/test_wheels.sh {project}"
     steps:
