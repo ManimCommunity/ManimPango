@@ -14,4 +14,7 @@ python:
       - method: pip
         path: .
 
+sphinx:
+  configuration: docs/conf.py
+
 formats: all
