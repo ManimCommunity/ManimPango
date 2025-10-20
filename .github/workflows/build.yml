@@ -31,12 +31,12 @@ jobs:
             platform_id: macosx_arm64
             architecture: arm64
     env:
-      CIBW_BUILD: cp39-${{ matrix.platform_id }} cp310-${{ matrix.platform_id }} cp311-${{ matrix.platform_id }} cp312-${{ matrix.platform_id }} cp313-${{ matrix.platform_id }}
-      CIBW_SKIP: pp* cp36* cp37* cp38*
+      CIBW_BUILD: cp39-${{ matrix.platform_id }} cp310-${{ matrix.platform_id }} cp311-${{ matrix.platform_id }} cp312-${{ matrix.platform_id }} cp313-${{ matrix.platform_id }} cp314-${{ matrix.platform_id }}
+      CIBW_SKIP: pp* cp38*
       CIBW_BEFORE_BUILD_MACOS: "python packing/download_pango_macos.py ${{ matrix.architecture }}"
       CIBW_BEFORE_BUILD_WINDOWS: "python packing/download_dlls.py"
       CIBW_ENVIRONMENT_WINDOWS: "PKG_CONFIG_PATH='C:\\cibw\\vendor\\lib\\pkgconfig'"
-      CIBW_ENVIRONMENT_MACOS: "PKG_CONFIG_PATH='/Users/runner/pangobuild/lib/pkgconfig'"
+      CIBW_ENVIRONMENT_MACOS: "PKG_CONFIG_PATH='/Users/runner/pangobuild/lib/pkgconfig' MACOSX_DEPLOYMENT_TARGET='10.13'"
       CIBW_TEST_REQUIRES: pytest pytest-cov
       CIBW_TEST_COMMAND: "bash {project}/packing/test_wheels.sh {project}"
     steps:
@@ -60,11 +60,11 @@ jobs:
           cp packing/LICENSE.bin .
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.20.0
+        uses: pypa/cibuildwheel@v3.2.1
         env:
           PKG_CONFIG_PATH: "C:\\cibw\\vendor\\lib\\pkgconfig"
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           path: ./wheelhouse/*.whl
           name: wheels-${{ runner.os }}-${{ matrix.platform_id }}
@@ -77,7 +77,7 @@ jobs:
       fail-fast: false
       matrix:
         architecture: [x64, x86]
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
         include: [
           {platform_id: win_amd64, architecture: x64},
           {platform_id: win32, architecture: x86},
@@ -92,7 +92,7 @@ jobs:
           architecture: ${{ matrix.architecture }}
           allow-prereleases: true
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: wheels-${{ runner.os }}-${{ matrix.platform_id }}
           path: ~/wheelhouse
@@ -118,7 +118,7 @@ jobs:
       fail-fast: false
       matrix:
         architecture: [x64, arm64]
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
         include: [
           {platform_id: macosx_x86_64, architecture: x64, os: macos-13},
           {platform_id: macosx_arm64, architecture: arm64, os: macos-14},
@@ -133,7 +133,7 @@ jobs:
           architecture: ${{ matrix.architecture == 'arm64' && null || matrix.architecture }}
           allow-prereleases: true
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: wheels-${{ runner.os }}-${{ matrix.platform_id }}
           path: ~/wheelhouse
@@ -177,7 +177,7 @@ jobs:
           python -m pip install dist/*.tar.gz
 
       - name: Store artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: dist/*.tar.gz
           name: manimpango-src
@@ -194,7 +194,7 @@ jobs:
       contents: write
     if: github.event_name== 'release'
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: downloads/
 

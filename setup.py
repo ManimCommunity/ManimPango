@@ -280,7 +280,6 @@ setup(
         "Programming Language :: Python :: 3.13",
         "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 3 :: Only",
-        "License :: OSI Approved :: MIT License",
         "Programming Language :: Cython",
     ],
     project_urls={
