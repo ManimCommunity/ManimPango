@@ -58,7 +58,7 @@ jobs:
       - uses: codecov/codecov-action@v3
         with:
           file: ./.coverage/coverage.xml
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: test-artifacts-${{matrix.os}}-${{matrix.python-version}}
           path: .pytest_temp/
@@ -99,7 +99,7 @@ jobs:
       - name: Run tests
         run: |
           pytest -s
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: test-artifacts-${{matrix.os}}-${{matrix.python-version}} ${{matrix.architecture}}
           path: .pytest_temp/
