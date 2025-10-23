@@ -44,7 +44,7 @@ MANIMPANGO_VERSION = get_version()
 MINIMUM_PANGO_VERSION = "1.30.0"
 DEBUG = False
 
-if sys.platform == "win32" and sys.version_info >= (3, 14):
+if sys.platform == "win32" and sys.version_info >= (3, 15):
     import atexit
 
     atexit.register(
@@ -278,6 +278,7 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Cython",
