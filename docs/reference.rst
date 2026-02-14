@@ -1,24 +1,71 @@
-Manimpango Reference
-====================
+API Reference
+=============
 
-.. autosummary::
-   :toctree: reference
+.. module:: manimpango
 
-   manimpango.TextSetting
-   manimpango.PangoUtils
-   manimpango.text2svg
-   manimpango.MarkupUtils
-   manimpango.register_font
-   manimpango.unregister_font
-   manimpango.fc_register_font
-   manimpango.fc_unregister_font
-   manimpango.list_fonts
+Rendering
+---------
 
-Enums
-=====
-.. autosummary::
-   :toctree: reference
+.. autofunction:: render
 
-   manimpango.Style
-   manimpango.Weight
-   manimpango.Variant
+.. autofunction:: validate_markup
+
+Return Types
+------------
+
+.. autoclass:: RenderedText
+   :members:
+   :undoc-members:
+
+.. autoclass:: LineInfo
+   :members:
+   :undoc-members:
+
+Font Management
+---------------
+
+.. autofunction:: register_font
+
+.. autofunction:: unregister_font
+
+.. autofunction:: list_fonts
+
+Version Information
+-------------------
+
+.. autofunction:: get_version_info
+
+.. attribute:: __version__
+
+   The installed ManimPango version string.
+
+Enumerations
+------------
+
+.. autoclass:: Style
+   :members:
+   :undoc-members:
+
+.. autoclass:: Weight
+   :members:
+   :undoc-members:
+
+.. autoclass:: Alignment
+   :members:
+   :undoc-members:
+
+Exceptions
+----------
+
+.. autoclass:: UnsupportedPangoFeatureError
+   :members:
+
+Deprecated
+----------
+
+The following functions are provided for backwards compatibility and may be
+removed in a future release.
+
+.. autofunction:: pango_version
+
+.. autofunction:: cairo_version

@@ -1,64 +1,70 @@
 Release Procedure
 =================
 
-This is the **maintainer** note on how to Release.
-All versioning is in accordance to
-`Semantic Versioning 2.0.0 <https://semver.org/>`_.
-This means older version would have a backport of bugs fixes.
+This is the **maintainer** note on how to release ManimPango.
+All versioning follows `Semantic Versioning 2.0.0 <https://semver.org/>`_.
 
 1. Check whether the test suite passes on the main branch.
 
-2. Revert any changes which seems to be not working, and check
-   for the milestone if PR are merged accordingly.
+2. Revert any changes that are not working, and verify that milestone PRs
+   are merged.
 
-3. Check whether the `Wheels Build`_,
-   against the main branch works as expected.
+3. Check whether the `Wheels Build`_ against the main branch works as
+   expected.
 
 4. Clone the repository locally.
 
-5. Bump the version in `manimpango/_version`_ accordingly.
+5. Bump the version in ``pyproject.toml`` (the version is managed
+   dynamically via the build system).
 
-6. Make a commit with the changes done, as ``Release v<version here>``
+6. Commit the changes as ``Release v<version>``.
 
-7. Create a tag, locally with
+7. Create a signed tag locally:
 
-.. code-block:: sh
+   .. code-block:: sh
 
-   git tag -s v<version-number>
+      git tag -s v<version-number>
 
-.. note::
+   .. note::
 
-    Here, ``-s`` is used to sign the tag with gpg so that users
-    can later verify it, and a tag shouldn't be created with
-    signing because Github shows it unverified.
+      The ``-s`` flag signs the tag with GPG so that users can verify it.
+      GitHub shows unsigned tags as "unverified".
 
-.. important::
+   .. important::
 
-    The message should include the changelog of the release.
-    There is a github actions which will creates a draft `release`_
-    with the changelog. You can edit them and copy it to the tag you
-    create.
+      Include the changelog in the tag message. A GitHub Action creates a
+      draft `release`_ with the changelog — you can copy it into the tag.
 
-8. Push the tag to remote.
+8. Push the tag to the remote.
 
-9. Go to `Github`_, and `draft a new release`_ with the same tag pushed.
-   You can copy the same changelog you copied when you created the tag.
+9. Go to `GitHub`_ and `draft a new release`_ using the tag you just pushed.
 
-.. important::
+   .. important::
 
-   You should actually "draft a new release" instead of just publishing
-   a previously present draft release created by the Github Action. This is
-   important so that the wheels build workflow triggers.
+      Draft a **new** release rather than publishing a previously created
+      draft — this is needed to trigger the wheels build workflow.
 
-10. Check whether the CI uploads the wheels and the ``.tar.gz`` file to
-    PyPi.
+10. Verify that CI uploads wheels and the ``.tar.gz`` to `PyPI`_.
 
-11. Finally, test the ``.tar.gz`` which was uploaded to `PyPi`_, and install
-    it in a new virtual environment.
+11. Test the uploaded ``.tar.gz`` in a fresh virtual environment.
+
+Build System
+------------
+
+ManimPango v2.0 uses **Meson** (via ``meson-python``) as its build
+backend.  The Cython extensions are compiled by Meson.  See
+``pyproject.toml`` and the top-level ``meson.build`` for details.
+
+Minimum requirements:
+
+- Python ≥ 3.11
+- Pango ≥ 1.44
+- Cairo ≥ 1.14
+- GLib ≥ 2.0
+- Cython ≥ 3.0.0
 
 .. _Wheels Build: https://github.com/ManimCommunity/ManimPango/actions?query=workflow%3A%22Build+Wheels%22
-.. _manimpango/_version: https://github.com/ManimCommunity/ManimPango/blob/main/manimpango/_version.py
-.. _Github: https://github.com
+.. _GitHub: https://github.com
 .. _draft a new release: https://docs.github.com/en/free-pro-team@latest/github/administering-a-repository/managing-releases-in-a-repository#creating-a-release
-.. _PyPi: https://pypi.org/project/manimpango/
+.. _PyPI: https://pypi.org/project/manimpango/
 .. _release: https://github.com/ManimCommunity/ManimPango/releases
