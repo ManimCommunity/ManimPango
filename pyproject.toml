@@ -1,12 +1,47 @@
 [build-system]
-build-backend = "setuptools.build_meta"
-requires = ["Cython>=3.0.2,<3.1", "setuptools>=59.2.0", "wheel"]
+requires = ["meson-python>=0.16", "Cython>=3.0.0", "meson>=1.4"]
+build-backend = "mesonpy"
+
+[project]
+name = "ManimPango"
+dynamic = ["version"]
+description = "Pango bindings for rendering text to SVG"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "The Manim Community", email = "contact@manim.community"},
+]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Cython",
+]
+
+[project.urls]
+Homepage = "https://github.com/ManimCommunity/ManimPango"
+Documentation = "https://docs.manim.community/"
+Repository = "https://github.com/ManimCommunity/ManimPango"
+Issues = "https://github.com/ManimCommunity/ManimPango/issues"
 
 [tool.isort]
-# from https://black.readthedocs.io/en/stable/compatible_configs.html
 multi_line_output = 3
 include_trailing_comma = true
 force_grid_wrap = 0
 use_parentheses = true
 ensure_newline_before_comments = true
 line_length = 88
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]
