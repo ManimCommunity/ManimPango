@@ -13,6 +13,7 @@ cdef extern from "pango/pango.h":
 
 cdef extern from "pango/pangocairo.h":
     PangoFontMap* pango_cairo_font_map_new()
+    void pango_cairo_font_map_set_default(PangoFontMap* fontmap)
 
 
 cdef extern from "fontconfig/fontconfig.h":

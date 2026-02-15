@@ -245,6 +245,7 @@ class TestVariableFonts:
 
     @pytest.fixture(autouse=True)
     def register_variable_font(self):
+        """Ensure the variable font is properly registered for testing."""
         font_path = str(FONT_DIR / "AdobeVFPrototype.ttf")
         manimpango.register_font(font_path)
         yield
@@ -275,13 +276,8 @@ class TestVariableFonts:
         assert_valid_result(result)
 
     @pytest.mark.xfail(
-        reason=(
-            "Font variations are not reliably applied across all "
-            "Pango/fontconfig/Cairo combinations.  macOS CoreText ignores "
-            "them entirely; on Linux CI the system stack may also silently "
-            "drop them for app-registered variable fonts."
-        ),
-        strict=False,
+        sys.platform == "darwin",
+        reason="Font variations are not supported on macOS CoreText backend",
     )
     def test_variations_wght_produces_different_svg(self):
         """Changing the wght axis via variations= produces different glyphs."""
@@ -296,13 +292,8 @@ class TestVariableFonts:
         assert light.svg != heavy.svg
 
     @pytest.mark.xfail(
-        reason=(
-            "Font variations are not reliably applied across all "
-            "Pango/fontconfig/Cairo combinations.  macOS CoreText ignores "
-            "them entirely; on Linux CI the system stack may also silently "
-            "drop them for app-registered variable fonts."
-        ),
-        strict=False,
+        sys.platform == "darwin",
+        reason="Font variations are not supported on macOS CoreText backend",
     )
     def test_variations_cntr_produces_different_svg(self):
         """Changing the CNTR axis via variations= produces different glyphs."""

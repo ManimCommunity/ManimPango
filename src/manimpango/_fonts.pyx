@@ -53,6 +53,10 @@ cpdef bint register_font(str font_path):
 
     if success:
         registered_fonts.add(font)
+        # Invalidate Pango's cached font map so it picks up the new
+        # fontconfig configuration.  Passing NULL causes the old default
+        # map to be released; a fresh one is created on next use.
+        pango_cairo_font_map_set_default(NULL)
 
     return success
 
@@ -80,6 +84,9 @@ cpdef bint unregister_font(str font_path):
     # Just clear all app fonts
     FcConfigAppFontClear(NULL)
     registered_fonts.discard(font)
+    # Invalidate Pango's cached font map so it no longer serves stale
+    # font data from the cleared fontconfig configuration.
+    pango_cairo_font_map_set_default(NULL)
     return True
 
 
