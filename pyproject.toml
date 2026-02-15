@@ -1,5 +1,5 @@
 [build-system]
-requires = ["meson-python>=0.16", "Cython>=3.0.0", "meson>=1.4"]
+requires = ["meson-python>=0.16", "Cython>=3.0.0", "meson>=1.4", "ninja"]
 build-backend = "mesonpy"
 
 [project]
