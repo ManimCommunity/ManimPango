@@ -45,11 +45,7 @@ jobs:
           python -m pip install --group dev
 
       - name: Run tests
-        # Run from a temporary directory so pytest imports the *installed*
-        # package instead of the source tree (which has no compiled extensions).
-        run: |
-          cd "${{ runner.temp }}"
-          python -m pytest "${{ github.workspace }}/tests"
+        run: python -m pytest
 
   test-windows:
     name: Windows / Python ${{ matrix.python-version }}
@@ -83,9 +79,7 @@ jobs:
           python -m pip install --group dev
 
       - name: Run tests
-        run: |
-          cd "${{ runner.temp }}"
-          python -m pytest "${{ github.workspace }}/tests"
+        run: python -m pytest
 
   success:
     name: Tests passed

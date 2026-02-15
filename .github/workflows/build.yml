@@ -14,15 +14,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-2022
+          - os: windows-latest
             platform_id: win_amd64
             architecture: x64
-          - os: windows-2022
-            platform_id: win32
-            architecture: x86
-          - os: macos-14
+          - os: macos-latest
             platform_id: macosx_arm64
             architecture: arm64
+          - os: macos-15-intel
+            platform_id: macosx_x86_64
+            architecture: x64
 
     steps:
       - uses: actions/checkout@v4
