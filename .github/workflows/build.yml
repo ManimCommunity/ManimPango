@@ -2,7 +2,7 @@ name: Build Wheels
 
 on:
   push:
-    branches: [main, v*, rewrite-v2]
+    branches: [main, v*]
   release:
     types: [created]
 
@@ -20,9 +20,6 @@ jobs:
           - os: windows-2022
             platform_id: win32
             architecture: x86
-          - os: macos-13
-            platform_id: macosx_x86_64
-            architecture: x64
           - os: macos-14
             platform_id: macosx_arm64
             architecture: arm64
@@ -34,16 +31,32 @@ jobs:
         shell: bash
         run: cp packing/LICENSE.bin .
 
+      # On Windows, download Pango binaries once and put pkg-config on PATH
+      # before cibuildwheel starts.  GITHUB_PATH / GITHUB_ENV take effect in
+      # subsequent steps, so the cibuildwheel step inherits them.
+      - name: Download Pango binaries (Windows)
+        if: runner.os == 'Windows'
+        run: python packing/download_dlls.py
+
+      - name: Add vendor binaries to PATH (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          "C:\cibw\vendor\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.22
         env:
-          CIBW_BUILD: "cp311-${{ matrix.platform_id }} cp312-${{ matrix.platform_id }} cp313-${{ matrix.platform_id }} cp314-${{ matrix.platform_id }}"
-          CIBW_BEFORE_BUILD_WINDOWS: "python packing/download_dlls.py"
-          CIBW_BEFORE_BUILD_MACOS: "python packing/download_pango_macos.py ${{ matrix.architecture }}"
+          CIBW_BUILD: >-
+            cp311-${{ matrix.platform_id }}
+            cp312-${{ matrix.platform_id }}
+            cp313-${{ matrix.platform_id }}
+            cp314-${{ matrix.platform_id }}
+          CIBW_BEFORE_BUILD_MACOS: "python {project}/packing/download_pango_macos.py ${{ matrix.architecture }}"
           CIBW_ENVIRONMENT_WINDOWS: "PKG_CONFIG_PATH='C:\\cibw\\vendor\\lib\\pkgconfig'"
           CIBW_ENVIRONMENT_MACOS: >-
             PKG_CONFIG_PATH='/Users/runner/pangobuild/lib/pkgconfig'
-            MACOSX_DEPLOYMENT_TARGET='10.13'
+            MACOSX_DEPLOYMENT_TARGET='11.0'
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: "bash {project}/packing/test_wheels.sh {project}"
 
