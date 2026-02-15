@@ -31,9 +31,11 @@ jobs:
         shell: bash
         run: cp packing/LICENSE.bin .
 
-      # On Windows, download Pango binaries once and put pkg-config on PATH
-      # before cibuildwheel starts.  GITHUB_PATH / GITHUB_ENV take effect in
-      # subsequent steps, so the cibuildwheel step inherits them.
+      # Windows: set up MSVC so meson doesn't pick up MinGW, then
+      # download Pango binaries and put pkg-config on PATH.
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
+
       - name: Download Pango binaries (Windows)
         if: runner.os == 'Windows'
         run: python packing/download_dlls.py

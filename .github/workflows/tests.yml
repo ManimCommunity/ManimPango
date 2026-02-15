@@ -63,6 +63,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
 
+      - uses: ilammy/msvc-dev-cmd@v1
+
       - name: Download Pango binaries
         run: python packing/download_dlls.py
 
