@@ -27,6 +27,9 @@ Documentation = "https://docs.manim.community/"
 Repository = "https://github.com/ManimCommunity/ManimPango"
 Issues = "https://github.com/ManimCommunity/ManimPango/issues"
 
+[tool.uv]
+no-build-isolation = true
+
 [tool.isort]
 multi_line_output = 3
 include_trailing_comma = true
