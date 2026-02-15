@@ -2,7 +2,7 @@ name: Tests
 
 on:
   push:
-    branches: [main, v*]
+    branches: [main, rewrite-v2, v*]
   pull_request:
     branches: [main]
 

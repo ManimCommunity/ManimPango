@@ -2,7 +2,7 @@ name: Build Wheels
 
 on:
   push:
-    branches: [main, v*]
+    branches: [main, rewrite-v2, v*]
   release:
     types: [created]
 
