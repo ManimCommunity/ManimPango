@@ -276,8 +276,8 @@ class TestVariableFonts:
         assert_valid_result(result)
 
     @pytest.mark.xfail(
-        sys.platform == "darwin",
-        reason="Font variations are not supported on macOS CoreText backend",
+        sys.platform != "linux",
+        reason="Font variations are not supported on non-fontconfig backends (macOS CoreText, Windows)",
     )
     def test_variations_wght_produces_different_svg(self):
         """Changing the wght axis via variations= produces different glyphs."""
@@ -292,8 +292,8 @@ class TestVariableFonts:
         assert light.svg != heavy.svg
 
     @pytest.mark.xfail(
-        sys.platform == "darwin",
-        reason="Font variations are not supported on macOS CoreText backend",
+        sys.platform != "linux",
+        reason="Font variations are not supported on non-fontconfig backends (macOS CoreText, Windows)",
     )
     def test_variations_cntr_produces_different_svg(self):
         """Changing the CNTR axis via variations= produces different glyphs."""
