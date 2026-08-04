@@ -149,11 +149,12 @@ Variable Fonts
 1 through 1000.  Use ``variations`` for OpenType axes; axis tags contain
 exactly four ASCII characters.  Visible variation-axis effects currently
 depend on both the requested axis and Pango's active font backend.  The
-standard ``wght`` axis is supported by the current Linux/fontconfig and
-macOS/CoreText backends.  Other axes are less portable: for example, the
-``CNTR`` axis of the bundled test font currently requires the fontconfig
-backend (normally Linux).  Test variation-dependent output on every platform
-you support.
+standard ``wght`` axis is covered by the current Linux, macOS, and Windows
+test backends.  Other axes can vary more: the ``CNTR`` axis of the bundled
+test font currently changes output on Linux and Windows, but not through the
+current macOS Pango/CoreText/Cairo stack.  That is a
+fixture-and-renderer compatibility observation, not a general CoreText
+limitation.  Test variation-dependent output on every platform you support.
 
 .. code-block:: python
 

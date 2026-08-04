@@ -260,10 +260,10 @@ class TestVariableFonts:
       - CNTR: 0–100  (contrast)
 
     Variation behavior is axis- and backend-specific.  The fixture's
-    ``wght`` axis is applied by the current default Linux/fontconfig and
-    macOS/CoreText backends.  Its ``CNTR`` axis is currently applied by the
-    fontconfig backend only; the default macOS and Windows backends do not
-    visibly change it.
+    ``wght`` axis currently changes output on Linux, macOS, and Windows.
+    Its ``CNTR`` axis currently changes output on Linux and Windows, but not
+    through the current macOS Pango/CoreText/Cairo stack.  This is a
+    fixture-and-renderer observation, not a general CoreText limitation.
     """
 
     FONT_NAME = "Adobe Variable Font Prototype"
@@ -300,12 +300,6 @@ class TestVariableFonts:
         )
         assert_valid_result(result)
 
-    @pytest.mark.xfail(
-        sys.platform == "win32",
-        strict=True,
-        reason="Pango's default Windows backend does not currently apply "
-        "the Adobe fixture's wght variation axis",
-    )
     def test_variations_wght_produces_different_svg(self):
         """Changing the wght axis via variations= produces different glyphs."""
         light = manimpango.render(
@@ -323,9 +317,9 @@ class TestVariableFonts:
         assert light.svg != heavy.svg
 
     @pytest.mark.xfail(
-        sys.platform != "linux",
+        sys.platform == "darwin",
         strict=True,
-        reason="Pango's default non-fontconfig backends do not currently "
+        reason="The current macOS Pango/CoreText/Cairo stack does not visibly "
         "apply the Adobe fixture's CNTR variation axis",
     )
     def test_variations_cntr_produces_different_svg(self):
