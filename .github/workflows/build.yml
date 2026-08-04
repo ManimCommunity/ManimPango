@@ -62,7 +62,7 @@ jobs:
           CIBW_TEST_COMMAND: "python {project}/packing/test_wheels.py"
 
       - name: Verify wheel notices
-        run: python packing/check_artifacts.py wheelhouse/*.whl
+        run: python packing/check_artifacts.py wheelhouse
 
       - uses: actions/upload-artifact@v4
         with:
@@ -89,7 +89,7 @@ jobs:
           python -m pip install --upgrade pip build twine
           python -m build --sdist
           python -m twine check dist/*
-          python packing/check_artifacts.py dist/*.tar.gz
+          python packing/check_artifacts.py dist
 
       - name: Test sdist
         run: |

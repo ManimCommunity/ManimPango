@@ -10,6 +10,18 @@ from pathlib import Path
 REQUIRED_NOTICE_PATHS = ("LICENSE", "packing/LICENSE.bin")
 
 
+def collect_artifacts(paths: list[Path]) -> list[Path]:
+    """Expand artifact directories without relying on the invoking shell."""
+    artifacts: list[Path] = []
+    for path in paths:
+        if path.is_dir():
+            artifacts.extend(sorted(path.glob("*.whl")))
+            artifacts.extend(sorted(path.glob("*.tar.gz")))
+        else:
+            artifacts.append(path)
+    return artifacts
+
+
 def artifact_paths(artifact: Path) -> set[str]:
     if artifact.suffix == ".whl":
         with zipfile.ZipFile(artifact) as archive:
@@ -32,9 +44,9 @@ def assert_required_notices(artifact: Path) -> None:
 
 
 def main() -> None:
-    artifacts = [Path(argument) for argument in sys.argv[1:]]
+    artifacts = collect_artifacts([Path(argument) for argument in sys.argv[1:]])
     if not artifacts:
-        raise SystemExit("usage: check_artifacts.py ARTIFACT [ARTIFACT ...]")
+        raise SystemExit("usage: check_artifacts.py ARTIFACT_OR_DIRECTORY [...]")
     for artifact in artifacts:
         assert_required_notices(artifact)
 
