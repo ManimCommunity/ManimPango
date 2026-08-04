@@ -1,0 +1,71 @@
+#!python
+# cython: language_level=3
+
+"""Native font registration and font-family enumeration."""
+
+from __future__ import annotations
+
+import threading
+
+from manimpango._fonts cimport *
+
+
+# The public API owns registration reference counts.  This set records only
+# paths for which this extension currently owns an actual backend registration.
+# On Linux, those paths are incorporated into each renderer-private
+# Fontconfig configuration as its Pango map is built.
+_backend_lock = threading.RLock()
+_active_paths: set[str] = set()
+
+
+cdef void _raise_backend_error(char* error) except *:
+    cdef str detail
+    if error == NULL:
+        raise RuntimeError("font backend operation failed without an error message")
+    try:
+        detail = (<bytes>error).decode("utf-8", "replace")
+    finally:
+        g_free(error)
+    raise RuntimeError(detail)
+
+
+cpdef tuple active_font_paths():
+    """Return an immutable snapshot for the renderer's private font map."""
+    with _backend_lock:
+        return tuple(sorted(_active_paths))
+
+
+cpdef bint register_font(str font_path):
+    """Perform one native registration for ``font_path``.
+
+    Reference counts deliberately live in the public Python layer, so a call
+    for an already active path is a no-op rather than a second backend handle.
+    """
+    cdef bytes path_bytes = font_path.encode("utf-8")
+    cdef char* error = NULL
+    cdef int success
+
+    with _backend_lock:
+        if font_path in _active_paths:
+            return True
+        success = manimpango_register_font(<const char*>path_bytes, &error)
+        if not success:
+            _raise_backend_error(error)
+        _active_paths.add(font_path)
+    return True
+
+
+cpdef bint unregister_font(str font_path):
+    """Remove one native registration after its final public handle closes."""
+    cdef bytes path_bytes = font_path.encode("utf-8")
+    cdef char* error = NULL
+    cdef int success
+
+    with _backend_lock:
+        if font_path not in _active_paths:
+            return True
+        success = manimpango_unregister_font(<const char*>path_bytes, &error)
+        if not success:
+            _raise_backend_error(error)
+        _active_paths.remove(font_path)
+    return True

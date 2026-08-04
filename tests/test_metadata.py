@@ -1,0 +1,185 @@
+"""Public v1 result metadata contracts."""
+
+from __future__ import annotations
+
+import dataclasses
+
+import pytest
+
+import manimpango
+
+
+def test_public_result_models_are_frozen_slotted_dataclasses():
+    for name in ("Bounds", "LineInfo", "RenderedText"):
+        model = getattr(manimpango, name)
+        assert dataclasses.is_dataclass(model), f"{name} must be a dataclass"
+        assert getattr(model, "__slots__", None), f"{name} must use slots"
+
+    bounds = manimpango.Bounds(0.0, 0.0, 1.0, 1.0)
+    with pytest.raises(dataclasses.FrozenInstanceError):
+        bounds.width = 2.0
+
+
+def test_result_metadata_uses_public_fields_and_real_missing_attributes_raise():
+    result = manimpango.render("metadata")
+
+    assert isinstance(result.lines, tuple)
+    assert result.line_count == len(result.lines)
+    with pytest.raises(AttributeError):
+        result.wdith
+
+
+def test_result_repr_is_concise_and_omits_svg_contents():
+    result = manimpango.render("metadata")
+
+    representation = repr(result)
+
+    assert representation.startswith("RenderedText(")
+    assert f"line_count={result.line_count}" in representation
+    assert result.svg not in representation
+
+
+def test_empty_text_has_one_empty_line_and_a_valid_nonnegative_viewport():
+    result = manimpango.render("")
+
+    assert result.line_count == 1
+    assert result.lines[0].text == ""
+    assert result.width >= 0.0
+    assert result.height >= 0.0
+
+
+def test_ink_and_logical_bounds_preserve_distinct_pango_extents():
+    result = manimpango.render("   ", size=36.0)
+
+    # Whitespace participates in the logical layout but has no ink.  This is
+    # independent of the selected fallback font and catches returning the
+    # SVG viewport for both metadata fields.
+    assert result.ink_bounds.width == 0.0
+    assert result.ink_bounds.height == 0.0
+    assert result.logical_bounds.width > 0.0
+    assert result.logical_bounds.height > 0.0
+
+
+def test_lines_report_actual_text_and_code_point_offsets():
+    text = "é\n漢"
+    result = manimpango.render(text)
+
+    assert [(line.text, line.start, line.end) for line in result.lines] == [
+        ("é", 0, 1),
+        ("漢", 2, 3),
+    ]
+
+
+def test_line_ranges_exclude_newline_separators():
+    result = manimpango.render("first\nsecond")
+
+    assert [(line.text, line.start, line.end) for line in result.lines] == [
+        ("first", 0, 5),
+        ("second", 6, 12),
+    ]
+
+
+@pytest.mark.parametrize(
+    "separator",
+    ("\n", "\r\n", "\r", "\u2028", "\u2029"),
+    ids=("lf", "crlf", "cr", "line-separator", "paragraph-separator"),
+)
+def test_line_ranges_exclude_all_pango_line_separators(separator):
+    text = f"é{separator}漢"
+
+    result = manimpango.render(text)
+
+    assert [(line.text, line.start, line.end) for line in result.lines] == [
+        ("é", 0, 1),
+        ("漢", 1 + len(separator), len(text)),
+    ]
+
+
+def test_line_ranges_track_wrapped_multibyte_text():
+    text = "é漢🙂 café " * 32
+
+    result = manimpango.render(text, size=24.0, width=40.0)
+
+    assert result.line_count > 1
+    expected_start = 0
+    for line in result.lines:
+        assert line.start == expected_start
+        assert line.text == text[line.start : line.end]
+        expected_start = line.end
+    assert expected_start == len(text)
+
+
+def test_top_level_and_whole_span_sizes_use_the_same_svg_units():
+    text = "Hg"
+    top_level = manimpango.render(text, size=18.0)
+    span = manimpango.render(
+        text,
+        size=36.0,
+        spans=(manimpango.TextSpan(start=0, end=len(text), size=18.0),),
+    )
+
+    assert top_level.width == pytest.approx(span.width)
+    assert top_level.height == pytest.approx(span.height)
+    assert top_level.baseline == pytest.approx(span.baseline)
+    assert top_level.logical_bounds.width == pytest.approx(span.logical_bounds.width)
+    assert top_level.logical_bounds.height == pytest.approx(span.logical_bounds.height)
+    assert top_level.lines[0].bounds == span.lines[0].bounds
+    assert top_level.lines[0].baseline == pytest.approx(span.lines[0].baseline)
+
+
+def test_markup_line_offsets_are_in_parsed_rendered_text():
+    result = manimpango.render_markup("<b>é</b>\n<span foreground='red'>漢</span>")
+
+    assert [(line.text, line.start, line.end) for line in result.lines] == [
+        ("é", 0, 1),
+        ("漢", 2, 3),
+    ]
+
+
+def test_line_baselines_and_bounds_use_svg_coordinate_space():
+    result = manimpango.render(
+        "small\nlarge", spans=(manimpango.TextSpan(start=6, end=11, size=36.0),)
+    )
+
+    assert all(
+        isinstance(value, float)
+        for value in (result.width, result.height, result.baseline)
+    )
+    assert result.lines[1].baseline > result.lines[0].baseline
+    assert result.lines[1].bounds.height > result.lines[0].bounds.height
+    for bounds in (
+        result.ink_bounds,
+        result.logical_bounds,
+        *(line.bounds for line in result.lines),
+    ):
+        assert bounds.x >= 0.0
+        assert bounds.y >= 0.0
+        assert bounds.x + bounds.width <= result.width
+        assert bounds.y + bounds.height <= result.height
+
+
+@pytest.mark.parametrize(
+    "alignment", [manimpango.Alignment.CENTER, manimpango.Alignment.RIGHT]
+)
+def test_wide_multiline_alignment_preserves_relative_line_placement(alignment):
+    result = manimpango.render("x\nlonger", width=200.0, alignment=alignment)
+    short, long = result.lines
+
+    assert short.bounds.x > long.bounds.x
+    if alignment is manimpango.Alignment.CENTER:
+        assert short.bounds.x + short.bounds.width / 2 == pytest.approx(
+            long.bounds.x + long.bounds.width / 2,
+            abs=1.0,
+        )
+    else:
+        assert short.bounds.x + short.bounds.width == pytest.approx(
+            long.bounds.x + long.bounds.width,
+            abs=1.0,
+        )
+
+
+def test_save_does_not_create_missing_parent_directories(tmp_path):
+    result = manimpango.render("save contract")
+
+    with pytest.raises(FileNotFoundError):
+        result.save(tmp_path / "missing" / "result.svg")

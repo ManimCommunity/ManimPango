@@ -1,0 +1,341 @@
+"""Structured-text span declarations and safe Python-side validation."""
+
+from __future__ import annotations
+
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
+from math import isfinite
+from numbers import Real
+from types import MappingProxyType
+
+from .enums import Style, Weight
+
+_SCALAR_ATTRIBUTES = ("font", "size", "weight", "style", "foreground")
+_MAPPING_ATTRIBUTES = ("features", "variations")
+
+
+@dataclass(frozen=True, slots=True)
+class TextSpan:
+    """Style attributes for a half-open code-point range of plain text.
+
+    Pass spans to :func:`manimpango.render`; markup has its own styling
+    syntax and is rendered with :func:`manimpango.render_markup`.  Overlap is
+    supported when spans set different attributes.  Overlapping spans may not
+    give different values to the same scalar attribute or OpenType tag.
+
+    Attributes
+    ----------
+    start, end
+        Python code-point offsets satisfying ``0 <= start <= end <= len(text)``.
+        The range includes ``start`` and excludes ``end``, matching slicing.
+    font
+        Font family name without embedded NUL characters for the range, or
+        ``None`` to inherit the render call's font.
+    size
+        Positive absolute size in SVG user-space units, or ``None`` to
+        inherit the render call's size.
+    weight
+        A :class:`~manimpango.Weight` member or integer from 1 through 1000.
+    style
+        A :class:`~manimpango.Style` member.
+    foreground
+        A Pango foreground-color specification without embedded NUL
+        characters, such as ``"#3366cc"``.
+    features
+        Mapping of four-printable-ASCII-character OpenType feature tags to integer or
+        boolean values.  Boolean values are converted to ``0`` or ``1``.
+        When :func:`manimpango.render` is called with
+        ``disable_ligatures=True``, that setting overrides values for its
+        ligature-related tags.
+    variations
+        Mapping of four-printable-ASCII-character OpenType variation-axis tags to
+        finite numeric values.  Settings are forwarded to Pango; visible
+        effects depend on the selected font, axis, and renderer backend.
+    """
+
+    start: int
+    end: int
+    font: str | None = None
+    size: float | None = None
+    weight: Weight | int | None = None
+    style: Style | None = None
+    foreground: str | None = None
+    features: Mapping[str, int | bool] | None = None
+    variations: Mapping[str, float] | None = None
+
+    def __post_init__(self) -> None:
+        """Snapshot mapping attributes so the frozen value is deeply immutable."""
+        if isinstance(self.features, Mapping):
+            object.__setattr__(self, "features", MappingProxyType(dict(self.features)))
+        if isinstance(self.variations, Mapping):
+            object.__setattr__(
+                self, "variations", MappingProxyType(dict(self.variations))
+            )
+
+
+def _require_finite_number(
+    value: object, name: str, *, positive: bool = False
+) -> float:
+    if isinstance(value, bool) or not isinstance(value, Real) or not isfinite(value):
+        raise ValueError(f"{name} must be a finite number")
+    converted = float(value)
+    if positive and converted <= 0:
+        raise ValueError(f"{name} must be greater than zero")
+    return converted
+
+
+def _validate_tag(tag: object, name: str) -> str:
+    if (
+        not isinstance(tag, str)
+        or len(tag) != 4
+        or any(not 0x20 <= ord(character) <= 0x7E for character in tag)
+    ):
+        raise ValueError(
+            f"{name} keys must be four-character printable ASCII OpenType tags"
+        )
+    return tag
+
+
+def _validate_weight(weight: object, name: str) -> None:
+    if (
+        isinstance(weight, bool)
+        or not isinstance(weight, int)
+        or not 1 <= weight <= 1000
+    ):
+        raise ValueError(f"{name} must be an integer between 1 and 1000")
+
+
+def validate_variations(
+    variations: Mapping[str, float] | None, name: str = "variations"
+) -> None:
+    if variations is None:
+        return
+    if not isinstance(variations, Mapping):
+        raise TypeError(f"{name} must be a mapping or None")
+    for tag, value in variations.items():
+        _validate_tag(tag, name)
+        _require_finite_number(value, f"{name}[{tag!r}]")
+
+
+def validate_spans(spans: Sequence[TextSpan], text: str) -> tuple[TextSpan, ...]:
+    """Validate span-local values and bounds without invoking native code.
+
+    Overlap validation makes the effective attributes independent of caller
+    order before they are normalized for the native renderer.
+    """
+    if isinstance(spans, (str, bytes)) or not isinstance(spans, Sequence):
+        raise TypeError("spans must be a sequence of TextSpan instances")
+    validated = tuple(spans)
+    for span in validated:
+        if not isinstance(span, TextSpan):
+            raise TypeError("spans must contain only TextSpan instances")
+        if isinstance(span.start, bool) or not isinstance(span.start, int):
+            raise TypeError("TextSpan.start must be an integer")
+        if isinstance(span.end, bool) or not isinstance(span.end, int):
+            raise TypeError("TextSpan.end must be an integer")
+        if not 0 <= span.start <= span.end <= len(text):
+            raise ValueError(
+                "TextSpan bounds must satisfy 0 <= start <= end <= len(text)"
+            )
+        if span.font is not None and not isinstance(span.font, str):
+            raise TypeError("TextSpan.font must be a string or None")
+        if span.font is not None and "\0" in span.font:
+            raise ValueError("TextSpan.font must not contain NUL characters")
+        if span.size is not None:
+            _require_finite_number(span.size, "TextSpan.size", positive=True)
+        if span.weight is not None:
+            _validate_weight(span.weight, "TextSpan.weight")
+        if span.style is not None and not isinstance(span.style, Style):
+            raise TypeError("TextSpan.style must be a Style or None")
+        if span.foreground is not None and not isinstance(span.foreground, str):
+            raise TypeError("TextSpan.foreground must be a string or None")
+        if span.foreground is not None and "\0" in span.foreground:
+            raise ValueError("TextSpan.foreground must not contain NUL characters")
+        if span.features is not None:
+            if not isinstance(span.features, Mapping):
+                raise TypeError("TextSpan.features must be a mapping or None")
+            for tag, value in span.features.items():
+                _validate_tag(tag, "TextSpan.features")
+                if not isinstance(value, (int, bool)):
+                    raise TypeError("TextSpan feature values must be integers or bools")
+        validate_variations(span.variations, "TextSpan.variations")
+    _validate_overlap_conflicts(validated)
+    return validated
+
+
+def normalize_spans(
+    spans: Sequence[TextSpan], text: str
+) -> tuple[dict[str, object], ...]:
+    """Return compact, native-ready effective runs for ``spans``.
+
+    Each result dictionary has byte-based ``start`` and ``end`` keys plus only
+    the attributes active in that half-open range.  Runs are sorted,
+    non-overlapping, and adjacent equivalent runs are combined.  Callers pass
+    this representation directly to the Cython rendering boundary.
+    """
+    validated = validate_spans(spans, text)
+    if not validated:
+        return ()
+
+    byte_offsets = _utf8_byte_offsets(text)
+    normalized: list[dict[str, object]] = []
+    for start, end, attributes in _sweep_effective_runs(validated):
+        if not attributes:
+            continue
+        run = {"start": byte_offsets[start], "end": byte_offsets[end], **attributes}
+        if (
+            normalized
+            and normalized[-1]["end"] == run["start"]
+            and _run_attributes(normalized[-1]) == attributes
+        ):
+            normalized[-1]["end"] = run["end"]
+        else:
+            normalized.append(run)
+    return tuple(normalized)
+
+
+def _utf8_byte_offsets(text: str) -> tuple[int, ...]:
+    """Map each Python code-point boundary in ``text`` to a UTF-8 byte index."""
+    offsets = [0]
+    total = 0
+    for character in text:
+        total += len(character.encode("utf-8"))
+        offsets.append(total)
+    return tuple(offsets)
+
+
+def _run_attributes(run: Mapping[str, object]) -> dict[str, object]:
+    return {key: value for key, value in run.items() if key not in {"start", "end"}}
+
+
+def _validate_overlap_conflicts(spans: tuple[TextSpan, ...]) -> None:
+    """Reject ambiguous overlaps using the same half-open event sweep as rendering."""
+    _sweep_span_events(spans, build_runs=False)
+
+
+def _sweep_effective_runs(
+    spans: tuple[TextSpan, ...],
+) -> tuple[tuple[int, int, dict[str, object]], ...]:
+    """Return effective code-point runs while validating overlap conflicts."""
+    return _sweep_span_events(spans, build_runs=True)
+
+
+def _sweep_span_events(
+    spans: tuple[TextSpan, ...], *, build_runs: bool
+) -> tuple[tuple[int, int, dict[str, object]], ...]:
+    """Validate a half-open event sweep and optionally collect effective runs.
+
+    Spans ending at a boundary are removed before spans starting there are
+    applied, as required by their half-open ranges.  Active values are stored
+    as reference-counted multisets, so checking a newly active value detects a
+    conflict without comparing it to every span.
+    """
+    events: dict[int, tuple[list[TextSpan], list[TextSpan]]] = {}
+    for span in spans:
+        # Empty ranges neither style text nor overlap another half-open range.
+        if span.start == span.end:
+            continue
+        starts, _ends = events.setdefault(span.start, ([], []))
+        _starts, ends = events.setdefault(span.end, ([], []))
+        starts.append(span)
+        ends.append(span)
+
+    active_scalars: dict[str, dict[object, int]] = {
+        name: {} for name in _SCALAR_ATTRIBUTES
+    }
+    active_mappings: dict[str, dict[str, dict[object, int]]] = {
+        name: {} for name in _MAPPING_ATTRIBUTES
+    }
+    boundaries = sorted(events)
+    runs: list[tuple[int, int, dict[str, object]]] = []
+    for index, boundary in enumerate(boundaries):
+        starts, ends = events[boundary]
+        for span in ends:
+            _remove_span_values(span, active_scalars, active_mappings)
+        for span in starts:
+            _add_span_values(span, active_scalars, active_mappings)
+
+        if index + 1 < len(boundaries):
+            end = boundaries[index + 1]
+            if build_runs:
+                runs.append(
+                    (
+                        boundary,
+                        end,
+                        _active_attributes(active_scalars, active_mappings),
+                    )
+                )
+    return tuple(runs)
+
+
+def _add_span_values(
+    span: TextSpan,
+    active_scalars: dict[str, dict[object, int]],
+    active_mappings: dict[str, dict[str, dict[object, int]]],
+) -> None:
+    for attribute, values in active_scalars.items():
+        value = getattr(span, attribute)
+        if value is not None:
+            _add_value(
+                values, value, f"conflicting overlapping TextSpan {attribute} values"
+            )
+    for attribute, tags in active_mappings.items():
+        mapping = getattr(span, attribute)
+        if mapping:
+            for tag, value in mapping.items():
+                values = tags.setdefault(tag, {})
+                _add_value(
+                    values,
+                    value,
+                    f"conflicting overlapping TextSpan {attribute} value for {tag!r}",
+                )
+
+
+def _remove_span_values(
+    span: TextSpan,
+    active_scalars: dict[str, dict[object, int]],
+    active_mappings: dict[str, dict[str, dict[object, int]]],
+) -> None:
+    for attribute, values in active_scalars.items():
+        value = getattr(span, attribute)
+        if value is not None:
+            _remove_value(values, value)
+    for attribute, tags in active_mappings.items():
+        mapping = getattr(span, attribute)
+        if mapping:
+            for tag, value in mapping.items():
+                values = tags[tag]
+                _remove_value(values, value)
+                if not values:
+                    del tags[tag]
+
+
+def _add_value(values: dict[object, int], value: object, error: str) -> None:
+    if values and value not in values:
+        raise ValueError(error)
+    values[value] = values.get(value, 0) + 1
+
+
+def _remove_value(values: dict[object, int], value: object) -> None:
+    count = values[value] - 1
+    if count:
+        values[value] = count
+    else:
+        del values[value]
+
+
+def _active_attributes(
+    active_scalars: Mapping[str, Mapping[object, int]],
+    active_mappings: Mapping[str, Mapping[str, Mapping[object, int]]],
+) -> dict[str, object]:
+    attributes = {
+        attribute: next(iter(values))
+        for attribute, values in active_scalars.items()
+        if values
+    }
+    for attribute, tags in active_mappings.items():
+        if tags:
+            attributes[attribute] = {
+                tag: next(iter(values)) for tag, values in sorted(tags.items())
+            }
+    return attributes

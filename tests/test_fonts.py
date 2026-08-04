@@ -1,158 +1,165 @@
-# -*- coding: utf-8 -*-
-import os
-import subprocess
-import sys
-import textwrap
-from contextlib import contextmanager
+"""Tests for font registration and listing — v2 API."""
+
+import copy
+import pickle
 from pathlib import Path
-from shutil import copyfile
 
 import pytest
 
 import manimpango
+from manimpango import _render
 
-from . import FONT_DIR
-from ._manim import MarkupText
-
-
-@contextmanager
-def register_font(font_file: Path):
-    font_file = os.fspath(font_file)
-    init = manimpango.list_fonts()
-    assert manimpango.register_font(font_file), "Invalid Font possibly."
-    final = manimpango.list_fonts()
-    yield list(set(final) - set(init))[0]
-    assert manimpango.unregister_font(font_file), "Can't unregister Font"
+FONT_DIR = Path(__file__).parent / "fonts"
 
 
-def font_list():
-    _t = [
-        (FONT_DIR / "AdobeVFPrototype.ttf").absolute(),
-        (FONT_DIR / "BungeeColor-Regular_colr_Windows.ttf").absolute(),
-        (FONT_DIR / "MaShanZheng-Regular.ttf").absolute(),
-    ]
-    _d = {}
-    for i in _t:
-        with register_font(i) as f:
-            _d[i] = f
-    return _d
+class TestListFonts:
+    def test_returns_list(self):
+        fonts = manimpango.list_fonts()
+        assert isinstance(fonts, list)
+        assert len(fonts) > 0
+
+    def test_all_strings(self):
+        fonts = manimpango.list_fonts()
+        for f in fonts:
+            assert isinstance(f, str)
+
+    def test_sorted(self):
+        fonts = manimpango.list_fonts()
+        assert fonts == sorted(fonts)
 
 
-font_lists_dict = font_list()
+class TestRegisterFont:
+    def test_font_registration_handles_cannot_be_constructed_directly(self):
+        with pytest.raises(TypeError, match="created by register_font"):
+            manimpango.FontRegistration(FONT_DIR / "BungeeOutline-Regular.ttf")
 
+    def test_font_registration_handles_cannot_be_copied_or_pickled(self):
+        with manimpango.register_font(FONT_DIR / "BungeeOutline-Regular.ttf") as handle:
+            with pytest.raises(TypeError, match="cannot be copied"):
+                copy.copy(handle)
+            with pytest.raises(TypeError, match="cannot be copied"):
+                copy.deepcopy(handle)
+            with pytest.raises(TypeError, match="cannot be pickled"):
+                pickle.dumps(handle)
 
-def test_unicode_font_name(tmpdir):
-    final_font = str(Path(tmpdir, "庞门正.ttf").absolute())
-    copyfile(FONT_DIR / "AdobeVFPrototype.ttf", final_font)
-    assert manimpango.register_font(final_font)
-    assert manimpango.unregister_font(final_font)
+            assert handle.closed is False
 
+    def test_register_returns_open_handle_with_normalized_path(self):
+        font_path = FONT_DIR / "BungeeOutline-Regular.ttf"
 
-@pytest.mark.parametrize("font_name", font_lists_dict)
-def test_register_and_unregister_font(font_name):
-    intial = manimpango.list_fonts()
-    assert manimpango.register_font(str(font_name)), "Invalid Font possibly."
-    final = manimpango.list_fonts()
-    assert intial != final
-    assert manimpango.unregister_font(os.fspath(font_name)), "Can't unregister font."
-    assert intial == manimpango.list_fonts()
+        with manimpango.register_font(font_path) as registration:
+            assert isinstance(registration, manimpango.FontRegistration)
+            assert Path(registration.path) == font_path.resolve()
+            assert registration.closed is False
 
+        assert registration.closed is True
 
-@pytest.mark.skipif(
-    sys.platform.startswith("linux"), reason="no warning are raised for linux"
-)
-@pytest.mark.parametrize("font_file,font_name", font_lists_dict.items())
-def test_warning(font_file, font_name):
-    # this tests need to be run in a separate subprocess because
-    # of fontmap cache in Pango.
-    command = textwrap.dedent(
-        f"""\
-            from tests import set_dll_search_path
-            set_dll_search_path() # this is needed on Windows to run
-            import manimpango
-            import os
-            from tests._manim import Text
-            font_file = r'{os.fspath(font_file)}'
-            font_name = r'{font_name}'
-            intial = manimpango.list_fonts()
-            manimpango.register_font(os.fspath(font_file))
-            final = manimpango.list_fonts()
-            assert intial != final
-            Text("Testing", font=font_name)
-            manimpango.unregister_font(os.fspath(font_file))
-        """
+    def test_register_nonexistent_raises(self):
+        with pytest.raises(manimpango.FontNotFoundError):
+            manimpango.register_font("/nonexistent/font.ttf")
+
+    def test_register_invalid_file_raises_registration_error(self, tmp_path):
+        invalid_font = tmp_path / "not-a-font.ttf"
+        invalid_font.write_text("not a font", encoding="utf-8")
+
+        with pytest.raises(manimpango.FontRegistrationError):
+            manimpango.register_font(invalid_font)
+
+    def test_close_is_idempotent(self):
+        registration = manimpango.register_font(FONT_DIR / "AdobeVFPrototype.ttf")
+
+        registration.close()
+        registration.close()
+
+        assert registration.closed is True
+
+    def test_registered_family_is_listed_and_used_for_rendering(self):
+        font_path = FONT_DIR / "BungeeOutline-Regular.ttf"
+        family = "Bungee Outline"
+        assert family not in manimpango.list_fonts()
+
+        fallback = manimpango.render("Hello", font="Deliberately Missing Family")
+        with manimpango.register_font(font_path):
+            assert family in manimpango.list_fonts()
+            registered = manimpango.render("Hello", font=family)
+
+        assert registered.width > 0
+        assert registered.svg != fallback.svg
+        assert family not in manimpango.list_fonts()
+        assert manimpango.render("Hello", font=family).svg == fallback.svg
+
+    def test_nested_handles_keep_font_registered_until_last_handle_closes(self):
+        font_path = FONT_DIR / "BungeeOutline-Regular.ttf"
+        family = "Bungee Outline"
+        assert family not in manimpango.list_fonts()
+
+        first = manimpango.register_font(font_path)
+        second = manimpango.register_font(font_path)
+        try:
+            first.close()
+
+            assert first.closed is True
+            assert second.closed is False
+            assert family in manimpango.list_fonts()
+            assert manimpango.render("Hello", font=family).width > 0
+        finally:
+            second.close()
+
+        assert family not in manimpango.list_fonts()
+
+    def test_scoped_font_lifecycle_reuses_renderer_map_snapshots(self):
+        font_path = FONT_DIR / "BungeeOutline-Regular.ttf"
+        family = "Bungee Outline"
+        fallback = manimpango.render("Hello", font="Deliberately Missing Family")
+
+        with manimpango.register_font(font_path):
+            assert manimpango.render("Hello", font=family).svg != fallback.svg
+        assert manimpango.render("Hello", font=family).svg == fallback.svg
+
+        creations_after_warmup = _render._font_map_creation_count()
+        for _ in range(4):
+            with manimpango.register_font(font_path):
+                assert manimpango.render("Hello", font=family).svg != fallback.svg
+            assert manimpango.render("Hello", font=family).svg == fallback.svg
+
+        assert _render._font_map_creation_count() == creations_after_warmup
+        assert _render._font_map_cached_count() <= 2
+
+    def test_closing_one_font_handle_keeps_another_font_available(self):
+        first_family = "Bungee Outline"
+        second_family = "Ma Shan Zheng"
+        assert first_family not in manimpango.list_fonts()
+        assert second_family not in manimpango.list_fonts()
+
+        fallback = manimpango.render("Hello", font="Deliberately Missing Family")
+        first = manimpango.register_font(FONT_DIR / "BungeeOutline-Regular.ttf")
+        second = manimpango.register_font(FONT_DIR / "MaShanZheng-Regular.ttf")
+        try:
+            assert first_family in manimpango.list_fonts()
+            assert second_family in manimpango.list_fonts()
+            first.close()
+
+            assert first.closed is True
+            assert second.closed is False
+            assert first_family not in manimpango.list_fonts()
+            assert second_family in manimpango.list_fonts()
+            assert manimpango.render("Hello", font=second_family).svg != fallback.svg
+        finally:
+            second.close()
+
+        assert second_family not in manimpango.list_fonts()
+        assert manimpango.render("Hello", font=second_family).svg == fallback.svg
+
+    @pytest.mark.parametrize(
+        "font_file",
+        [
+            "AdobeVFPrototype.ttf",
+            "BungeeColor-Regular_colr_Windows.ttf",
+            "BungeeOutline-Regular.ttf",
+            "MaShanZheng-Regular.ttf",
+        ],
     )
-    a = subprocess.run(
-        [sys.executable, "-c", command],
-        check=True,
-        stderr=subprocess.PIPE,
-        cwd=Path(__file__).parent.parent,
-    )
-    captured = a.stderr.decode()
-    assert "Pango-WARNING **" not in captured, "Looks like Pango raised a warning?"
-
-
-@pytest.mark.skipif(
-    sys.platform.startswith("linux"), reason="unsupported api for linux"
-)
-@pytest.mark.parametrize("font_name", font_lists_dict)
-@pytest.mark.skipif(sys.platform.startswith("darwin"), reason="always returns true")
-def test_fail_just_unregister(font_name):
-    assert not manimpango.unregister_font(
-        str(font_name)
-    ), "Failed to unregister the font"
-
-
-@pytest.mark.skipif(
-    sys.platform.startswith("win32"), reason="unsupported api for win32"
-)
-@pytest.mark.skipif(sys.platform.startswith("darwin"), reason="unsupported api for mac")
-def test_unregister_not_fail_linux():
-    assert manimpango.unregister_font("random")
-
-
-@pytest.mark.skipif(
-    sys.platform.startswith("linux"), reason="unsupported api for linux"
-)
-def test_adding_dummy_font(tmpdir):
-    dummy = tmpdir / "font.ttf"
-    with open(dummy, "wb") as f:
-        f.write(b"dummy")
-
-    assert not manimpango.register_font(str(dummy)), "Registered a dummy font?"
-
-
-def test_simple_fonts_render(tmpdir):
-    filename = str(Path(tmpdir) / "hello.svg")
-    MarkupText("Hello World", filename=filename)
-    assert Path(filename).exists()
-
-
-@pytest.mark.skipif(
-    not sys.platform.startswith("linux"), reason="unsupported api other than linux"
-)
-def test_both_fc_and_register_font_are_same():
-    assert (
-        manimpango._register_font._fc_register_font
-        == manimpango._register_font._register_font
-    )
-    assert (
-        manimpango._register_font._fc_unregister_font
-        == manimpango._register_font._unregister_font
-    )
-
-
-@pytest.mark.parametrize("font_file", font_lists_dict)
-def test_fc_font_register(setup_fontconfig, font_file):
-    intial = manimpango.list_fonts()
-    assert manimpango.fc_register_font(str(font_file)), "Invalid Font possibly."
-    final = manimpango.list_fonts()
-    assert intial != final
-
-
-def test_fc_font_unregister(setup_fontconfig):
-    # it will remove everything
-    intial = manimpango.list_fonts()
-    manimpango.fc_unregister_font("clear")
-    final = manimpango.list_fonts()
-    assert intial != final
+    def test_register_all_test_fonts(self, font_file):
+        with manimpango.register_font(FONT_DIR / font_file) as registration:
+            assert registration.closed is False
+        assert registration.closed is True

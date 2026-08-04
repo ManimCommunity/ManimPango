@@ -1,24 +1,71 @@
-Manimpango Reference
-====================
+API Reference
+=============
 
-.. autosummary::
-   :toctree: reference
+.. module:: manimpango
 
-   manimpango.TextSetting
-   manimpango.PangoUtils
-   manimpango.text2svg
-   manimpango.MarkupUtils
-   manimpango.register_font
-   manimpango.unregister_font
-   manimpango.fc_register_font
-   manimpango.fc_unregister_font
-   manimpango.list_fonts
+Rendering
+---------
 
-Enums
-=====
-.. autosummary::
-   :toctree: reference
+.. autofunction:: render
 
-   manimpango.Style
-   manimpango.Weight
-   manimpango.Variant
+.. autofunction:: render_markup
+
+.. autofunction:: validate_markup
+
+Text Models
+-----------
+
+.. autoclass:: TextSpan
+   :members:
+
+.. autoclass:: Bounds
+   :members:
+
+.. autoclass:: LineInfo
+   :members:
+
+.. autoclass:: RenderedText
+   :members: line_count, save
+
+Font Management
+---------------
+
+.. autofunction:: register_font
+
+.. autoclass:: FontRegistration
+   :members: close, path, closed, __enter__, __exit__
+
+.. autofunction:: list_fonts
+
+Enumerations
+------------
+
+.. autoclass:: Style
+
+.. autoclass:: Weight
+
+.. autoclass:: Alignment
+
+Exceptions
+----------
+
+.. autoexception:: ManimPangoError
+
+.. autoexception:: RenderError
+
+.. autoexception:: MarkupError
+
+.. autoexception:: FontError
+
+.. autoexception:: FontNotFoundError
+
+.. autoexception:: FontRegistrationError
+
+Version Information
+-------------------
+
+.. autofunction:: get_version_info
+
+.. attribute:: __version__
+
+   The installed ManimPango version string.

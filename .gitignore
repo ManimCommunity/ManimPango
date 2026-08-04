@@ -139,7 +139,9 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+.DS_Store
 *.c
+!src/manimpango/font_backend.c
 *.cbp
 *.svg
 .vscode

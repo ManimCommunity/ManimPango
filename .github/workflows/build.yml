@@ -2,189 +2,112 @@ name: Build Wheels
 
 on:
   push:
-    branches:
-      - main
-      - fix-wheel-build
-      - v*
+    branches: [main, rewrite-v2]
+  pull_request:
+    branches: [main, v0, rewrite-v2]
   release:
-    types: [created]
+    types: [published]
 
 jobs:
-  build_wheels:
-    name: Build Wheels on ${{ matrix.os }}-${{ matrix.platform_id }}
+  build-wheels:
+    name: Wheels / ${{ matrix.os }} (${{ matrix.platform_id }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Run 32 and 64 bit version in parallel for Windows
-          - os: windows-2022
+          - os: windows-latest
             platform_id: win_amd64
             architecture: x64
-          - os: windows-2022
-            platform_id: win32
-            architecture: x86
-          - os: macos-13
-            platform_id: macosx_x86_64
-            architecture: x64
-          - os: macos-14
+          - os: macos-latest
             platform_id: macosx_arm64
             architecture: arm64
-    env:
-      CIBW_BUILD: cp39-${{ matrix.platform_id }} cp310-${{ matrix.platform_id }} cp311-${{ matrix.platform_id }} cp312-${{ matrix.platform_id }} cp313-${{ matrix.platform_id }} cp314-${{ matrix.platform_id }}
-      CIBW_SKIP: pp* cp38*
-      CIBW_BEFORE_BUILD_MACOS: "python packing/download_pango_macos.py ${{ matrix.architecture }}"
-      CIBW_BEFORE_BUILD_WINDOWS: "python packing/download_dlls.py"
-      CIBW_ENVIRONMENT_WINDOWS: "PKG_CONFIG_PATH='C:\\cibw\\vendor\\lib\\pkgconfig'"
-      CIBW_ENVIRONMENT_MACOS: "PKG_CONFIG_PATH='/Users/runner/pangobuild/lib/pkgconfig' MACOSX_DEPLOYMENT_TARGET='10.13'"
-      CIBW_TEST_REQUIRES: pytest pytest-cov
-      CIBW_TEST_COMMAND: "bash {project}/packing/test_wheels.sh {project}"
+          - os: macos-15-intel
+            platform_id: macosx_x86_64
+            architecture: x64
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Set Path for pkg-config
-        if: runner.os == 'windows'
-        run: |
-          $env:Path = "C:\cibw\pkg-config\bin;C:\cibw\vendor\bin;$($env:PATH)"
-          echo "$env:Path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+      - uses: actions/checkout@v6
 
-      - name: Build wheels (Windows)
-        if: runner.os == 'windows'
-        shell: pwsh
-        run: |
-          Copy-Item packing/LICENSE.bin .
-          Rename-Item LICENSE.bin LICENSE.win32
+      # Windows: set up MSVC so meson doesn't pick up MinGW, then
+      # download Pango binaries and put pkg-config on PATH.
+      - uses: TheMrMilchmann/setup-msvc-dev@v4
+        if: runner.os == 'Windows'
+        with:
+          arch: x64
 
-      - name: Build wheels (Non-Windows)
-        if: runner.os != 'windows'
+      - name: Download Pango binaries (Windows)
+        if: runner.os == 'Windows'
+        run: python packing/download_dlls.py
+
+      - name: Configure vendor paths (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
         run: |
-          cp packing/LICENSE.bin .
+          printf '%s\n' 'C:\cibw\vendor\bin' >> "$GITHUB_PATH"
+          printf '%s\n' 'PKG_CONFIG_PATH=C:\cibw\vendor\lib\pkgconfig' >> "$GITHUB_ENV"
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.2.1
+        uses: pypa/cibuildwheel@v3.4.1
         env:
-          PKG_CONFIG_PATH: "C:\\cibw\\vendor\\lib\\pkgconfig"
+          CIBW_BUILD: >-
+            cp311-${{ matrix.platform_id }}
+            cp312-${{ matrix.platform_id }}
+            cp313-${{ matrix.platform_id }}
+            cp314-${{ matrix.platform_id }}
+          CIBW_BEFORE_BUILD_MACOS: "python {project}/packing/download_pango_macos.py ${{ matrix.architecture }}"
+          CIBW_ENVIRONMENT_MACOS: >-
+            PKG_CONFIG_PATH='/Users/runner/pangobuild/lib/pkgconfig'
+            MACOSX_DEPLOYMENT_TARGET='11.0'
+          # This smoke test clears build-time vendor paths before importing the
+          # wheel, so a passing test proves the repaired wheel is self-contained.
+          CIBW_TEST_COMMAND: "python {project}/packing/test_wheels.py"
 
-      - uses: actions/upload-artifact@v4
+      - name: Verify wheel notices
+        run: python packing/check_artifacts.py wheelhouse
+
+      - uses: actions/upload-artifact@v7
         with:
+          name: wheels-${{ matrix.os }}-${{ matrix.platform_id }}
           path: ./wheelhouse/*.whl
-          name: wheels-${{ runner.os }}-${{ matrix.platform_id }}
 
-  test_wheels_win:
-    name: Test wheels on Windows - ${{ matrix.platform_id }} (${{ matrix.python-version }})
-    needs: [build_wheels]
-    runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        architecture: [x64, x86]
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
-        include: [
-          {platform_id: win_amd64, architecture: x64},
-          {platform_id: win32, architecture: x86},
-        ]
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        name: Install Python
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: ${{ matrix.architecture }}
-          allow-prereleases: true
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: wheels-${{ runner.os }}-${{ matrix.platform_id }}
-          path: ~/wheelhouse
-
-      - name: Install test dependencies
-        run: |
-          pip install pytest pytest-cov
-
-      - name: Install wheels
-        run: |
-          pip install --no-index --find-links ~/wheelhouse ManimPango
-
-      - name: Run tests
-        shell: bash
-        run: |
-          bash packing/test_wheels.sh $(pwd)
-
-  test_wheels_mac:
-    name: Test wheels on macOS - ${{ matrix.platform_id }} (${{ matrix.python-version }})
-    needs: [build_wheels]
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        architecture: [x64, arm64]
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
-        include: [
-          {platform_id: macosx_x86_64, architecture: x64, os: macos-13},
-          {platform_id: macosx_arm64, architecture: arm64, os: macos-14},
-        ]
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        name: Install Python
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: ${{ matrix.architecture == 'arm64' && null || matrix.architecture }}
-          allow-prereleases: true
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: wheels-${{ runner.os }}-${{ matrix.platform_id }}
-          path: ~/wheelhouse
-
-      - name: Install test dependencies
-        run: |
-          pip install pytest pytest-cov
-
-      - name: Install wheels
-        run: |
-          pip install --no-index --find-links ~/wheelhouse ManimPango
-
-      - name: Run tests
-        shell: bash
-        run: |
-          bash packing/test_wheels.sh $(pwd)
-
-  build_sdist:
+  build-sdist:
     name: Source distribution
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
-      - name: Install dependencies
+      - name: Install system dependencies
         run: |
-          sudo apt install libcairo2-dev pkg-config python3-dev
-          sudo apt-get install libpango1.0-dev
-          python -m pip install --upgrade build
+          sudo apt-get update
+          sudo apt-get install -y libpango1.0-dev libcairo2-dev pkg-config
 
       - name: Build sdist
-        run: python -m build --sdist
+        run: |
+          python -m pip install --upgrade pip build twine
+          python -m build --sdist
+          python -m twine check dist/*
+          python packing/check_artifacts.py dist
 
       - name: Test sdist
         run: |
           python -m pip install dist/*.tar.gz
+          cd "$(mktemp -d)"
+          python -c 'import manimpango; result = manimpango.render("sdist smoke test"); assert result.svg and result.width > 0 and result.height > 0'
 
-      - name: Store artifacts
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
+          name: sdist
           path: dist/*.tar.gz
-          name: manimpango-src
 
   publish:
-    needs: [test_wheels_mac, test_wheels_win, build_sdist]
-    name: Upload wheels to PyPI
+    name: Publish to PyPI
+    needs: [build-wheels, build-sdist]
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     environment:
       name: release
@@ -192,33 +115,23 @@ jobs:
     permissions:
       id-token: write
       contents: write
-    if: github.event_name== 'release'
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
-          path: downloads/
+          path: artifacts/
 
-      - name: Move files to dist
+      - name: Collect dist files
         run: |
           mkdir -p dist/
-          find downloads/ -name \*.whl -exec cp {} dist \;
-          find downloads/ -name \*.tar.gz -exec cp {} dist \;
+          find artifacts/ -name '*.whl' -exec cp {} dist/ \;
+          find artifacts/ -name '*.tar.gz' -exec cp {} dist/ \;
 
-      - name: Publish package distributions to PyPI
+      - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
 
-      - name: Release
+      - name: Attach assets to GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          fail_on_unmatched_files: false
           files: |
             dist/*.whl
             dist/*.tar.gz
-
-  success:
-    needs: [test_wheels_win, test_wheels_mac]
-    runs-on: ubuntu-latest
-    name: Building and testing of wheels success
-    steps:
-      - name: Success
-        run: echo "Building and testing of wheels success"
