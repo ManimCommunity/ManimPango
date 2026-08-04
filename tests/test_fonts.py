@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 import manimpango
+from manimpango import _render
 
 FONT_DIR = Path(__file__).parent / "fonts"
 
@@ -88,6 +89,24 @@ class TestRegisterFont:
             second.close()
 
         assert family not in manimpango.list_fonts()
+
+    def test_scoped_font_lifecycle_reuses_renderer_map_snapshots(self):
+        font_path = FONT_DIR / "BungeeOutline-Regular.ttf"
+        family = "Bungee Outline"
+        fallback = manimpango.render("Hello", font="Deliberately Missing Family")
+
+        with manimpango.register_font(font_path):
+            assert manimpango.render("Hello", font=family).svg != fallback.svg
+        assert manimpango.render("Hello", font=family).svg == fallback.svg
+
+        creations_after_warmup = _render._font_map_creation_count()
+        for _ in range(4):
+            with manimpango.register_font(font_path):
+                assert manimpango.render("Hello", font=family).svg != fallback.svg
+            assert manimpango.render("Hello", font=family).svg == fallback.svg
+
+        assert _render._font_map_creation_count() == creations_after_warmup
+        assert _render._font_map_cached_count() <= 2
 
     def test_closing_one_font_handle_keeps_another_font_available(self):
         first_family = "Bungee Outline"

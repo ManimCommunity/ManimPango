@@ -19,6 +19,9 @@ from manimpango.enums import Style, Weight, Alignment
 cdef str _pango_version_cached = None
 cdef PangoFontMap* _managed_fontmap = NULL
 cdef object _managed_font_paths = None
+cdef PangoFontMap* _inactive_fontmap = NULL
+cdef object _inactive_font_paths = None
+cdef unsigned long _fontmap_creations = 0
 _fontmap_lock = threading.RLock()
 
 
@@ -67,8 +70,15 @@ cdef void _raise_fontmap_error(char* error) except *:
 
 
 cdef void _refresh_managed_font_map() except *:
-    """Atomically rebuild the renderer-owned map for the current path snapshot."""
-    global _managed_fontmap, _managed_font_paths
+    """Select the renderer-owned map for the current font-path snapshot.
+
+    Keeping one inactive snapshot makes the normal empty-to-one-font scoped
+    lifecycle a swap instead of repeatedly constructing Pango maps.  The
+    cache stays bounded, and only the active map is ever exposed to rendering
+    or font-family enumeration.
+    """
+    global _managed_fontmap, _managed_font_paths, _fontmap_creations
+    global _inactive_fontmap, _inactive_font_paths
     cdef tuple font_paths = _fonts_module.active_font_paths()
     cdef const char** paths = NULL
     cdef list path_bytes = []
@@ -76,10 +86,20 @@ cdef void _refresh_managed_font_map() except *:
     cdef Py_ssize_t i
     cdef char* error = NULL
     cdef PangoFontMap* new_fontmap = NULL
-    cdef PangoFontMap* old_fontmap = NULL
+    cdef PangoFontMap* previous_active = NULL
+    cdef PangoFontMap* evicted_inactive = NULL
+    cdef object previous_paths
 
     with _fontmap_lock:
         if _managed_fontmap != NULL and font_paths == _managed_font_paths:
+            return
+        if _inactive_fontmap != NULL and font_paths == _inactive_font_paths:
+            previous_active = _managed_fontmap
+            previous_paths = _managed_font_paths
+            _managed_fontmap = _inactive_fontmap
+            _managed_font_paths = _inactive_font_paths
+            _inactive_fontmap = previous_active
+            _inactive_font_paths = previous_paths
             return
         try:
             for path in font_paths:
@@ -93,11 +113,14 @@ cdef void _refresh_managed_font_map() except *:
             new_fontmap = manimpango_build_font_map(paths, <size_t>count, &error)
             if new_fontmap == NULL:
                 _raise_fontmap_error(error)
-            old_fontmap = _managed_fontmap
+            evicted_inactive = _inactive_fontmap
+            _inactive_fontmap = _managed_fontmap
+            _inactive_font_paths = _managed_font_paths
             _managed_fontmap = new_fontmap
             _managed_font_paths = font_paths
-            if old_fontmap != NULL:
-                g_object_unref(old_fontmap)
+            _fontmap_creations += 1
+            if evicted_inactive != NULL:
+                g_object_unref(evicted_inactive)
         finally:
             if paths != NULL:
                 PyMem_Free(paths)
@@ -106,6 +129,23 @@ cdef void _refresh_managed_font_map() except *:
 cpdef refresh_font_map():
     """Refresh the renderer map after a successful native font-state change."""
     _refresh_managed_font_map()
+
+
+cpdef unsigned long _font_map_creation_count():
+    """Return map construction count for internal regression tests."""
+    with _fontmap_lock:
+        return _fontmap_creations
+
+
+cpdef unsigned int _font_map_cached_count():
+    """Return the number of retained map snapshots for internal tests."""
+    cdef unsigned int count = 0
+    with _fontmap_lock:
+        if _managed_fontmap != NULL:
+            count += 1
+        if _inactive_fontmap != NULL:
+            count += 1
+    return count
 
 
 cdef PangoFontMap* _acquire_managed_font_map() except NULL:
