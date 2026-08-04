@@ -36,6 +36,26 @@ cdef cairo_status_t _write_svg_bytes(
         return CAIRO_STATUS_NO_MEMORY
 
 
+cdef int _advance_utf8_code_point_offset(
+    bytes text,
+    int start_index,
+    int end_index,
+    int code_point_offset,
+) noexcept:
+    """Advance a code-point offset across a valid UTF-8 byte range.
+
+    Pango gives layout-line indices in UTF-8 bytes.  Lines are yielded in
+    order, so metadata can keep one running cursor instead of repeatedly
+    decoding prefixes of the rendered text.
+    """
+    cdef int byte_index
+
+    for byte_index in range(start_index, end_index):
+        if (<unsigned char>text[byte_index] & 0xC0) != 0x80:
+            code_point_offset += 1
+    return code_point_offset
+
+
 cdef str _get_pango_version():
     """Get cached Pango version string."""
     global _pango_version_cached
@@ -520,8 +540,10 @@ cpdef object _render_to_svg(
     cdef bytes text_bytes
     cdef bytearray svg_bytes = bytearray()
     cdef bytes rendered_text_bytes, line_bytes
-    cdef str rendered_text
     cdef int next_start_index, end_index, terminator_length
+    cdef int scan_index = 0
+    cdef int code_point_offset = 0
+    cdef int line_start_offset, line_end_offset
     cdef double baseline_svg
 
     cdef list lines
@@ -644,7 +666,6 @@ cpdef object _render_to_svg(
         final_width, final_height, final_baseline = _measure_layout(layout)
         line_count = pango_layout_get_line_count(layout)
         rendered_text_bytes = <bytes>pango_layout_get_text(layout)
-        rendered_text = rendered_text_bytes.decode("utf-8")
         baseline_svg = (
             pango_units_to_double(final_baseline)
             - pango_units_to_double(viewport_top)
@@ -678,11 +699,27 @@ cpdef object _render_to_svg(
             if terminator_length:
                 end_index -= terminator_length
                 line_bytes = line_bytes[:-terminator_length]
+            code_point_offset = _advance_utf8_code_point_offset(
+                rendered_text_bytes,
+                scan_index,
+                line.start_index,
+                code_point_offset,
+            )
+            scan_index = line.start_index
+            line_start_offset = code_point_offset
+            code_point_offset = _advance_utf8_code_point_offset(
+                rendered_text_bytes,
+                scan_index,
+                end_index,
+                code_point_offset,
+            )
+            scan_index = end_index
+            line_end_offset = code_point_offset
             line_text = line_bytes.decode("utf-8")
             lines.append(LineInfo(
                 text=line_text,
-                start=len(rendered_text_bytes[:line.start_index].decode("utf-8")),
-                end=len(rendered_text_bytes[:end_index].decode("utf-8")),
+                start=line_start_offset,
+                end=line_end_offset,
                 bounds=Bounds(
                     pango_units_to_double(logical_rect.x - viewport_left),
                     pango_units_to_double(logical_rect.y - viewport_top),

@@ -85,14 +85,28 @@ def test_line_ranges_exclude_newline_separators():
     ids=("lf", "crlf", "cr", "line-separator", "paragraph-separator"),
 )
 def test_line_ranges_exclude_all_pango_line_separators(separator):
-    text = f"first{separator}second"
+    text = f"é{separator}漢"
 
     result = manimpango.render(text)
 
     assert [(line.text, line.start, line.end) for line in result.lines] == [
-        ("first", 0, 5),
-        ("second", 5 + len(separator), len(text)),
+        ("é", 0, 1),
+        ("漢", 1 + len(separator), len(text)),
     ]
+
+
+def test_line_ranges_track_wrapped_multibyte_text():
+    text = "é漢🙂 café " * 32
+
+    result = manimpango.render(text, size=24.0, width=40.0)
+
+    assert result.line_count > 1
+    expected_start = 0
+    for line in result.lines:
+        assert line.start == expected_start
+        assert line.text == text[line.start : line.end]
+        expected_start = line.end
+    assert expected_start == len(text)
 
 
 def test_top_level_and_whole_span_sizes_use_the_same_svg_units():
