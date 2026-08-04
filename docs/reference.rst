@@ -58,8 +58,6 @@ Exceptions
 
 .. autoexception:: FontRegistrationError
 
-.. autoexception:: UnsupportedPangoFeatureError
-
 Version Information
 -------------------
 

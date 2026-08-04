@@ -1,4 +1,4 @@
-"""Cython declarations for Pango and Cairo rendering."""
+"""Private Cython declarations for the renderer; no public Cython ABI is promised."""
 
 from libc.stddef cimport size_t
 
@@ -12,21 +12,15 @@ cdef extern from "glib.h":
     ctypedef unsigned int guint
     ctypedef unsigned int guint32
     ctypedef unsigned short guint16
-    ctypedef void* gpointer
-
-    ctypedef struct GSList:
-        gpointer data
-        GSList* next
-
     ctypedef struct GError:
         guint32 domain
         gint code
         char* message
 
-    void g_free(gpointer mem)
+    void g_free(void* mem)
     void g_error_free(GError* error)
-    gpointer g_object_ref(gpointer object)
-    void g_object_unref(gpointer object)
+    void* g_object_ref(void* object)
+    void g_object_unref(void* object)
 
 
 # ============================================================
@@ -58,18 +52,12 @@ cdef extern from "cairo.h":
     void cairo_surface_destroy(cairo_surface_t* surface)
     void cairo_surface_finish(cairo_surface_t* surface)
     cairo_surface_t* cairo_image_surface_create(cairo_format_t format, int width, int height)
-    cairo_status_t cairo_status(cairo_t* cr)
     cairo_status_t cairo_surface_status(cairo_surface_t* surface)
     const char* cairo_status_to_string(cairo_status_t status)
     const char* cairo_version_string()
 
 
 cdef extern from "cairo-svg.h":
-    cairo_surface_t* cairo_svg_surface_create(
-        const char* filename,
-        double width_in_points,
-        double height_in_points,
-    )
     cairo_surface_t* cairo_svg_surface_create_for_stream(
         cairo_write_func_t write_func,
         void* closure,
@@ -83,8 +71,6 @@ cdef extern from "cairo-svg.h":
 # ============================================================
 
 cdef extern from "pango/pango.h":
-    int PANGO_SCALE
-
     # Opaque structs
     ctypedef struct PangoLayout:
         pass
@@ -156,7 +142,6 @@ cdef extern from "pango/pango.h":
     # Layout
     void pango_layout_set_width(PangoLayout* layout, int width)
     void pango_layout_set_height(PangoLayout* layout, int height)
-    void pango_layout_set_markup(PangoLayout* layout, const char* markup, int length)
     void pango_layout_set_text(PangoLayout* layout, const char* text, int length)
     const char* pango_layout_get_text(PangoLayout* layout)
     void pango_layout_set_attributes(PangoLayout* layout, PangoAttrList* attrs)
@@ -180,13 +165,7 @@ cdef extern from "pango/pango.h":
     gboolean pango_color_parse(PangoColor* color, const char* spec)
 
     # Layout queries
-    void pango_layout_get_size(PangoLayout* layout, int* width, int* height)
     void pango_layout_get_pixel_size(PangoLayout* layout, int* width, int* height)
-    void pango_layout_get_pixel_extents(
-        PangoLayout* layout,
-        PangoRectangle* ink_rect,
-        PangoRectangle* logical_rect,
-    )
     void pango_layout_get_extents(
         PangoLayout* layout,
         PangoRectangle* ink_rect,
@@ -221,10 +200,6 @@ cdef extern from "pango/pango-layout.h":
     ctypedef struct PangoLayoutLine:
         PangoLayout* layout
         gint start_index
-        gint length
-        GSList* runs
-        guint is_paragraph_start
-        guint resolved_dir
 
     PangoLayoutLine* pango_layout_get_line(PangoLayout* layout, int line)
     PangoLayoutIter* pango_layout_get_iter(PangoLayout* layout)
@@ -237,11 +212,6 @@ cdef extern from "pango/pango-layout.h":
     )
     int pango_layout_iter_get_baseline(PangoLayoutIter* iter)
     gboolean pango_layout_iter_next_line(PangoLayoutIter* iter)
-    void pango_layout_line_get_pixel_extents(
-        PangoLayoutLine* line,
-        PangoRectangle* ink_rect,
-        PangoRectangle* logical_rect,
-    )
 
 
 cdef extern from "pango/pangocairo.h":

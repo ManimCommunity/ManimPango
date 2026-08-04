@@ -98,8 +98,7 @@ venv\Scripts\activate # Windows
 
 From a clone, run the uv setup commands in
 [WORKFLOW SETUP / CONTRIBUTING](#workflow-setup--contributing). They install
-Cython, Meson, and the editable extension build; no `setup.py` command or
-`requirements-dev.txt` file is used.
+Cython, Meson, and the editable extension build.
 
 ### Contributing with Windows
 

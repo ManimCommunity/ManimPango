@@ -27,7 +27,6 @@ from .exceptions import (
     ManimPangoError,
     MarkupError,
     RenderError,
-    UnsupportedPangoFeatureError,
 )
 
 __version__ = _metadata_version("ManimPango")
@@ -46,7 +45,6 @@ __all__ = [
     "RenderedText",
     "Style",
     "TextSpan",
-    "UnsupportedPangoFeatureError",
     "Weight",
     "__version__",
     "get_version_info",

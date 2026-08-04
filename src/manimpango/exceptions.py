@@ -25,7 +25,3 @@ class FontNotFoundError(FileNotFoundError, FontError):
 
 class FontRegistrationError(FontError):
     """Raised when a font backend rejects a font registration."""
-
-
-class UnsupportedPangoFeatureError(ManimPangoError):
-    """Raised when an optional feature is unavailable in this Pango runtime."""

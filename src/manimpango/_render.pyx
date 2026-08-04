@@ -369,8 +369,9 @@ cdef void _set_layout_text_and_attributes(
 ) except *:
     """Set one layout's plain text and its Pango attributes.
 
-    Markup is parsed explicitly rather than passed to ``pango_layout_set_markup``
-    so both markup and plain text follow the same text-plus-attributes pipeline.
+    Markup is parsed explicitly rather than delegated to Pango's combined
+    markup-layout API, so both markup and plain text follow the same
+    text-plus-attributes pipeline.
     This also lets ligature settings be expressed as an attribute, avoiding
     generated markup around unescaped plain text.
     """

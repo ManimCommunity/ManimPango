@@ -1,4 +1,4 @@
-"""Cython declarations for font management."""
+"""Private Cython declarations for font management; no public Cython ABI is promised."""
 
 
 cdef extern from "font_backend.h":

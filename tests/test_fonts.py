@@ -95,6 +95,7 @@ class TestRegisterFont:
         assert first_family not in manimpango.list_fonts()
         assert second_family not in manimpango.list_fonts()
 
+        fallback = manimpango.render("Hello", font="Deliberately Missing Family")
         first = manimpango.register_font(FONT_DIR / "BungeeOutline-Regular.ttf")
         second = manimpango.register_font(FONT_DIR / "MaShanZheng-Regular.ttf")
         try:
@@ -106,11 +107,12 @@ class TestRegisterFont:
             assert second.closed is False
             assert first_family not in manimpango.list_fonts()
             assert second_family in manimpango.list_fonts()
-            assert manimpango.render("Hello", font=second_family).width > 0
+            assert manimpango.render("Hello", font=second_family).svg != fallback.svg
         finally:
             second.close()
 
         assert second_family not in manimpango.list_fonts()
+        assert manimpango.render("Hello", font=second_family).svg == fallback.svg
 
     @pytest.mark.parametrize(
         "font_file",
