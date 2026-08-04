@@ -32,8 +32,10 @@ jobs:
 
       # Windows: set up MSVC so meson doesn't pick up MinGW, then
       # download Pango binaries and put pkg-config on PATH.
-      - uses: ilammy/msvc-dev-cmd@v1
+      - uses: TheMrMilchmann/setup-msvc-dev@v4
         if: runner.os == 'Windows'
+        with:
+          arch: x64
 
       - name: Download Pango binaries (Windows)
         if: runner.os == 'Windows'
