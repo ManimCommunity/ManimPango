@@ -27,8 +27,5 @@ jobs:
       - name: Install locked development dependencies
         run: uv sync --locked --group dev --no-install-project
 
-      - name: Install editable project without build isolation
-        run: uv pip install --no-build-isolation --editable .
-
       - name: Run pre-commit
         run: uv run --no-sync pre-commit run --all-files --show-diff-on-failure
