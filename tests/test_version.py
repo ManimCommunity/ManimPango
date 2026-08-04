@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tests for version info — v2 API."""
 
 import manimpango

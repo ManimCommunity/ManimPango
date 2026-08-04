@@ -12,7 +12,9 @@ def main() -> None:
     if not result.svg or result.width <= 0 or result.height <= 0:
         raise RuntimeError("installed wheel did not render text")
 
-    font_path = Path(__file__).parents[1] / "tests" / "fonts" / "BungeeOutline-Regular.ttf"
+    font_path = (
+        Path(__file__).parents[1] / "tests" / "fonts" / "BungeeOutline-Regular.ttf"
+    )
     with manimpango.register_font(font_path):
         if "Bungee Outline" not in manimpango.list_fonts():
             raise RuntimeError("installed wheel did not expose a registered font")

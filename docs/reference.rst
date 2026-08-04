@@ -8,27 +8,57 @@ Rendering
 
 .. autofunction:: render
 
+.. autofunction:: render_markup
+
 .. autofunction:: validate_markup
 
-Return Types
-------------
+Text Models
+-----------
 
-.. autoclass:: RenderedText
-   :members:
-   :undoc-members:
+.. autoclass:: TextSpan
+
+.. autoclass:: Bounds
 
 .. autoclass:: LineInfo
-   :members:
-   :undoc-members:
+
+.. autoclass:: RenderedText
+   :members: line_count, save
 
 Font Management
 ---------------
 
 .. autofunction:: register_font
 
-.. autofunction:: unregister_font
+.. autoclass:: FontRegistration
+   :members: close, path, closed
 
 .. autofunction:: list_fonts
+
+Enumerations
+------------
+
+.. autoclass:: Style
+
+.. autoclass:: Weight
+
+.. autoclass:: Alignment
+
+Exceptions
+----------
+
+.. autoexception:: ManimPangoError
+
+.. autoexception:: RenderError
+
+.. autoexception:: MarkupError
+
+.. autoexception:: FontError
+
+.. autoexception:: FontNotFoundError
+
+.. autoexception:: FontRegistrationError
+
+.. autoexception:: UnsupportedPangoFeatureError
 
 Version Information
 -------------------
@@ -38,34 +68,3 @@ Version Information
 .. attribute:: __version__
 
    The installed ManimPango version string.
-
-Enumerations
-------------
-
-.. autoclass:: Style
-   :members:
-   :undoc-members:
-
-.. autoclass:: Weight
-   :members:
-   :undoc-members:
-
-.. autoclass:: Alignment
-   :members:
-   :undoc-members:
-
-Exceptions
-----------
-
-.. autoclass:: UnsupportedPangoFeatureError
-   :members:
-
-Deprecated
-----------
-
-The following functions are provided for backwards compatibility and may be
-removed in a future release.
-
-.. autofunction:: pango_version
-
-.. autofunction:: cairo_version

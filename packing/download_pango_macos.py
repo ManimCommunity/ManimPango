@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import logging
 import os
 import re
@@ -35,9 +34,7 @@ logging.info("Url: %s", download_url)
 download(url=download_url, filename=download_file)
 logging.info(f"Download complete. Saved to {download_file}.")
 logging.info(f"Extracting {download_file} to {download_location}...")
-with zipfile.ZipFile(
-    download_file, mode="r", compression=zipfile.ZIP_DEFLATED
-) as file:  # noqa: E501
+with zipfile.ZipFile(download_file, mode="r", compression=zipfile.ZIP_DEFLATED) as file:
     file.extractall(download_location)
 os.remove(download_file)
 logging.info("Completed Extracting.")
@@ -53,9 +50,13 @@ logging.info("Fixing .pc files")
 
 # Get the current macOS SDK path — the pre-built binaries may reference
 # an Xcode version that isn't installed on this runner.
-current_sdk = subprocess.check_output(
-    ["xcrun", "--sdk", "macosx", "--show-sdk-path"],
-).decode().strip()
+current_sdk = (
+    subprocess.check_output(
+        ["xcrun", "--sdk", "macosx", "--show-sdk-path"],
+    )
+    .decode()
+    .strip()
+)
 logging.info(f"Current macOS SDK: {current_sdk}")
 
 # Matches any Xcode SDK path, e.g.
@@ -69,7 +70,7 @@ rex = re.compile("^prefix=(.*)")
 
 
 def new_place(_) -> str:
-    return f"prefix={str(final_location.as_posix())}"
+    return f"prefix={final_location.as_posix()!s}"
 
 
 pc_files = final_location / "lib" / "pkgconfig"

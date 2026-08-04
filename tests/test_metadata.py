@@ -67,21 +67,30 @@ def test_markup_line_offsets_are_in_parsed_rendered_text():
 
 
 def test_line_baselines_and_bounds_use_svg_coordinate_space():
-    result = manimpango.render("small\nlarge", spans=(
-        manimpango.TextSpan(start=6, end=11, size=36.0),
-    ))
+    result = manimpango.render(
+        "small\nlarge", spans=(manimpango.TextSpan(start=6, end=11, size=36.0),)
+    )
 
-    assert all(isinstance(value, float) for value in (result.width, result.height, result.baseline))
+    assert all(
+        isinstance(value, float)
+        for value in (result.width, result.height, result.baseline)
+    )
     assert result.lines[1].baseline > result.lines[0].baseline
     assert result.lines[1].bounds.height > result.lines[0].bounds.height
-    for bounds in (result.ink_bounds, result.logical_bounds, *(line.bounds for line in result.lines)):
+    for bounds in (
+        result.ink_bounds,
+        result.logical_bounds,
+        *(line.bounds for line in result.lines),
+    ):
         assert bounds.x >= 0.0
         assert bounds.y >= 0.0
         assert bounds.x + bounds.width <= result.width
         assert bounds.y + bounds.height <= result.height
 
 
-@pytest.mark.parametrize("alignment", [manimpango.Alignment.CENTER, manimpango.Alignment.RIGHT])
+@pytest.mark.parametrize(
+    "alignment", [manimpango.Alignment.CENTER, manimpango.Alignment.RIGHT]
+)
 def test_wide_multiline_alignment_preserves_relative_line_placement(alignment):
     result = manimpango.render("x\nlonger", width=200.0, alignment=alignment)
     short, long = result.lines

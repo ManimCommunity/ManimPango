@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tests for font registration and listing — v2 API."""
 
 from pathlib import Path

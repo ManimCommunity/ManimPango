@@ -4,15 +4,17 @@ from __future__ import annotations
 
 import os
 import threading
+from collections.abc import Mapping, Sequence
 from importlib.metadata import version as _metadata_version
 from math import isfinite
 from numbers import Real
 from pathlib import Path
-from typing import Mapping, Sequence
 
 # The DLL search path must be adjusted before importing the extension module.
 if os.name == "nt":  # pragma: no cover - exercised on Windows wheels
-    os.environ["PATH"] = f"{os.path.dirname(__file__)}{os.pathsep}{os.environ.get('PATH', '')}"
+    os.environ["PATH"] = (
+        f"{os.path.dirname(__file__)}{os.pathsep}{os.environ.get('PATH', '')}"
+    )
 
 from . import _fonts, _render
 from ._spans import TextSpan, normalize_spans, validate_variations
@@ -31,28 +33,28 @@ from .exceptions import (
 __version__ = _metadata_version("ManimPango")
 
 __all__ = [
+    "Alignment",
+    "Bounds",
+    "FontError",
+    "FontNotFoundError",
+    "FontRegistration",
+    "FontRegistrationError",
+    "LineInfo",
+    "ManimPangoError",
+    "MarkupError",
+    "RenderError",
+    "RenderedText",
+    "Style",
+    "TextSpan",
+    "UnsupportedPangoFeatureError",
+    "Weight",
     "__version__",
     "get_version_info",
+    "list_fonts",
+    "register_font",
     "render",
     "render_markup",
     "validate_markup",
-    "RenderedText",
-    "LineInfo",
-    "Bounds",
-    "TextSpan",
-    "FontRegistration",
-    "register_font",
-    "list_fonts",
-    "Style",
-    "Weight",
-    "Alignment",
-    "ManimPangoError",
-    "RenderError",
-    "MarkupError",
-    "FontError",
-    "FontNotFoundError",
-    "FontRegistrationError",
-    "UnsupportedPangoFeatureError",
 ]
 
 
@@ -110,7 +112,7 @@ class FontRegistration:
             del _FONT_REGISTRATION_COUNTS[self._path]
             self._closed = True
 
-    def __enter__(self) -> "FontRegistration":
+    def __enter__(self) -> FontRegistration:
         return self
 
     def __exit__(self, exc_type: object, exc: object, traceback: object) -> bool:
@@ -153,7 +155,9 @@ def register_font(font_path: str | Path) -> FontRegistration:
                     f"failed to register font {normalized_path}"
                 ) from error
             if not registered:
-                raise FontRegistrationError(f"failed to register font {normalized_path}")
+                raise FontRegistrationError(
+                    f"failed to register font {normalized_path}"
+                )
         _FONT_REGISTRATION_COUNTS[normalized_path] = count + 1
         return FontRegistration(normalized_path)
 
@@ -190,7 +194,11 @@ def _validate_options(
     if font is not None and not isinstance(font, str):
         raise TypeError("font must be a string or None")
     _finite(size, "size", positive=True)
-    if isinstance(weight, bool) or not isinstance(weight, int) or not 1 <= weight <= 1000:
+    if (
+        isinstance(weight, bool)
+        or not isinstance(weight, int)
+        or not 1 <= weight <= 1000
+    ):
         raise ValueError("weight must be an integer between 1 and 1000")
     if not isinstance(style, Style):
         raise TypeError("style must be a Style")
@@ -269,11 +277,24 @@ def render(
         disable_ligatures=disable_ligatures,
     )
     native_spans = normalize_spans(spans, text)
-    return _render.render(text, is_markup=False, spans=native_spans, **_native_options(
-        font=font, size=size, weight=weight, style=style, variations=variations,
-        width=width, alignment=alignment, line_spacing=line_spacing,
-        justify=justify, indent=indent, disable_ligatures=disable_ligatures,
-    ))
+    return _render.render(
+        text,
+        is_markup=False,
+        spans=native_spans,
+        **_native_options(
+            font=font,
+            size=size,
+            weight=weight,
+            style=style,
+            variations=variations,
+            width=width,
+            alignment=alignment,
+            line_spacing=line_spacing,
+            justify=justify,
+            indent=indent,
+            disable_ligatures=disable_ligatures,
+        ),
+    )
 
 
 def render_markup(
@@ -294,18 +315,38 @@ def render_markup(
     """Render Pango markup through the native markup pipeline."""
     _validate_options(
         markup,
-        font=font, size=size, weight=weight, style=style, variations=variations,
-        width=width, alignment=alignment, line_spacing=line_spacing,
-        justify=justify, indent=indent, disable_ligatures=disable_ligatures,
+        font=font,
+        size=size,
+        weight=weight,
+        style=style,
+        variations=variations,
+        width=width,
+        alignment=alignment,
+        line_spacing=line_spacing,
+        justify=justify,
+        indent=indent,
+        disable_ligatures=disable_ligatures,
     )
     markup_error = validate_markup(markup)
     if markup_error:
         raise MarkupError(f"Invalid Pango markup: {markup_error}")
-    return _render.render(markup, is_markup=True, **_native_options(
-        font=font, size=size, weight=weight, style=style, variations=variations,
-        width=width, alignment=alignment, line_spacing=line_spacing,
-        justify=justify, indent=indent, disable_ligatures=disable_ligatures,
-    ))
+    return _render.render(
+        markup,
+        is_markup=True,
+        **_native_options(
+            font=font,
+            size=size,
+            weight=weight,
+            style=style,
+            variations=variations,
+            width=width,
+            alignment=alignment,
+            line_spacing=line_spacing,
+            justify=justify,
+            indent=indent,
+            disable_ligatures=disable_ligatures,
+        ),
+    )
 
 
 def pango_version() -> str:

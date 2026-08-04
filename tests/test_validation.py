@@ -70,7 +70,9 @@ def test_public_exception_hierarchy_is_package_specific():
     assert issubclass(manimpango.RenderError, manimpango.ManimPangoError)
     assert issubclass(manimpango.MarkupError, (ValueError, manimpango.ManimPangoError))
     assert issubclass(manimpango.FontError, manimpango.ManimPangoError)
-    assert issubclass(manimpango.FontNotFoundError, (FileNotFoundError, manimpango.FontError))
+    assert issubclass(
+        manimpango.FontNotFoundError, (FileNotFoundError, manimpango.FontError)
+    )
     assert issubclass(manimpango.FontRegistrationError, manimpango.FontError)
 
 

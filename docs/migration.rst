@@ -1,177 +1,88 @@
-Migration Guide (v1.x → v2.0)
-==============================
+Migration Guide
+===============
 
-ManimPango v2.0 is a complete rewrite with a simplified API.  This guide
-covers the changes and shows how to update existing code.
+ManimPango 1.0 is a hard API break.  The former utility classes and
+path-based font-unregistration API are gone; migrate callers to the public
+functions and immutable result models below.
 
-Overview of Changes
--------------------
+Rendering APIs
+--------------
 
-- A single :func:`~manimpango.render` function replaces ``text2svg()``,
-  ``MarkupUtils.text2svg()``, and related utilities.
-- :func:`~manimpango.render` returns a :class:`~manimpango.RenderedText`
-  object containing SVG content **and** layout metadata (dimensions,
-  baseline, per-line info).
-- Surface dimensions (``width``, ``height``, ``START_X``, ``START_Y``)
-  are no longer needed — ManimPango uses a two-pass measure-then-render
-  approach internally.
-- The ``TextSetting`` class has been removed.  Per-substring styling
-  should be expressed as Pango markup.
-- ``PangoUtils`` and ``MarkupUtils`` helper classes have been removed.
-- Font weight and style are now specified via :class:`~manimpango.Weight`
-  and :class:`~manimpango.Style` enums instead of strings.
-- Variable font support is new in v2.0 (``weight`` accepts arbitrary
-  integers, ``variations`` parameter for custom axes).
-- Minimum requirements: Python ≥ 3.11, Pango ≥ 1.44.
-
-Removed Symbols
----------------
+``render()`` accepts plain text only.  Use ``render_markup()`` for raw Pango
+markup; plain and markup rendering are separate entry points.
 
 .. list-table::
    :header-rows: 1
    :widths: 40 60
 
-   * - v1.x Symbol
-     - v2.0 Replacement
-   * - ``text2svg(settings, ...)``
-     - ``render(markup, is_markup=True, ...)``
-   * - ``MarkupUtils.text2svg(...)``
-     - ``render(text, is_markup=True, ...)``
-   * - ``MarkupUtils.validate(...)``
-     - :func:`validate_markup`
-   * - ``TextSetting``
-     - Removed — use Pango markup
-   * - ``PangoUtils.str2style()``
-     - Use :class:`Style` enum directly
-   * - ``PangoUtils.str2weight()``
-     - Use :class:`Weight` enum directly
-   * - ``fc_register_font()``
-     - :func:`register_font`
-   * - ``fc_unregister_font()``
-     - :func:`unregister_font`
-   * - ``pango_version()``
-     - ``get_version_info()["pango"]``
-   * - ``cairo_version()``
-     - ``get_version_info()["cairo"]``
-   * - ``Variant`` enum
-     - Removed (unused by Pango layout)
-
-Migration Examples
-------------------
-
-Rendering Markup (MarkupText path)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-**Before (v1.x):**
+   * - Previous pattern
+     - 1.0 replacement
+   * - Plain text renderer
+     - :func:`render`
+   * - Markup renderer
+     - :func:`render_markup`
+   * - Markup validation
+     - :func:`validate_markup` or :class:`MarkupError` from ``render_markup``
+   * - Range styling
+     - :class:`TextSpan` passed to :func:`render`
 
 .. code-block:: python
 
-    from manimpango import MarkupUtils, Alignment
-
-    MarkupUtils.text2svg(
-        "<span color='blue'>Hello</span>",
-        "Arial",           # font
-        "NORMAL",          # slant (as string)
-        "NORMAL",          # weight (as string)
-        24,                # size
-        True,              # mystery positional arg
-        False,             # disable_liga
-        "output.svg",      # file_name
-        20, 20,            # START_X, START_Y
-        600, 400,          # width, height
-        justify=False,
-        indent=None,
-        line_spacing=None,
-        alignment=Alignment.CENTER,
-    )
-
-**After (v2.0):**
-
-.. code-block:: python
-
-    import manimpango
-
+    # Plain text with structured styling.
     result = manimpango.render(
-        "<span color='blue'>Hello</span>",
-        is_markup=True,
-        font="Arial",
-        size=24,
-        alignment=manimpango.Alignment.CENTER,
+        "Hello world",
+        spans=(
+            manimpango.TextSpan(0, 5, foreground="#3366cc"),
+            manimpango.TextSpan(6, 11, style=manimpango.Style.ITALIC),
+        ),
     )
-    result.save("output.svg")
 
-Rendering with Per-Substring Styles (Text path)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    # Raw Pango markup uses a different entry point.
+    marked = manimpango.render_markup("<b>Hello</b> <i>world</i>")
 
-**Before (v1.x):**
+``TextSpan.start`` and ``TextSpan.end`` are half-open Python code-point
+offsets.  Overlapping spans compose when they affect different attributes;
+conflicting values for the same attribute raise ``ValueError``.
+
+Result Metadata
+---------------
+
+``render()`` and ``render_markup()`` return a frozen, slotted
+:class:`~manimpango.RenderedText`.  Geometry is always expressed in SVG
+user-space units, not pixels or raw Pango units.  The former synthetic
+line-spacing value and mutable underscore-backed fields have been removed.
 
 .. code-block:: python
 
-    from manimpango import TextSetting, text2svg
+    result = manimpango.render("one\ntwo", width=200.0)
 
-    settings = [
-        TextSetting(0, 5, font="Arial", slant="NORMAL",
-                    weight="BOLD", color="red"),
-        TextSetting(5, 11, font="Arial", slant="ITALIC",
-                    weight="NORMAL", color="blue"),
-    ]
-    text2svg(settings, 24, 30, False, "output.svg",
-             20, 20, 600, 400, "HelloWorld!")
+    print(result.width, result.height, result.baseline)
+    print(result.ink_bounds, result.logical_bounds)
+    for line in result.lines:
+        # Ranges exclude newline separators.
+        print(line.text, line.start, line.end, line.bounds, line.baseline)
 
-**After (v2.0):**
+``result.lines`` is a tuple of :class:`~manimpango.LineInfo` instances.
+``result.line_count`` is derived from its length.  Both layout bounds and
+per-line bounds use the same transformed coordinate system as the SVG.
 
-.. code-block:: python
+Saving SVG
+----------
 
-    import manimpango
-
-    result = manimpango.render(
-        "<span weight='bold' color='red'>Hello</span>"
-        "<span style='italic' color='blue'>World!</span>",
-        is_markup=True,
-        font="Arial",
-        size=24,
-    )
-    result.save("output.svg")
+``RenderedText.save(path)`` writes UTF-8 SVG to ``path``.  The parent
+directory must already exist; missing parents raise ``FileNotFoundError``.
 
 Font Registration
-^^^^^^^^^^^^^^^^^
+-----------------
 
-**Before (v1.x):**
-
-.. code-block:: python
-
-    from manimpango import fc_register_font, fc_unregister_font
-
-    fc_register_font("path/to/font.ttf")
-    # ...
-    fc_unregister_font("path/to/font.ttf")
-
-**After (v2.0):**
+Registration has explicit ownership through a handle.
 
 .. code-block:: python
 
-    import manimpango
+    with manimpango.register_font("path/to/font.ttf") as registration:
+        result = manimpango.render("Example", font="My Font")
 
-    manimpango.register_font("path/to/font.ttf")
-    # ...
-    manimpango.unregister_font("path/to/font.ttf")
+    assert registration.closed
 
-Getting Layout Dimensions
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-In v1.x, obtaining text dimensions required calling separate utility
-functions.  In v2.0, :func:`~manimpango.render` returns all layout
-metadata directly:
-
-.. code-block:: python
-
-    result = manimpango.render("Hello World", font="Arial", size=24)
-
-    print(result.width)       # total width in pixels
-    print(result.height)      # total height in pixels
-    print(result.baseline)    # baseline in Pango units
-    print(result.line_count)  # number of lines
-    print(result.line_height) # recommended line-to-line distance
-
-    for line in result.lines:
-        print(line.width, line.height, line.y_offset)
+Missing files raise :class:`~manimpango.FontNotFoundError`; other backend
+registration failures raise :class:`~manimpango.FontRegistrationError`.

@@ -5,8 +5,8 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from importlib.metadata import version as get_version
+from pathlib import Path
 
 # -- Project information -----------------------------------------------------
 
@@ -32,7 +32,7 @@ extensions = [
 
 templates_path = ["_templates"]
 
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "reference"]
 
 
 # -- Options for HTML output -------------------------------------------------

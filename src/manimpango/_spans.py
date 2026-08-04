@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from math import isfinite
 from numbers import Real
-from typing import Mapping, Sequence
 
 from .enums import Style, Weight
 
@@ -25,7 +25,9 @@ class TextSpan:
     variations: Mapping[str, float] | None = None
 
 
-def _require_finite_number(value: object, name: str, *, positive: bool = False) -> float:
+def _require_finite_number(
+    value: object, name: str, *, positive: bool = False
+) -> float:
     if isinstance(value, bool) or not isinstance(value, Real) or not isfinite(value):
         raise ValueError(f"{name} must be a finite number")
     converted = float(value)
@@ -41,11 +43,17 @@ def _validate_tag(tag: object, name: str) -> str:
 
 
 def _validate_weight(weight: object, name: str) -> None:
-    if isinstance(weight, bool) or not isinstance(weight, int) or not 1 <= weight <= 1000:
+    if (
+        isinstance(weight, bool)
+        or not isinstance(weight, int)
+        or not 1 <= weight <= 1000
+    ):
         raise ValueError(f"{name} must be an integer between 1 and 1000")
 
 
-def validate_variations(variations: Mapping[str, float] | None, name: str = "variations") -> None:
+def validate_variations(
+    variations: Mapping[str, float] | None, name: str = "variations"
+) -> None:
     if variations is None:
         return
     if not isinstance(variations, Mapping):
@@ -72,7 +80,9 @@ def validate_spans(spans: Sequence[TextSpan], text: str) -> tuple[TextSpan, ...]
         if isinstance(span.end, bool) or not isinstance(span.end, int):
             raise TypeError("TextSpan.end must be an integer")
         if not 0 <= span.start <= span.end <= len(text):
-            raise ValueError("TextSpan bounds must satisfy 0 <= start <= end <= len(text)")
+            raise ValueError(
+                "TextSpan bounds must satisfy 0 <= start <= end <= len(text)"
+            )
         if span.font is not None and not isinstance(span.font, str):
             raise TypeError("TextSpan.font must be a string or None")
         if span.size is not None:
@@ -95,7 +105,9 @@ def validate_spans(spans: Sequence[TextSpan], text: str) -> tuple[TextSpan, ...]
     return validated
 
 
-def normalize_spans(spans: Sequence[TextSpan], text: str) -> tuple[dict[str, object], ...]:
+def normalize_spans(
+    spans: Sequence[TextSpan], text: str
+) -> tuple[dict[str, object], ...]:
     """Return compact, native-ready effective runs for ``spans``.
 
     Each result dictionary has byte-based ``start`` and ``end`` keys plus only
@@ -108,7 +120,9 @@ def normalize_spans(spans: Sequence[TextSpan], text: str) -> tuple[dict[str, obj
         return ()
 
     byte_offsets = _utf8_byte_offsets(text)
-    boundaries = sorted({boundary for span in validated for boundary in (span.start, span.end)})
+    boundaries = sorted(
+        {boundary for span in validated for boundary in (span.start, span.end)}
+    )
     normalized: list[dict[str, object]] = []
     for start, end in zip(boundaries, boundaries[1:]):
         attributes = _effective_attributes(validated, start, end)
@@ -142,7 +156,9 @@ def _effective_attributes(
     active = [span for span in spans if span.start <= start and span.end >= end]
     attributes: dict[str, object] = {}
     for name in ("font", "size", "weight", "style", "foreground"):
-        values = [getattr(span, name) for span in active if getattr(span, name) is not None]
+        values = [
+            getattr(span, name) for span in active if getattr(span, name) is not None
+        ]
         if values:
             attributes[name] = values[0]
     for name in ("features", "variations"):

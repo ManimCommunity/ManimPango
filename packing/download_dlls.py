@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import logging
 import os
 import re
@@ -42,9 +41,7 @@ logging.info("Url:%s", download_url)
 download(url=download_url, filename=download_file)
 logging.info(f"Download complete. Saved to {download_file}.")
 logging.info(f"Extracting {download_file} to {download_location}...")
-with zipfile.ZipFile(
-    download_file, mode="r", compression=zipfile.ZIP_DEFLATED
-) as file:  # noqa: E501
+with zipfile.ZipFile(download_file, mode="r", compression=zipfile.ZIP_DEFLATED) as file:
     file.extractall(download_location)
 os.remove(download_file)
 logging.info("Completed Extracting.")
@@ -62,7 +59,7 @@ rex = re.compile("^prefix=(.*)")
 
 
 def new_place(_) -> str:
-    return f"prefix={str(final_location.as_posix())}"
+    return f"prefix={final_location.as_posix()!s}"
 
 
 pc_files = final_location / "lib" / "pkgconfig"
@@ -80,9 +77,7 @@ download(
     f"/releases/download/v{PANGO_VERSION}/pkgconf-windows.zip",
     filename=download_file,
 )
-with zipfile.ZipFile(
-    download_file, mode="r", compression=zipfile.ZIP_DEFLATED
-) as file:  # noqa: E501
+with zipfile.ZipFile(download_file, mode="r", compression=zipfile.ZIP_DEFLATED) as file:
     file.extractall(download_location)
 
 os.makedirs(str(final_location / "bin"), exist_ok=True)

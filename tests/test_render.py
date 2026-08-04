@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 """Tests for manimpango.render() — the core v2 API."""
 
-import os
 import sys
 from pathlib import Path
 from xml.parsers.expat import ParserCreate
@@ -16,6 +14,7 @@ FONT_DIR = Path(__file__).parent / "fonts"
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────
+
 
 def assert_valid_svg(svg: str) -> None:
     """Assert that the given string is valid XML (SVG)."""
@@ -48,6 +47,7 @@ def assert_svg_has_visible_drawing(svg: str) -> None:
 
 
 # ── Basic rendering ─────────────────────────────────────────────────────
+
 
 class TestRenderBasic:
     def test_plain_text(self):
@@ -92,6 +92,7 @@ class TestRenderBasic:
 
 
 # ── Markup ───────────────────────────────────────────────────────────────
+
 
 class TestRenderMarkup:
     def test_bold_markup(self):
@@ -138,6 +139,7 @@ class TestRenderMarkup:
 
 # ── Font parameters ──────────────────────────────────────────────────────
 
+
 class TestRenderFont:
     def test_font_family(self):
         result = manimpango.render("Test", font="Helvetica")
@@ -174,6 +176,7 @@ class TestRenderFont:
 
 
 # ── Layout parameters ────────────────────────────────────────────────────
+
 
 class TestRenderLayout:
     def test_width_wrapping(self):
@@ -248,6 +251,7 @@ class TestRenderLayout:
 
 # ── Variable fonts ───────────────────────────────────────────────────────
 
+
 class TestVariableFonts:
     """Tests for variable font support using AdobeVFPrototype.ttf.
 
@@ -280,7 +284,9 @@ class TestVariableFonts:
     @pytest.fixture(autouse=True)
     def register_variable_font(self):
         """Ensure the variable font is properly registered for testing."""
-        with manimpango.register_font(FONT_DIR / "AdobeVFPrototype.ttf") as registration:
+        with manimpango.register_font(
+            FONT_DIR / "AdobeVFPrototype.ttf"
+        ) as registration:
             yield registration
 
     def test_variations_dict(self):
@@ -314,10 +320,14 @@ class TestVariableFonts:
     def test_variations_wght_produces_different_svg(self):
         """Changing the wght axis via variations= produces different glyphs."""
         light = manimpango.render(
-            "Test", font=self.FONT_NAME, variations={"wght": 200},
+            "Test",
+            font=self.FONT_NAME,
+            variations={"wght": 200},
         )
         heavy = manimpango.render(
-            "Test", font=self.FONT_NAME, variations={"wght": 900},
+            "Test",
+            font=self.FONT_NAME,
+            variations={"wght": 900},
         )
         assert_valid_result(light)
         assert_valid_result(heavy)
@@ -330,10 +340,14 @@ class TestVariableFonts:
     def test_variations_cntr_produces_different_svg(self):
         """Changing the CNTR axis via variations= produces different glyphs."""
         low = manimpango.render(
-            "Test", font=self.FONT_NAME, variations={"wght": 900, "CNTR": 0},
+            "Test",
+            font=self.FONT_NAME,
+            variations={"wght": 900, "CNTR": 0},
         )
         high = manimpango.render(
-            "Test", font=self.FONT_NAME, variations={"wght": 900, "CNTR": 100},
+            "Test",
+            font=self.FONT_NAME,
+            variations={"wght": 900, "CNTR": 100},
         )
         assert_valid_result(low)
         assert_valid_result(high)
@@ -349,6 +363,7 @@ class TestVariableFonts:
 
 
 # ── RenderedText object ──────────────────────────────────────────────────
+
 
 class TestRenderedText:
     def test_svg_property(self):
@@ -421,6 +436,7 @@ class TestRenderedText:
 
 
 # ── validate_markup ──────────────────────────────────────────────────────
+
 
 class TestValidateMarkup:
     def test_valid_simple(self):

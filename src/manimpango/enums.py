@@ -89,7 +89,7 @@ class Weight(int, Enum):
     ULTRAHEAVY = 1000
 
     @classmethod
-    def _missing_(cls, value: object) -> "Weight | None":
+    def _missing_(cls, value: object) -> Weight | None:
         if isinstance(value, int) and 1 <= value <= 1000:
             obj = int.__new__(cls, value)
             obj._name_ = str(value)

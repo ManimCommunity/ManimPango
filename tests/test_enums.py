@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tests for enums module."""
 
 from manimpango.enums import Alignment, Style, Weight
