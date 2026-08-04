@@ -50,5 +50,6 @@ dev = [
     "meson>=1.10.1",
     "meson-python>=0.19.0",
     "ninja>=1.13.0",
+    "pre-commit>=4.0",
     "pytest>=9.0.2",
 ]

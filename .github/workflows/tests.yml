@@ -2,12 +2,13 @@ name: Tests
 
 on:
   push:
-    branches: [main, rewrite-v2, v*]
+    branches: [main, rewrite-v2]
+    tags: ["v*"]
   pull_request:
-    branches: [main]
+    branches: [main, rewrite-v2]
 
 concurrency:
-  group: tests-${{ github.ref }}
+  group: tests-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -17,7 +18,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.11", "3.12", "3.13", "3.14"]
 
     steps:
@@ -27,6 +28,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
+
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: true
 
       - name: Install system dependencies (Linux)
         if: runner.os == 'Linux'
@@ -38,58 +43,22 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install pango
 
-      - name: Install package and test dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install .
-          python -m pip install --group dev
-
-      - name: Run tests
-        run: python -m pytest
-
-  test-windows:
-    name: Windows / Python ${{ matrix.python-version }}
-    runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          allow-prereleases: true
-
       - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
 
-      - name: Download Pango binaries
+      - name: Download Pango binaries (Windows)
+        if: runner.os == 'Windows'
         run: python packing/download_dlls.py
 
-      - name: Configure environment
-        shell: pwsh
+      - name: Configure Pango paths (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
         run: |
-          "C:\cibw\vendor\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
-          "PKG_CONFIG_PATH=C:\cibw\vendor\lib\pkgconfig" | Out-File -FilePath $env:GITHUB_ENV -Append
+          printf '%s\n' 'C:\cibw\vendor\bin' >> "$GITHUB_PATH"
+          printf '%s\n' 'PKG_CONFIG_PATH=C:\cibw\vendor\lib\pkgconfig' >> "$GITHUB_ENV"
 
-      - name: Install package and test dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install .
-          python -m pip install --group dev
+      - name: Sync the locked development environment
+        run: uv sync --locked --group dev
 
       - name: Run tests
-        run: python -m pytest
-
-  success:
-    name: Tests passed
-    if: always()
-    needs: [test, test-windows]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Decide whether all tests passed
-        uses: re-actors/alls-green@release/v1
-        with:
-          jobs: ${{ toJSON(needs) }}
+        run: uv run pytest

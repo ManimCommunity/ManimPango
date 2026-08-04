@@ -2,7 +2,10 @@ name: Build Wheels
 
 on:
   push:
-    branches: [main, rewrite-v2, v*]
+    branches: [main, rewrite-v2]
+    tags: ["v*"]
+  pull_request:
+    branches: [main, rewrite-v2]
   release:
     types: [created]
 
@@ -40,14 +43,15 @@ jobs:
         if: runner.os == 'Windows'
         run: python packing/download_dlls.py
 
-      - name: Add vendor binaries to PATH (Windows)
+      - name: Configure vendor paths (Windows)
         if: runner.os == 'Windows'
-        shell: pwsh
+        shell: bash
         run: |
-          "C:\cibw\vendor\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+          printf '%s\n' 'C:\cibw\vendor\bin' >> "$GITHUB_PATH"
+          printf '%s\n' 'PKG_CONFIG_PATH=C:\cibw\vendor\lib\pkgconfig' >> "$GITHUB_ENV"
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.22
+        uses: pypa/cibuildwheel@v3.4.1
         env:
           CIBW_BUILD: >-
             cp311-${{ matrix.platform_id }}
@@ -55,12 +59,11 @@ jobs:
             cp313-${{ matrix.platform_id }}
             cp314-${{ matrix.platform_id }}
           CIBW_BEFORE_BUILD_MACOS: "python {project}/packing/download_pango_macos.py ${{ matrix.architecture }}"
-          CIBW_ENVIRONMENT_WINDOWS: "PKG_CONFIG_PATH='C:\\cibw\\vendor\\lib\\pkgconfig'"
           CIBW_ENVIRONMENT_MACOS: >-
             PKG_CONFIG_PATH='/Users/runner/pangobuild/lib/pkgconfig'
             MACOSX_DEPLOYMENT_TARGET='11.0'
           CIBW_TEST_REQUIRES: pytest
-          CIBW_TEST_COMMAND: "bash {project}/packing/test_wheels.sh {project}"
+          CIBW_TEST_COMMAND: "python {project}/packing/test_wheels.py"
 
       - uses: actions/upload-artifact@v4
         with:
