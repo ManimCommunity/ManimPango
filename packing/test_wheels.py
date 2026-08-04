@@ -1,4 +1,4 @@
-"""Smoke-test a repaired ManimPango wheel outside the build environment."""
+"""Smoke-test a self-contained ManimPango wheel outside the build environment."""
 
 from __future__ import annotations
 
@@ -44,16 +44,6 @@ def _is_within(path: Path, directory: Path) -> bool:
     return True
 
 
-def _bundled_libraries(installed_distribution: Distribution) -> list[Path]:
-    """List bundled dynamic libraries carried by the installed wheel."""
-    files = installed_distribution.files or ()
-    return [
-        installed_distribution.locate_file(file)
-        for file in files
-        if file.suffix.lower() in {".dll", ".dylib"}
-    ]
-
-
 def _native_binaries(installed_distribution: Distribution) -> list[Path]:
     """List native extension and library files carried by the wheel."""
     files = installed_distribution.files or ()
@@ -64,8 +54,8 @@ def _native_binaries(installed_distribution: Distribution) -> list[Path]:
     ]
 
 
-def _verify_macos_dependencies(binaries: list[Path]) -> None:
-    """Reject macOS extensions still linked to the build-time Pango prefix."""
+def _verify_macos_linkage(binaries: list[Path]) -> None:
+    """Reject macOS extensions that retain build-time Pango loader paths."""
     for binary in binaries:
         dependencies = subprocess.run(
             ["otool", "-L", str(binary)],
@@ -77,9 +67,20 @@ def _verify_macos_dependencies(binaries: list[Path]) -> None:
             raise RuntimeError(
                 f"installed wheel still links {binary.name} to {MACOS_VENDOR_ROOT}"
             )
+        loader_paths = subprocess.run(
+            ["otool", "-l", str(binary)],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout
+        if MACOS_VENDOR_ROOT in loader_paths:
+            raise RuntimeError(
+                f"installed wheel retains {MACOS_VENDOR_ROOT} in {binary.name}'s "
+                "loader paths"
+            )
 
 
-def _import_installed_wheel() -> tuple[object, list[Path]]:
+def _import_installed_wheel() -> object:
     """Import the wheel only after its build-time loader paths were removed."""
     _sanitize_library_search_path()
 
@@ -90,16 +91,16 @@ def _import_installed_wheel() -> tuple[object, list[Path]]:
         raise RuntimeError("wheel smoke test imported ManimPango from the source tree")
 
     installed_distribution = distribution("ManimPango")
-    libraries = _bundled_libraries(installed_distribution)
-    if not libraries:
-        raise RuntimeError("installed wheel does not contain bundled native libraries")
+    binaries = _native_binaries(installed_distribution)
+    if not binaries:
+        raise RuntimeError("installed wheel does not contain native extensions")
     if sys.platform == "darwin":
-        _verify_macos_dependencies(_native_binaries(installed_distribution))
-    return manimpango, libraries
+        _verify_macos_linkage(binaries)
+    return manimpango
 
 
 def main() -> None:
-    manimpango, _ = _import_installed_wheel()
+    manimpango = _import_installed_wheel()
     fallback = manimpango.render(
         "Wheel custom-font smoke test", font="Sans", disable_ligatures=True
     )
