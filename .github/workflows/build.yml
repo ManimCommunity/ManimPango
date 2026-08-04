@@ -60,7 +60,8 @@ jobs:
           CIBW_ENVIRONMENT_MACOS: >-
             PKG_CONFIG_PATH='/Users/runner/pangobuild/lib/pkgconfig'
             MACOSX_DEPLOYMENT_TARGET='11.0'
-          CIBW_TEST_REQUIRES: pytest
+          # This smoke test clears build-time vendor paths before importing the
+          # wheel, so a passing test proves the repaired wheel is self-contained.
           CIBW_TEST_COMMAND: "python {project}/packing/test_wheels.py"
 
       - name: Verify wheel notices
