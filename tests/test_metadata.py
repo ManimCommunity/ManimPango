@@ -79,6 +79,40 @@ def test_line_ranges_exclude_newline_separators():
     ]
 
 
+@pytest.mark.parametrize(
+    "separator",
+    ("\n", "\r\n", "\r", "\u2028", "\u2029"),
+    ids=("lf", "crlf", "cr", "line-separator", "paragraph-separator"),
+)
+def test_line_ranges_exclude_all_pango_line_separators(separator):
+    text = f"first{separator}second"
+
+    result = manimpango.render(text)
+
+    assert [(line.text, line.start, line.end) for line in result.lines] == [
+        ("first", 0, 5),
+        ("second", 5 + len(separator), len(text)),
+    ]
+
+
+def test_top_level_and_whole_span_sizes_use_the_same_svg_units():
+    text = "Hg"
+    top_level = manimpango.render(text, size=18.0)
+    span = manimpango.render(
+        text,
+        size=36.0,
+        spans=(manimpango.TextSpan(start=0, end=len(text), size=18.0),),
+    )
+
+    assert top_level.width == pytest.approx(span.width)
+    assert top_level.height == pytest.approx(span.height)
+    assert top_level.baseline == pytest.approx(span.baseline)
+    assert top_level.logical_bounds.width == pytest.approx(span.logical_bounds.width)
+    assert top_level.logical_bounds.height == pytest.approx(span.logical_bounds.height)
+    assert top_level.lines[0].bounds == span.lines[0].bounds
+    assert top_level.lines[0].baseline == pytest.approx(span.lines[0].baseline)
+
+
 def test_markup_line_offsets_are_in_parsed_rendered_text():
     result = manimpango.render_markup("<b>é</b>\n<span foreground='red'>漢</span>")
 

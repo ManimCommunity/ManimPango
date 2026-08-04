@@ -249,7 +249,11 @@ cdef PangoFontDescription* _build_font_description(
     if desc == NULL:
         raise MemoryError("Failed to create PangoFontDescription")
 
-    pango_font_description_set_size(desc, pango_units_from_double(size))
+    # Public sizes are SVG user-space units, as are span sizes. The
+    # non-absolute Pango setter treats its value as points at the context DPI.
+    pango_font_description_set_absolute_size(
+        desc, pango_units_from_double(size)
+    )
 
     if font is not None and len(font) > 0:
         font_bytes = font.encode('utf-8')
@@ -452,31 +456,33 @@ cdef void _set_layout_text_and_attributes(
     else:
         pango_layout_set_text(layout, <const char*>source, -1)
 
-    if disable_ligatures or spans:
-        if attrs == NULL:
-            attrs = pango_attr_list_new()
+    try:
+        if disable_ligatures or spans:
             if attrs == NULL:
-                raise MemoryError("Failed to create Pango attribute list")
+                attrs = pango_attr_list_new()
+                if attrs == NULL:
+                    raise MemoryError("Failed to create Pango attribute list")
 
-    if spans:
-        _add_span_attributes(attrs, spans, len(source))
+        if spans:
+            _add_span_attributes(attrs, spans, len(source))
 
-    if disable_ligatures:
-        # Insert this after parsed markup and structured spans.  Pango's
-        # insertion semantics replace overlapping attributes of the same
-        # type, so this global setting deliberately takes precedence over a
-        # local ``font_features`` attribute.
-        features = pango_attr_font_features_new(
-            b"liga=0,dlig=0,clig=0,hlig=0,calt=0"
-        )
-        if features == NULL:
+        if disable_ligatures:
+            # Insert this after parsed markup and structured spans.  Pango's
+            # insertion semantics replace overlapping attributes of the same
+            # type, so this global setting deliberately takes precedence over a
+            # local ``font_features`` attribute.
+            features = pango_attr_font_features_new(
+                b"liga=0,dlig=0,clig=0,hlig=0,calt=0"
+            )
+            if features == NULL:
+                raise MemoryError("Failed to create Pango ligature attribute")
+            pango_attr_list_insert(attrs, features)
+
+        if attrs != NULL:
+            pango_layout_set_attributes(layout, attrs)
+    finally:
+        if attrs != NULL:
             pango_attr_list_unref(attrs)
-            raise MemoryError("Failed to create Pango ligature attribute")
-        pango_attr_list_insert(attrs, features)
-
-    if attrs != NULL:
-        pango_layout_set_attributes(layout, attrs)
-        pango_attr_list_unref(attrs)
 
 
 cpdef object _render_to_svg(
@@ -513,9 +519,9 @@ cpdef object _render_to_svg(
     cdef int layout_logical_width, layout_logical_height
     cdef bytes text_bytes
     cdef bytearray svg_bytes = bytearray()
-    cdef bytes rendered_text_bytes
+    cdef bytes rendered_text_bytes, line_bytes
     cdef str rendered_text
-    cdef int next_start_index, end_index
+    cdef int next_start_index, end_index, terminator_length
     cdef double baseline_svg
 
     cdef list lines
@@ -658,10 +664,21 @@ cpdef object _render_to_svg(
             else:
                 next_start_index = len(rendered_text_bytes)
             end_index = next_start_index
-            line_text = rendered_text_bytes[line.start_index:end_index].decode("utf-8")
-            if line_text.endswith("\n"):
-                line_text = line_text[:-1]
-                end_index -= 1
+            line_bytes = rendered_text_bytes[line.start_index:end_index]
+            # Pango line breaks include CR, LF, CRLF, and Unicode line and
+            # paragraph separators. Metadata ranges refer to the line text,
+            # so exclude exactly the separator Pango consumed.
+            terminator_length = 0
+            if line_bytes.endswith(b"\r\n"):
+                terminator_length = 2
+            elif line_bytes.endswith(b"\n") or line_bytes.endswith(b"\r"):
+                terminator_length = 1
+            elif line_bytes.endswith(b"\xe2\x80\xa8") or line_bytes.endswith(b"\xe2\x80\xa9"):
+                terminator_length = 3
+            if terminator_length:
+                end_index -= terminator_length
+                line_bytes = line_bytes[:-terminator_length]
+            line_text = line_bytes.decode("utf-8")
             lines.append(LineInfo(
                 text=line_text,
                 start=len(rendered_text_bytes[:line.start_index].decode("utf-8")),

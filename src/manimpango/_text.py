@@ -31,13 +31,14 @@ class LineInfo:
     For :func:`manimpango.render`, ``start`` and ``end`` are half-open Python
     code-point offsets into the input text.  For
     :func:`manimpango.render_markup`, they index Pango's parsed text rather
-    than the markup source.  Newline separators are excluded from every line
+    than the markup source. Pango line separators are excluded from every line
     range.
 
     Attributes
     ----------
     text
-        Parsed text rendered on this line, without a trailing newline.
+        Parsed text rendered on this line, without a trailing Pango line
+        separator.
     start, end
         Half-open Python code-point offsets for ``text`` in the appropriate
         rendered-text source.

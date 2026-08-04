@@ -134,7 +134,7 @@ cdef extern from "pango/pango.h":
     PangoFontDescription* pango_font_description_new()
     void pango_font_description_free(PangoFontDescription* desc)
     void pango_font_description_set_family(PangoFontDescription* desc, const char* family)
-    void pango_font_description_set_size(PangoFontDescription* desc, gint size)
+    void pango_font_description_set_absolute_size(PangoFontDescription* desc, double size)
     void pango_font_description_set_style(PangoFontDescription* desc, PangoStyle style)
     void pango_font_description_set_weight(PangoFontDescription* desc, PangoWeight weight)
     void pango_font_description_set_variations(PangoFontDescription* desc, const char* variations)
