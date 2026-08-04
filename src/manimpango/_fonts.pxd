@@ -19,7 +19,7 @@ cdef extern from "pango/pangocairo.h":
 cdef extern from "font_backend.h":
     int manimpango_register_font(const char* utf8_path, char** error)
     int manimpango_unregister_font(const char* utf8_path, char** error)
-    void* manimpango_build_font_map(const char* const* utf8_paths, size_t count, char** error)
+    PangoFontMap* manimpango_build_font_map(const char* const* utf8_paths, size_t count, char** error)
 
 cdef PangoFontMap* acquire_font_map() except NULL
 

@@ -226,7 +226,7 @@ manimpango_unregister_font(const char *utf8_path, char **error)
 #endif
 }
 
-void *
+PangoFontMap *
 manimpango_build_font_map(const char *const *utf8_paths, size_t count, char **error)
 {
     PangoFontMap *new_map;

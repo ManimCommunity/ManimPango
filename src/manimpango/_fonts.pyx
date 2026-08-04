@@ -53,9 +53,7 @@ cdef void _rebuild_managed_font_map() except *:
                 raise MemoryError("could not allocate managed font-map paths")
             for i in range(count):
                 paths[i] = <const char*>path_bytes[i]
-        new_fontmap = <PangoFontMap*>manimpango_build_font_map(
-            paths, <size_t>count, &error
-        )
+        new_fontmap = manimpango_build_font_map(paths, <size_t>count, &error)
         if new_fontmap == NULL:
             _raise_backend_error(error)
         old_fontmap = _managed_fontmap
@@ -75,7 +73,7 @@ cdef PangoFontMap* acquire_font_map() except NULL:
 
     with _backend_lock:
         if _managed_fontmap == NULL:
-            fontmap = <PangoFontMap*>manimpango_build_font_map(NULL, 0, &error)
+            fontmap = manimpango_build_font_map(NULL, 0, &error)
             if fontmap == NULL:
                 _raise_backend_error(error)
             _managed_fontmap = fontmap
