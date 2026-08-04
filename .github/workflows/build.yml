@@ -66,7 +66,7 @@ jobs:
       - name: Verify wheel notices
         run: python packing/check_artifacts.py wheelhouse
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: wheels-${{ matrix.os }}-${{ matrix.platform_id }}
           path: ./wheelhouse/*.whl
@@ -99,7 +99,7 @@ jobs:
           cd "$(mktemp -d)"
           python -c 'import manimpango; result = manimpango.render("sdist smoke test"); assert result.svg and result.width > 0 and result.height > 0'
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: sdist
           path: dist/*.tar.gz
@@ -116,7 +116,7 @@ jobs:
       id-token: write
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: artifacts/
 
