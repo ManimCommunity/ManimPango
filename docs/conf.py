@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from importlib.metadata import version as get_version
+from importlib.metadata import version as distribution_version
 from pathlib import Path
 
 # -- Project information -----------------------------------------------------
@@ -14,7 +14,7 @@ project = "ManimPango"
 copyright = "2021–2026, The Manim Community Dev Team"
 author = "The Manim Community Dev Team"
 
-release = get_version("ManimPango")
+release = distribution_version("ManimPango")
 version = ".".join(release.split(".")[:2])
 
 
