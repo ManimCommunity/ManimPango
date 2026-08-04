@@ -50,7 +50,7 @@ cdef extern from "cairo.h":
         void* closure,
         const unsigned char* data,
         unsigned int length,
-    )
+    ) noexcept
 
     cairo_t* cairo_create(cairo_surface_t* target)
     void cairo_move_to(cairo_t* cr, double x, double y)

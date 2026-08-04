@@ -6,8 +6,6 @@
 from __future__ import annotations
 
 import cython
-import tempfile
-import os
 import threading
 
 from cpython.mem cimport PyMem_Free, PyMem_Malloc
@@ -22,6 +20,17 @@ cdef str _pango_version_cached = None
 cdef PangoFontMap* _managed_fontmap = NULL
 cdef object _managed_font_paths = None
 _fontmap_lock = threading.RLock()
+
+
+cdef cairo_status_t _write_svg_bytes(
+    void* closure, const unsigned char* data, unsigned int length,
+) noexcept:
+    """Append Cairo's synchronous SVG stream chunks to a Python bytearray."""
+    try:
+        (<bytearray><object>closure).extend(data[:length])
+        return CAIRO_STATUS_SUCCESS
+    except Exception:
+        return CAIRO_STATUS_NO_MEMORY
 
 
 cdef str _get_pango_version():
@@ -453,7 +462,7 @@ cpdef object _render_to_svg(
     cdef int viewport_left, viewport_top, viewport_right, viewport_bottom
     cdef int viewport_width, viewport_height
     cdef bytes text_bytes
-    cdef bytes tmp_path_bytes
+    cdef bytearray svg_bytes = bytearray()
     cdef bytes rendered_text_bytes
     cdef str rendered_text
     cdef int next_start_index, end_index
@@ -527,116 +536,107 @@ cpdef object _render_to_svg(
             surface = NULL
 
     # === Render pass ===
-    with tempfile.NamedTemporaryFile(suffix='.svg', delete=False) as tmp:
-        tmp_path = tmp.name
+    surface = cairo_svg_surface_create_for_stream(
+        _write_svg_bytes, <void*>svg_bytes, surface_width, surface_height
+    )
+
+    if surface == NULL:
+        raise MemoryError("Failed to create SVG surface")
+
+    status = cairo_surface_status(surface)
+    if status != CAIRO_STATUS_SUCCESS:
+        cairo_surface_destroy(surface)
+        raise RuntimeError(f"Cairo error: {cairo_status_to_string(status).decode()}")
+
+    cr = cairo_create(surface)
+    if cr == NULL:
+        cairo_surface_destroy(surface)
+        raise MemoryError("Failed to create Cairo context")
 
     try:
-        tmp_path_bytes = tmp_path.encode('utf-8')
-        surface = cairo_svg_surface_create(<const char*>tmp_path_bytes, surface_width, surface_height)
+        layout = _create_managed_layout(cr)
+        if layout == NULL:
+            raise MemoryError("Failed to create Pango layout")
 
-        if surface == NULL:
-            raise MemoryError("Failed to create SVG surface")
+        font_desc = _build_font_description(font, size, weight, style, variations)
+        pango_layout_set_font_description(layout, font_desc)
+        pango_font_description_free(font_desc)
+        font_desc = NULL
 
+        _set_layout_options(layout, width, alignment, line_spacing, justify, indent)
+
+        _set_layout_text_and_attributes(
+            layout, text_bytes, is_markup, disable_ligatures, spans
+        )
+
+        cairo_move_to(
+            cr,
+            -pango_units_to_double(viewport_left),
+            -pango_units_to_double(viewport_top),
+        )
+        pango_cairo_update_layout(cr, layout)
+        pango_cairo_show_layout(cr, layout)
+
+        final_width, final_height, final_baseline = _measure_layout(layout)
+        line_count = pango_layout_get_line_count(layout)
+        rendered_text_bytes = <bytes>pango_layout_get_text(layout)
+        rendered_text = rendered_text_bytes.decode("utf-8")
+        baseline_svg = (
+            pango_units_to_double(final_baseline)
+            - pango_units_to_double(viewport_top)
+        )
+
+        lines = []
+        layout_iter = pango_layout_get_iter(layout)
+        if layout_iter == NULL:
+            raise MemoryError("Failed to create Pango layout iterator")
+        for i in range(line_count):
+            line = pango_layout_iter_get_line_readonly(layout_iter)
+            if line == NULL:
+                continue
+            pango_layout_iter_get_line_extents(layout_iter, &ink_rect, &logical_rect)
+            if i + 1 < line_count:
+                next_start_index = pango_layout_get_line(layout, i + 1).start_index
+            else:
+                next_start_index = len(rendered_text_bytes)
+            end_index = next_start_index
+            line_text = rendered_text_bytes[line.start_index:end_index].decode("utf-8")
+            if line_text.endswith("\n"):
+                line_text = line_text[:-1]
+                end_index -= 1
+            lines.append(LineInfo(
+                text=line_text,
+                start=len(rendered_text_bytes[:line.start_index].decode("utf-8")),
+                end=len(rendered_text_bytes[:end_index].decode("utf-8")),
+                bounds=Bounds(
+                    pango_units_to_double(logical_rect.x - viewport_left),
+                    pango_units_to_double(logical_rect.y - viewport_top),
+                    pango_units_to_double(logical_rect.width),
+                    pango_units_to_double(logical_rect.height),
+                ),
+                baseline=(
+                    pango_units_to_double(pango_layout_iter_get_baseline(layout_iter))
+                    - pango_units_to_double(viewport_top)
+                ),
+            ))
+            if i + 1 < line_count:
+                pango_layout_iter_next_line(layout_iter)
+
+        cairo_surface_finish(surface)
         status = cairo_surface_status(surface)
         if status != CAIRO_STATUS_SUCCESS:
-            cairo_surface_destroy(surface)
             raise RuntimeError(f"Cairo error: {cairo_status_to_string(status).decode()}")
-
-        cr = cairo_create(surface)
-        if cr == NULL:
-            cairo_surface_destroy(surface)
-            raise MemoryError("Failed to create Cairo context")
-
-        try:
-            layout = _create_managed_layout(cr)
-            if layout == NULL:
-                raise MemoryError("Failed to create Pango layout")
-
-            font_desc = _build_font_description(font, size, weight, style, variations)
-            pango_layout_set_font_description(layout, font_desc)
-            pango_font_description_free(font_desc)
-            font_desc = NULL
-
-            _set_layout_options(layout, width, alignment, line_spacing, justify, indent)
-
-            _set_layout_text_and_attributes(
-                layout, text_bytes, is_markup, disable_ligatures, spans
-            )
-
-            cairo_move_to(
-                cr,
-                -pango_units_to_double(viewport_left),
-                -pango_units_to_double(viewport_top),
-            )
-            pango_cairo_update_layout(cr, layout)
-            pango_cairo_show_layout(cr, layout)
-
-            final_width, final_height, final_baseline = _measure_layout(layout)
-            line_count = pango_layout_get_line_count(layout)
-            rendered_text_bytes = <bytes>pango_layout_get_text(layout)
-            rendered_text = rendered_text_bytes.decode("utf-8")
-            baseline_svg = (
-                pango_units_to_double(final_baseline)
-                - pango_units_to_double(viewport_top)
-            )
-
-            lines = []
-            layout_iter = pango_layout_get_iter(layout)
-            if layout_iter == NULL:
-                raise MemoryError("Failed to create Pango layout iterator")
-            for i in range(line_count):
-                line = pango_layout_iter_get_line_readonly(layout_iter)
-                if line == NULL:
-                    continue
-                pango_layout_iter_get_line_extents(
-                    layout_iter, &ink_rect, &logical_rect
-                )
-                if i + 1 < line_count:
-                    next_start_index = pango_layout_get_line(layout, i + 1).start_index
-                else:
-                    next_start_index = len(rendered_text_bytes)
-                end_index = next_start_index
-                line_text = rendered_text_bytes[line.start_index:end_index].decode("utf-8")
-                if line_text.endswith("\n"):
-                    line_text = line_text[:-1]
-                    end_index -= 1
-                lines.append(LineInfo(
-                    text=line_text,
-                    start=len(rendered_text_bytes[:line.start_index].decode("utf-8")),
-                    end=len(rendered_text_bytes[:end_index].decode("utf-8")),
-                    bounds=Bounds(
-                        pango_units_to_double(logical_rect.x - viewport_left),
-                        pango_units_to_double(logical_rect.y - viewport_top),
-                        pango_units_to_double(logical_rect.width),
-                        pango_units_to_double(logical_rect.height),
-                    ),
-                    baseline=(
-                        pango_units_to_double(
-                            pango_layout_iter_get_baseline(layout_iter)
-                        )
-                        - pango_units_to_double(viewport_top)
-                    ),
-                ))
-                if i + 1 < line_count:
-                    pango_layout_iter_next_line(layout_iter)
-
-        finally:
-            if layout_iter != NULL:
-                pango_layout_iter_free(layout_iter)
-                layout_iter = NULL
-            if layout != NULL:
-                g_object_unref(layout)
-            if cr != NULL:
-                cairo_destroy(cr)
-            if surface != NULL:
-                cairo_surface_destroy(surface)
-
-        with open(tmp_path, 'r', encoding='utf-8') as f:
-            svg_content = f.read()
-
+        svg_content = bytes(svg_bytes).decode("utf-8")
     finally:
-        if os.path.exists(tmp_path):
-            os.unlink(tmp_path)
+        if layout_iter != NULL:
+            pango_layout_iter_free(layout_iter)
+            layout_iter = NULL
+        if layout != NULL:
+            g_object_unref(layout)
+        if cr != NULL:
+            cairo_destroy(cr)
+        if surface != NULL:
+            cairo_surface_destroy(surface)
 
     return RenderedText(
         svg=svg_content,
