@@ -7,6 +7,13 @@ build:
 
   apt_packages:
     - libpango1.0-dev
+    - libcairo2-dev
+    - pkg-config
+
+  jobs:
+    install:
+      - UV_PROJECT_ENVIRONMENT="$READTHEDOCS_VIRTUALENV_PATH" uv sync --locked --only-group docs --no-install-project
+      - uv pip install --python "$READTHEDOCS_VIRTUALENV_PATH/bin/python" --no-build-isolation --editable .
 
 python:
   install:
