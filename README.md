@@ -23,6 +23,10 @@ Installing **ManimPango** is super easy, just use `pip`. It is [`manimpango`](ht
 pip install manimpango
 ```
 
+While the `1.0.0a3` prerelease is being tested, testers can install that
+specific version with `pip install ManimPango==1.0.0a3`. This is a temporary
+prerelease note; use the unpinned command above for stable releases.
+
 For **Linux Users**, there are no Wheels. You must have a C compiler as well as **Pango** and its dependencies along with the **Pango** development headers. See [BUILDING](#BUILDING) for more information.
 
 The [quick start](https://manimpango.manim.community/quickstart.html)

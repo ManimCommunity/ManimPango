@@ -10,6 +10,8 @@ Architecture and breaking changes
 ManimPango 1.0 is a hard break from the 0.6.x API: callers should migrate
 rather than expect a compatibility layer.  This section summarizes the design
 surface for review; the :doc:`reference` is the authoritative API contract.
+The redesigned implementation was first made available for testing in
+``1.0.0a3``.
 
 The public API separates user-facing validation and immutable result models
 from the native Pango and Cairo implementation.  Rendering follows one layout

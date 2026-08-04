@@ -8,17 +8,19 @@ Install ManimPango from PyPI::
 
     pip install manimpango
 
-ManimPango requires Pango 1.44 or newer and Cairo.  On most Linux
-distributions these are available through the package manager.  On macOS,
-install them with `Homebrew <https://brew.sh/>`_::
-
-    brew install pango cairo
-
-The Windows and macOS wheels bundle their native dependencies. Source builds
-on Windows need Pango 1.56 or newer to register private font files at runtime.
+The Windows and macOS wheels bundle their native dependencies, so installing
+them from PyPI does not require Pango or Cairo to be installed separately.
 Linux has no binary wheels at present, so installation there builds from
 source and requires a C compiler, ``pkg-config``, and the Pango development
 headers.
+
+To build from source on macOS, install Pango and Cairo first, for example with
+`Homebrew <https://brew.sh/>`_::
+
+    brew install pango cairo
+
+Source builds on Windows need Pango 1.56 or newer to register private font
+files at runtime.
 
 Rendering Plain Text
 --------------------
@@ -66,13 +68,13 @@ the relationships and SVG user-space units do not.
 .. code-block:: pycon
 
     >>> result
-    RenderedText(width=173.0, height=32.0, baseline=24.0, line_count=1)
+    RenderedText(width=130.0, height=24.0, baseline=18.0, line_count=1)
     >>> round(result.width, 1), round(result.height, 1), round(result.baseline, 1)
-    (173.0, 32.0, 24.0)
+    (130.0, 24.0, 18.0)
     >>> result.ink_bounds
-    Bounds(x=0.515625, y=2.0625, width=169.109375, height=26.5)
+    Bounds(x=0.38671875, y=1.546875, width=127.33203125, height=19.875)
     >>> result.logical_bounds
-    Bounds(x=0.0, y=0.0, width=173.0, height=32.0)
+    Bounds(x=0.0, y=0.0, width=130.0, height=24.0)
 
 ``width`` and ``height`` are the rendered SVG viewport dimensions, and
 ``baseline`` is the first line's baseline position.  ``ink_bounds`` is tight
