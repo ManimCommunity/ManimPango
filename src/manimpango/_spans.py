@@ -10,6 +10,9 @@ from types import MappingProxyType
 
 from .enums import Style, Weight
 
+_SCALAR_ATTRIBUTES = ("font", "size", "weight", "style", "foreground")
+_MAPPING_ATTRIBUTES = ("features", "variations")
+
 
 @dataclass(frozen=True, slots=True)
 class TextSpan:
@@ -175,12 +178,8 @@ def normalize_spans(
         return ()
 
     byte_offsets = _utf8_byte_offsets(text)
-    boundaries = sorted(
-        {boundary for span in validated for boundary in (span.start, span.end)}
-    )
     normalized: list[dict[str, object]] = []
-    for start, end in zip(boundaries, boundaries[1:]):
-        attributes = _effective_attributes(validated, start, end)
+    for start, end, attributes in _sweep_effective_runs(validated):
         if not attributes:
             continue
         run = {"start": byte_offsets[start], "end": byte_offsets[end], **attributes}
@@ -205,55 +204,138 @@ def _utf8_byte_offsets(text: str) -> tuple[int, ...]:
     return tuple(offsets)
 
 
-def _effective_attributes(
-    spans: tuple[TextSpan, ...], start: int, end: int
-) -> dict[str, object]:
-    active = [span for span in spans if span.start <= start and span.end >= end]
-    attributes: dict[str, object] = {}
-    for name in ("font", "size", "weight", "style", "foreground"):
-        values = [
-            getattr(span, name) for span in active if getattr(span, name) is not None
-        ]
-        if values:
-            attributes[name] = values[0]
-    for name in ("features", "variations"):
-        values: dict[str, object] = {}
-        for span in active:
-            mapping = getattr(span, name)
-            if mapping:
-                values.update(mapping)
-        if values:
-            attributes[name] = dict(sorted(values.items()))
-    return attributes
-
-
 def _run_attributes(run: Mapping[str, object]) -> dict[str, object]:
     return {key: value for key, value in run.items() if key not in {"start", "end"}}
 
 
 def _validate_overlap_conflicts(spans: tuple[TextSpan, ...]) -> None:
-    """Reject ambiguous overlapping values without imposing span order."""
-    scalar_attributes = ("font", "size", "weight", "style", "foreground")
-    for index, left in enumerate(spans):
-        for right in spans[index + 1 :]:
-            if max(left.start, right.start) >= min(left.end, right.end):
-                continue
-            for attribute in scalar_attributes:
-                left_value = getattr(left, attribute)
-                right_value = getattr(right, attribute)
-                if (
-                    left_value is not None
-                    and right_value is not None
-                    and left_value != right_value
-                ):
-                    raise ValueError(
-                        f"conflicting overlapping TextSpan {attribute} values"
+    """Reject ambiguous overlaps using the same half-open event sweep as rendering."""
+    _sweep_span_events(spans, build_runs=False)
+
+
+def _sweep_effective_runs(
+    spans: tuple[TextSpan, ...],
+) -> tuple[tuple[int, int, dict[str, object]], ...]:
+    """Return effective code-point runs while validating overlap conflicts."""
+    return _sweep_span_events(spans, build_runs=True)
+
+
+def _sweep_span_events(
+    spans: tuple[TextSpan, ...], *, build_runs: bool
+) -> tuple[tuple[int, int, dict[str, object]], ...]:
+    """Validate a half-open event sweep and optionally collect effective runs.
+
+    Spans ending at a boundary are removed before spans starting there are
+    applied, as required by their half-open ranges.  Active values are stored
+    as reference-counted multisets, so checking a newly active value detects a
+    conflict without comparing it to every span.
+    """
+    events: dict[int, tuple[list[TextSpan], list[TextSpan]]] = {}
+    for span in spans:
+        # Empty ranges neither style text nor overlap another half-open range.
+        if span.start == span.end:
+            continue
+        starts, _ends = events.setdefault(span.start, ([], []))
+        _starts, ends = events.setdefault(span.end, ([], []))
+        starts.append(span)
+        ends.append(span)
+
+    active_scalars: dict[str, dict[object, int]] = {
+        name: {} for name in _SCALAR_ATTRIBUTES
+    }
+    active_mappings: dict[str, dict[str, dict[object, int]]] = {
+        name: {} for name in _MAPPING_ATTRIBUTES
+    }
+    boundaries = sorted(events)
+    runs: list[tuple[int, int, dict[str, object]]] = []
+    for index, boundary in enumerate(boundaries):
+        starts, ends = events[boundary]
+        for span in ends:
+            _remove_span_values(span, active_scalars, active_mappings)
+        for span in starts:
+            _add_span_values(span, active_scalars, active_mappings)
+
+        if index + 1 < len(boundaries):
+            end = boundaries[index + 1]
+            if build_runs:
+                runs.append(
+                    (
+                        boundary,
+                        end,
+                        _active_attributes(active_scalars, active_mappings),
                     )
-            for attribute in ("features", "variations"):
-                left_values = getattr(left, attribute) or {}
-                right_values = getattr(right, attribute) or {}
-                for tag in left_values.keys() & right_values.keys():
-                    if left_values[tag] != right_values[tag]:
-                        raise ValueError(
-                            f"conflicting overlapping TextSpan {attribute} value for {tag!r}"
-                        )
+                )
+    return tuple(runs)
+
+
+def _add_span_values(
+    span: TextSpan,
+    active_scalars: dict[str, dict[object, int]],
+    active_mappings: dict[str, dict[str, dict[object, int]]],
+) -> None:
+    for attribute, values in active_scalars.items():
+        value = getattr(span, attribute)
+        if value is not None:
+            _add_value(
+                values, value, f"conflicting overlapping TextSpan {attribute} values"
+            )
+    for attribute, tags in active_mappings.items():
+        mapping = getattr(span, attribute)
+        if mapping:
+            for tag, value in mapping.items():
+                values = tags.setdefault(tag, {})
+                _add_value(
+                    values,
+                    value,
+                    f"conflicting overlapping TextSpan {attribute} value for {tag!r}",
+                )
+
+
+def _remove_span_values(
+    span: TextSpan,
+    active_scalars: dict[str, dict[object, int]],
+    active_mappings: dict[str, dict[str, dict[object, int]]],
+) -> None:
+    for attribute, values in active_scalars.items():
+        value = getattr(span, attribute)
+        if value is not None:
+            _remove_value(values, value)
+    for attribute, tags in active_mappings.items():
+        mapping = getattr(span, attribute)
+        if mapping:
+            for tag, value in mapping.items():
+                values = tags[tag]
+                _remove_value(values, value)
+                if not values:
+                    del tags[tag]
+
+
+def _add_value(values: dict[object, int], value: object, error: str) -> None:
+    if values and value not in values:
+        raise ValueError(error)
+    values[value] = values.get(value, 0) + 1
+
+
+def _remove_value(values: dict[object, int], value: object) -> None:
+    count = values[value] - 1
+    if count:
+        values[value] = count
+    else:
+        del values[value]
+
+
+def _active_attributes(
+    active_scalars: Mapping[str, Mapping[object, int]],
+    active_mappings: Mapping[str, Mapping[str, Mapping[object, int]]],
+) -> dict[str, object]:
+    attributes = {
+        attribute: next(iter(values))
+        for attribute, values in active_scalars.items()
+        if values
+    }
+    for attribute, tags in active_mappings.items():
+        if tags:
+            attributes[attribute] = {
+                tag: next(iter(values)) for tag, values in sorted(tags.items())
+            }
+    return attributes

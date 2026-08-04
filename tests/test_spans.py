@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 import manimpango
+from manimpango._spans import normalize_spans
 
 FONT_DIR = Path(__file__).parent / "fonts"
 
@@ -141,6 +142,95 @@ def test_conflicting_overlapping_span_values_are_rejected_without_precedence():
 
     with pytest.raises(ValueError, match="conflict|overlap"):
         manimpango.render("abc", spans=spans)
+
+
+def test_span_normalization_composes_overlaps_into_effective_byte_runs():
+    text = "AéBC"
+    spans = (
+        text_span(start=0, end=4, font="Example Sans"),
+        text_span(start=1, end=3, weight=700),
+        text_span(start=1, end=4, features={"kern": True}),
+        text_span(start=2, end=3, variations={"wght": 650.0}),
+    )
+
+    expected = (
+        {"start": 0, "end": 1, "font": "Example Sans"},
+        {
+            "start": 1,
+            "end": 3,
+            "font": "Example Sans",
+            "weight": 700,
+            "features": {"kern": True},
+        },
+        {
+            "start": 3,
+            "end": 4,
+            "font": "Example Sans",
+            "weight": 700,
+            "features": {"kern": True},
+            "variations": {"wght": 650.0},
+        },
+        {
+            "start": 4,
+            "end": 5,
+            "font": "Example Sans",
+            "features": {"kern": True},
+        },
+    )
+    assert normalize_spans(spans, text) == expected
+    assert normalize_spans(tuple(reversed(spans)), text) == expected
+
+
+@pytest.mark.parametrize(
+    "attribute,first_value,second_value",
+    [
+        ("foreground", "#ff0000", "#0000ff"),
+        ("features", {"kern": True}, {"kern": False}),
+        ("variations", {"wght": 400.0}, {"wght": 700.0}),
+    ],
+)
+def test_span_conflicts_are_independent_of_input_order(
+    attribute, first_value, second_value
+):
+    first = text_span(start=0, end=2, **{attribute: first_value})
+    second = text_span(start=1, end=3, **{attribute: second_value})
+
+    for spans in ((first, second), (second, first)):
+        with pytest.raises(ValueError, match="conflicting overlapping TextSpan"):
+            normalize_spans(spans, "abc")
+
+
+def test_span_sweep_removes_ends_before_starts_and_ignores_empty_ranges():
+    spans = (
+        text_span(start=0, end=1, foreground="#ff0000"),
+        text_span(start=1, end=2, foreground="#0000ff"),
+        text_span(start=1, end=1, foreground="#00aa00"),
+    )
+
+    assert normalize_spans(spans, "ab") == (
+        {"start": 0, "end": 1, "foreground": "#ff0000"},
+        {"start": 1, "end": 2, "foreground": "#0000ff"},
+    )
+
+
+def test_span_sweep_merges_adjacent_equivalent_runs():
+    spans = (
+        text_span(start=0, end=1, weight=700),
+        text_span(start=1, end=2, weight=700),
+    )
+
+    assert normalize_spans(spans, "ab") == ({"start": 0, "end": 2, "weight": 700},)
+
+
+@pytest.mark.parametrize("count", [500, 1_000, 2_000, 4_000])
+def test_many_adjacent_spans_normalize_to_one_run(count):
+    """A scalable correctness probe; timing belongs in ``benchmarks/``."""
+    text = "x" * count
+    spans = tuple(
+        text_span(start=index, end=index + 1, weight=700) for index in range(count)
+    )
+
+    assert normalize_spans(spans, text) == ({"start": 0, "end": count, "weight": 700},)
 
 
 def test_disjoint_span_attributes_compose():
