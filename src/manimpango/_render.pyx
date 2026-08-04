@@ -8,15 +8,20 @@ from __future__ import annotations
 import cython
 import tempfile
 import os
+import threading
 
+from cpython.mem cimport PyMem_Free, PyMem_Malloc
 from manimpango._render cimport *
-from manimpango._fonts cimport acquire_font_map
+import manimpango._fonts as _fonts_module
 from manimpango._text import Bounds, LineInfo, RenderedText
 from manimpango.enums import Style, Weight, Alignment
 
 
 # Cache for Pango version check
 cdef str _pango_version_cached = None
+cdef PangoFontMap* _managed_fontmap = NULL
+cdef object _managed_font_paths = None
+_fontmap_lock = threading.RLock()
 
 
 cdef str _get_pango_version():
@@ -41,9 +46,69 @@ cdef str _get_manimpango_version():
     return version("ManimPango")
 
 
+cdef void _raise_fontmap_error(char* error) except *:
+    cdef str detail
+    if error == NULL:
+        raise RuntimeError("could not create the renderer Pango font map")
+    try:
+        detail = (<bytes>error).decode("utf-8", "replace")
+    finally:
+        g_free(error)
+    raise RuntimeError(detail)
+
+
+cdef void _refresh_managed_font_map() except *:
+    """Atomically rebuild the renderer-owned map for the current path snapshot."""
+    global _managed_fontmap, _managed_font_paths
+    cdef tuple font_paths = _fonts_module.active_font_paths()
+    cdef const char** paths = NULL
+    cdef list path_bytes = []
+    cdef Py_ssize_t count = len(font_paths)
+    cdef Py_ssize_t i
+    cdef char* error = NULL
+    cdef PangoFontMap* new_fontmap = NULL
+    cdef PangoFontMap* old_fontmap = NULL
+
+    with _fontmap_lock:
+        if _managed_fontmap != NULL and font_paths == _managed_font_paths:
+            return
+        try:
+            for path in font_paths:
+                path_bytes.append(path.encode("utf-8"))
+            if count:
+                paths = <const char**>PyMem_Malloc(count * sizeof(const char*))
+                if paths == NULL:
+                    raise MemoryError("could not allocate renderer font-map paths")
+                for i in range(count):
+                    paths[i] = <const char*>path_bytes[i]
+            new_fontmap = manimpango_build_font_map(paths, <size_t>count, &error)
+            if new_fontmap == NULL:
+                _raise_fontmap_error(error)
+            old_fontmap = _managed_fontmap
+            _managed_fontmap = new_fontmap
+            _managed_font_paths = font_paths
+            if old_fontmap != NULL:
+                g_object_unref(old_fontmap)
+        finally:
+            if paths != NULL:
+                PyMem_Free(paths)
+
+
+cpdef refresh_font_map():
+    """Refresh the renderer map after a successful native font-state change."""
+    _refresh_managed_font_map()
+
+
+cdef PangoFontMap* _acquire_managed_font_map() except NULL:
+    _refresh_managed_font_map()
+    with _fontmap_lock:
+        g_object_ref(_managed_fontmap)
+        return _managed_fontmap
+
+
 cdef PangoLayout* _create_managed_layout(cairo_t* cr):
-    """Create a layout from the process-managed font map, never Pango's default."""
-    cdef PangoFontMap* fontmap = acquire_font_map()
+    """Create a layout from this extension's private Pango font map."""
+    cdef PangoFontMap* fontmap = _acquire_managed_font_map()
     cdef PangoContext* context = NULL
     cdef PangoLayout* layout = NULL
 
@@ -62,6 +127,28 @@ cdef PangoLayout* _create_managed_layout(cairo_t* cr):
         if context != NULL:
             g_object_unref(context)
         g_object_unref(fontmap)
+
+
+cpdef list list_fonts():
+    """Return unique UTF-8 family names from the renderer-owned font map."""
+    cdef PangoFontMap* fontmap = _acquire_managed_font_map()
+    cdef PangoFontFamily** families = NULL
+    cdef int n_families = 0
+    cdef int i
+    cdef const char* name_ptr
+    cdef set family_names = set()
+
+    try:
+        pango_font_map_list_families(fontmap, &families, &n_families)
+        for i in range(n_families):
+            name_ptr = pango_font_family_get_name(families[i])
+            if name_ptr != NULL:
+                family_names.add((<bytes>name_ptr).decode("utf-8", "replace"))
+    finally:
+        if families != NULL:
+            g_free(families)
+        g_object_unref(fontmap)
+    return sorted(family_names)
 
 
 cpdef str validate_markup(str markup):

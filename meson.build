@@ -27,11 +27,13 @@ inc = include_directories('src/manimpango')
 _render_ext = py.extension_module(
     '_render',
     'src/manimpango/_render.pyx',
+    'src/manimpango/font_backend.c',
     dependencies: [
         pangocairo_dep,
         pango_dep,
         glib_dep,
         cairo_dep,
+        font_backend_deps,
     ],
     include_directories: inc,
     install: true,

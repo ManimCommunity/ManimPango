@@ -101,9 +101,21 @@ class FontRegistration:
                 _FONT_REGISTRATION_COUNTS[self._path] = count - 1
                 self._closed = True
                 return
+            unregistered = False
             try:
                 unregistered = _fonts.unregister_font(str(self._path))
+                if unregistered:
+                    _render.refresh_font_map()
             except Exception as error:
+                if unregistered:
+                    # The native removal succeeded but the renderer could not
+                    # adopt its new map. Restore both states before surfacing
+                    # the close failure to the caller.
+                    try:
+                        _fonts.register_font(str(self._path))
+                        _render.refresh_font_map()
+                    except Exception:
+                        pass
                 raise FontRegistrationError(
                     f"failed to unregister font {self._path}"
                 ) from error
@@ -150,7 +162,17 @@ def register_font(font_path: str | Path) -> FontRegistration:
         if count == 0:
             try:
                 registered = _fonts.register_font(str(normalized_path))
+                if registered:
+                    _render.refresh_font_map()
             except Exception as error:
+                # Keep the native backend and renderer map transactional.
+                # A failed map refresh must not leave a registration without a
+                # corresponding renderer-visible font map.
+                try:
+                    _fonts.unregister_font(str(normalized_path))
+                    _render.refresh_font_map()
+                except Exception:
+                    pass
                 raise FontRegistrationError(
                     f"failed to register font {normalized_path}"
                 ) from error
@@ -164,7 +186,7 @@ def register_font(font_path: str | Path) -> FontRegistration:
 
 def list_fonts() -> list[str]:
     """Return font family names currently known to the native backend."""
-    return _fonts.list_fonts()
+    return _render.list_fonts()
 
 
 def _finite(value: object, name: str, *, positive: bool = False) -> None:

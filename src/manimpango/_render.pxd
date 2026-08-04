@@ -1,5 +1,7 @@
 """Cython declarations for Pango and Cairo rendering."""
 
+from libc.stddef cimport size_t
+
 # ============================================================
 # Basic types
 # ============================================================
@@ -23,6 +25,7 @@ cdef extern from "glib.h":
 
     void g_free(gpointer mem)
     void g_error_free(GError* error)
+    gpointer g_object_ref(gpointer object)
     void g_object_unref(gpointer object)
 
 
@@ -194,6 +197,7 @@ cdef extern from "pango/pango.h":
 
     # Font map
     void pango_font_map_list_families(PangoFontMap* fontmap, PangoFontFamily*** families, int* n_families)
+    const char* pango_font_family_get_name(PangoFontFamily* family)
     PangoContext* pango_font_map_create_context(PangoFontMap* fontmap)
     PangoLayout* pango_layout_new(PangoContext* context)
 
@@ -244,3 +248,7 @@ cdef extern from "pango/pangocairo.h":
     void pango_cairo_show_layout(cairo_t* cr, PangoLayout* layout)
     void pango_cairo_update_context(cairo_t* cr, PangoContext* context)
     void pango_cairo_update_layout(cairo_t* cr, PangoLayout* layout)
+
+
+cdef extern from "font_backend.h":
+    PangoFontMap* manimpango_build_font_map(const char* const* utf8_paths, size_t count, char** error)
