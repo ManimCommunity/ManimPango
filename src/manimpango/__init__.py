@@ -58,6 +58,7 @@ __all__ = [
 
 _FONT_REGISTRATION_LOCK = threading.RLock()
 _FONT_REGISTRATION_COUNTS: dict[Path, int] = {}
+_FONT_REGISTRATION_TOKEN = object()
 
 
 class FontRegistration:
@@ -75,9 +76,25 @@ class FontRegistration:
 
     __slots__ = ("_closed", "_path")
 
-    def __init__(self, path: Path) -> None:
+    def __init__(self, path: Path, *, _token: object | None = None) -> None:
+        if _token is not _FONT_REGISTRATION_TOKEN:
+            raise TypeError(
+                "FontRegistration handles must be created by register_font()"
+            )
         self._path = path
         self._closed = False
+
+    def __copy__(self) -> None:
+        raise TypeError("FontRegistration handles cannot be copied")
+
+    def __deepcopy__(self, memo: dict[int, object]) -> None:
+        raise TypeError("FontRegistration handles cannot be copied")
+
+    def __reduce__(self) -> None:
+        raise TypeError("FontRegistration handles cannot be pickled")
+
+    def __reduce_ex__(self, protocol: int) -> None:
+        raise TypeError("FontRegistration handles cannot be pickled")
 
     @property
     def path(self) -> Path:
@@ -223,7 +240,7 @@ def register_font(font_path: str | Path) -> FontRegistration:
                     f"failed to register font {normalized_path}"
                 )
         _FONT_REGISTRATION_COUNTS[normalized_path] = count + 1
-        return FontRegistration(normalized_path)
+        return FontRegistration(normalized_path, _token=_FONT_REGISTRATION_TOKEN)
 
 
 def list_fonts() -> list[str]:

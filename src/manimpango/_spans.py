@@ -6,6 +6,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from math import isfinite
 from numbers import Real
+from types import MappingProxyType
 
 from .enums import Style, Weight
 
@@ -58,6 +59,15 @@ class TextSpan:
     foreground: str | None = None
     features: Mapping[str, int | bool] | None = None
     variations: Mapping[str, float] | None = None
+
+    def __post_init__(self) -> None:
+        """Snapshot mapping attributes so the frozen value is deeply immutable."""
+        if isinstance(self.features, Mapping):
+            object.__setattr__(self, "features", MappingProxyType(dict(self.features)))
+        if isinstance(self.variations, Mapping):
+            object.__setattr__(
+                self, "variations", MappingProxyType(dict(self.variations))
+            )
 
 
 def _require_finite_number(

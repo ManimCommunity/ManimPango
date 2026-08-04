@@ -1,5 +1,7 @@
 """Tests for font registration and listing — v2 API."""
 
+import copy
+import pickle
 from pathlib import Path
 
 import pytest
@@ -27,6 +29,21 @@ class TestListFonts:
 
 
 class TestRegisterFont:
+    def test_font_registration_handles_cannot_be_constructed_directly(self):
+        with pytest.raises(TypeError, match="created by register_font"):
+            manimpango.FontRegistration(FONT_DIR / "BungeeOutline-Regular.ttf")
+
+    def test_font_registration_handles_cannot_be_copied_or_pickled(self):
+        with manimpango.register_font(FONT_DIR / "BungeeOutline-Regular.ttf") as handle:
+            with pytest.raises(TypeError, match="cannot be copied"):
+                copy.copy(handle)
+            with pytest.raises(TypeError, match="cannot be copied"):
+                copy.deepcopy(handle)
+            with pytest.raises(TypeError, match="cannot be pickled"):
+                pickle.dumps(handle)
+
+            assert handle.closed is False
+
     def test_register_returns_open_handle_with_normalized_path(self):
         font_path = FONT_DIR / "BungeeOutline-Regular.ttf"
 

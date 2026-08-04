@@ -26,6 +26,40 @@ def test_text_span_is_a_frozen_slotted_public_value_object():
         span.start = 0
 
 
+def test_text_span_mapping_attributes_are_immutable_snapshots():
+    features = {"kern": True}
+    variations = {"wght": 650.0}
+
+    span = text_span(
+        start=0,
+        end=1,
+        features=features,
+        variations=variations,
+    )
+    features["kern"] = False
+    variations["wght"] = 300.0
+
+    assert span.features == {"kern": True}
+    assert span.variations == {"wght": 650.0}
+    assert span == text_span(
+        start=0,
+        end=1,
+        features={"kern": True},
+        variations={"wght": 650.0},
+    )
+    with pytest.raises(TypeError):
+        span.features["kern"] = False
+    with pytest.raises(TypeError):
+        span.variations["wght"] = 300.0
+
+
+def test_text_span_invalid_mapping_values_remain_render_time_errors():
+    span = text_span(start=0, end=1, features=[("kern", True)])
+
+    with pytest.raises(TypeError, match="mapping"):
+        manimpango.render("a", spans=(span,))
+
+
 def test_span_offsets_are_half_open_python_code_point_offsets():
     text = "AéB"
     span = text_span(start=1, end=2, weight=700)
