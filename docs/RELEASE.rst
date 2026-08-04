@@ -14,8 +14,8 @@ All versioning follows `Semantic Versioning 2.0.0 <https://semver.org/>`_.
 
 4. Clone the repository locally.
 
-5. Bump the version in ``pyproject.toml`` (the version is managed
-   dynamically via the build system).
+5. Bump the authoritative version in ``meson.build``. ``pyproject.toml``
+   deliberately reads the installed version dynamically from the build system.
 
 6. Commit the changes as ``Release v<version>``.
 
@@ -51,7 +51,7 @@ All versioning follows `Semantic Versioning 2.0.0 <https://semver.org/>`_.
 Build System
 ------------
 
-ManimPango v2.0 uses **Meson** (via ``meson-python``) as its build
+ManimPango v1.0 uses **Meson** (via ``meson-python``) as its build
 backend.  The Cython extensions are compiled by Meson.  See
 ``pyproject.toml`` and the top-level ``meson.build`` for details.
 

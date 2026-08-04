@@ -8,22 +8,23 @@ dynamic = ["version"]
 description = "Pango bindings for rendering text to SVG"
 readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "MIT"}
+license = "MIT"
+license-files = ["LICENSE", "packing/LICENSE.bin"]
 authors = [
     {name = "The Manim Community", email = "contact@manim.community"},
 ]
 classifiers = [
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Programming Language :: Cython",
 ]
 
 [project.urls]
 Homepage = "https://github.com/ManimCommunity/ManimPango"
-Documentation = "https://docs.manim.community/"
+Documentation = "https://manimpango.readthedocs.io/"
 Repository = "https://github.com/ManimCommunity/ManimPango"
 Issues = "https://github.com/ManimCommunity/ManimPango/issues"
 
@@ -43,11 +44,20 @@ filterwarnings = [
 ]
 
 [dependency-groups]
-dev = [
+build = [
     "cython>=3.2.4",
     "meson>=1.10.1",
     "meson-python>=0.19.0",
     "ninja>=1.13.0",
+]
+dev = [
+    { include-group = "build" },
     "pre-commit>=4.0",
     "pytest>=9.0.2",
+]
+docs = [
+    { include-group = "build" },
+    "furo",
+    "sphinx",
+    "sphinxext-opengraph",
 ]

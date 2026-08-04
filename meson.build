@@ -1,7 +1,7 @@
 project(
     'ManimPango',
     'cython', 'c',
-    version: '0.6.1',
+    version: '1.0.0a3',
     default_options: [
         'warning_level=2',
         'c_std=c11',

@@ -8,8 +8,10 @@ import manimpango
 
 
 def main() -> None:
-    result = manimpango.render("Wheel smoke test", disable_ligatures=True)
-    if not result.svg or result.width <= 0 or result.height <= 0:
+    fallback = manimpango.render(
+        "Wheel custom-font smoke test", font="Sans", disable_ligatures=True
+    )
+    if not fallback.svg or fallback.width <= 0 or fallback.height <= 0:
         raise RuntimeError("installed wheel did not render text")
 
     font_path = (
@@ -18,6 +20,19 @@ def main() -> None:
     with manimpango.register_font(font_path):
         if "Bungee Outline" not in manimpango.list_fonts():
             raise RuntimeError("installed wheel did not expose a registered font")
+        custom = manimpango.render(
+            "Wheel custom-font smoke test",
+            font="Bungee Outline",
+            disable_ligatures=True,
+        )
+        if not custom.svg or custom.width <= 0 or custom.height <= 0:
+            raise RuntimeError(
+                "installed wheel did not render with the registered font"
+            )
+        if custom.svg == fallback.svg:
+            raise RuntimeError(
+                "installed wheel rendered the registered font as the Sans fallback"
+            )
 
 
 if __name__ == "__main__":

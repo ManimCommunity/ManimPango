@@ -30,10 +30,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Copy binary license
-        shell: bash
-        run: cp packing/LICENSE.bin .
-
       # Windows: set up MSVC so meson doesn't pick up MinGW, then
       # download Pango binaries and put pkg-config on PATH.
       - uses: ilammy/msvc-dev-cmd@v1
@@ -65,6 +61,9 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: "python {project}/packing/test_wheels.py"
 
+      - name: Verify wheel notices
+        run: python packing/check_artifacts.py wheelhouse/*.whl
+
       - uses: actions/upload-artifact@v4
         with:
           name: wheels-${{ matrix.os }}-${{ matrix.platform_id }}
@@ -87,11 +86,16 @@ jobs:
 
       - name: Build sdist
         run: |
-          python -m pip install --upgrade pip build
+          python -m pip install --upgrade pip build twine
           python -m build --sdist
+          python -m twine check dist/*
+          python packing/check_artifacts.py dist/*.tar.gz
 
       - name: Test sdist
-        run: python -m pip install dist/*.tar.gz
+        run: |
+          python -m pip install dist/*.tar.gz
+          cd "$(mktemp -d)"
+          python -c 'import manimpango; result = manimpango.render("sdist smoke test"); assert result.svg and result.width > 0 and result.height > 0'
 
       - uses: actions/upload-artifact@v4
         with:

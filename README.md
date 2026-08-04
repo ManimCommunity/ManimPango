@@ -27,11 +27,25 @@ For **Linux Users**, there are no Wheels. You must have a C compiler as well as 
 
 ## WORKFLOW SETUP / CONTRIBUTING
 
-To make it easier for developers to contribute, we have a pre-commit workflow that will check for `black` formatting and `flake` checking.
+The repository uses [uv](https://docs.astral.sh/uv/) to manage its locked
+development environment. After installing the system dependencies below,
+install the development group and the project in editable mode:
 
 ```sh
-pip install pre-commit
-pre-commit install
+uv sync --locked --group dev --no-install-project
+uv pip install --no-build-isolation --editable .
+uv run --no-sync pre-commit install
+```
+
+Run the test suite with `uv run --no-sync pytest`.
+
+To build the documentation locally, install the `docs` group instead and run
+Sphinx:
+
+```sh
+uv sync --locked --only-group docs
+uv pip install --no-build-isolation --editable .
+uv run --no-sync sphinx-build -W --keep-going -b html docs docs/_build/html
 ```
 
 ## BUILDING
@@ -82,88 +96,18 @@ source venv/bin/activate # Linux/macOS
 venv\Scripts\activate # Windows
 ```
 
-If you are using a clone of this repository, you will need [Cython](https://cython.org) which can be easily installed using `pip`:
-
-```sh
-pip install Cython
-```
-
-After that you can use `pip` to install the clone with the following command:
-
-```sh
-pip install -e .
-pip install -r requirements-dev.txt .
-```
-
-Next, run the setup script:
-
-```sh
-python setup.py build_ext -i
-```
-
-After installation is complete, you should be able to run pytest:
-
-```sh
-pytest
-```
-
-You will need to this way if you want to *contribute* to **ManimPango**.
+From a clone, run the uv setup commands in
+[WORKFLOW SETUP / CONTRIBUTING](#workflow-setup--contributing). They install
+Cython, Meson, and the editable extension build; no `setup.py` command or
+`requirements-dev.txt` file is used.
 
 ### Contributing with Windows
 
-*If you are a normal user, don't read this, you have wheels which you can just install directly using pip.*
-
-If you want to contribute to **ManimPango** and you are on Windows, this section is for you.
-
-As Windows does not include a C compiler by default, you will first need to install one. You have two choices:
-
-1. MinGW/Msys2
-
-2. Visual Studio
-
-#### MinGW/Msys2
-
-1. Download **MSYS2** from the download link provided on their page https://www.msys2.org/#installation and install it according to their instructions.
-2. Once you have **MSYS2** installed,  it offers you three different shells: the **MinGW32** shell, the **MinGW64** shell and **MSYS** shell. In order for the following steps to work, you have to open the **MSYS2 MinGW64** shell (you can search for this). Small hint: it has a blue color logo.
-3. Run the following commands to install Python, Pango, Cython, Numpy, Scipy, Pillow, Pycairo and ffmpeg
-```sh
-pacman -S mingw-w64-x86_64-python
-pacman -S mingw-w64-x86_64-python-pip
-pacman -S mingw-w64-x86_64-pango
-pacman -S mingw-w64-x86_64-cython
-pacman -S mingw-w64-x86_64-python-numpy
-pacman -S mingw-w64-x86_64-python-scipy
-pacman -S mingw-w64-x86_64-python-pillow
-pacman -S mingw-w64-x86_64-python-cairo
-pacman -S mingw-w64-x86_64-ffmpeg
-```
-4. Still in the same shell, install **Manim** using `pip install manim`.
-5. Finally, get your clone of **ManimPango**, `cd` into that directory and then run `pip install -e .`.
-**Note** You can't use it with your regular Python version. It will cause weird errors if you do so. For working with **ManimPango**, you must be inside the `MSYS2 MINGW64 shell`.
-6. You can then use `manim` inside that shell, to run **Manim**.
-**Hint**: If you want to try out Python interactively, you can open `idle` using the command `python -m idlelib`  inside that shell.
-
-#### Visual Studio
-
-First, install Visual Studio as specified in https://wiki.python.org/moin/WindowsCompilers. Possibly Visual Studio Build Tools 2022 with Windows10 SDK.
-
-Then run the script at `packing/download_dlls.py`. This will get a **Pango** build along with `pkg-config` and install it at `C:\cibw\vendor`. Add `C:\cibw\vendor\bin` to PATH.
-
-**Note:** You can change the install location by editing line 24 of the file `packing/download_dlls.py`.
-
-Then set an environment variable `PKG_CONFIG_PATH`=`C:\cibw\vendor\lib\pkgconfig`.
-
-Then you can install Cython using
-
-```sh
-pip install Cython
-```
-
-Finally, you can install your local **ManimPango** clone just like any other python package by typing:
-
-```sh
-pip install .
-```
+Windows wheels include their native Pango dependencies. For a source build,
+use a Visual Studio C toolchain plus Pango, Cairo, and ``pkg-config`` headers
+that match the active Python architecture. The CI provisioning script,
+``packing/download_dlls.py``, demonstrates the expected vendor layout.
+Private font registration on Windows requires Pango 1.56 or newer.
 
 ## Code of Conduct
 

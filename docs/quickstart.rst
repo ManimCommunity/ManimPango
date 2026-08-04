@@ -14,6 +14,9 @@ install them with `Homebrew <https://brew.sh/>`_::
 
     brew install pango cairo
 
+The Windows and macOS wheels bundle their native dependencies. Source builds
+on Windows need Pango 1.56 or newer to register private font files at runtime.
+
 Rendering Plain Text
 --------------------
 
