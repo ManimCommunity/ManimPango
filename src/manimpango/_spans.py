@@ -12,7 +12,37 @@ from .enums import Style, Weight
 
 @dataclass(frozen=True, slots=True)
 class TextSpan:
-    """Attributes applied to the half-open code-point range ``[start, end)``."""
+    """Style attributes for a half-open code-point range of plain text.
+
+    Pass spans to :func:`manimpango.render`; markup has its own styling
+    syntax and is rendered with :func:`manimpango.render_markup`.  Overlap is
+    supported when spans set different attributes.  Overlapping spans may not
+    give different values to the same scalar attribute or OpenType tag.
+
+    Attributes
+    ----------
+    start, end
+        Python code-point offsets satisfying ``0 <= start <= end <= len(text)``.
+        The range includes ``start`` and excludes ``end``, matching slicing.
+    font
+        Font family name for the range, or ``None`` to inherit the render
+        call's font.
+    size
+        Positive absolute size in SVG user-space units, or ``None`` to
+        inherit the render call's size.
+    weight
+        A :class:`~manimpango.Weight` member or integer from 1 through 1000.
+    style
+        A :class:`~manimpango.Style` member.
+    foreground
+        A Pango foreground-color specification, such as ``"#3366cc"``.
+    features
+        Mapping of four-ASCII-character OpenType feature tags to integer or
+        boolean values.  Boolean values are converted to ``0`` or ``1``.
+    variations
+        Mapping of four-ASCII-character OpenType variation-axis tags to
+        finite numeric values.
+    """
 
     start: int
     end: int
@@ -66,8 +96,8 @@ def validate_variations(
 def validate_spans(spans: Sequence[TextSpan], text: str) -> tuple[TextSpan, ...]:
     """Validate span-local values and bounds without invoking native code.
 
-    Attribute overlap normalization deliberately stays out of this initial
-    bridge: the native renderer does not yet accept attributes.
+    Overlap validation makes the effective attributes independent of caller
+    order before they are normalized for the native renderer.
     """
     if isinstance(spans, (str, bytes)) or not isinstance(spans, Sequence):
         raise TypeError("spans must be a sequence of TextSpan instances")

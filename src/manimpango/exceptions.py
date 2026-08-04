@@ -8,7 +8,11 @@ class ManimPangoError(Exception):
 
 
 class RenderError(ManimPangoError):
-    """Raised when Pango or Cairo cannot render a layout."""
+    """Raised when Pango or Cairo fails during a native render operation.
+
+    Invalid public arguments continue to raise :class:`TypeError` or
+    :class:`ValueError`, and invalid markup raises :class:`MarkupError`.
+    """
 
 
 class MarkupError(ValueError, ManimPangoError):

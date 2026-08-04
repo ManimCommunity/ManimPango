@@ -16,10 +16,13 @@ Text Models
 -----------
 
 .. autoclass:: TextSpan
+   :members:
 
 .. autoclass:: Bounds
+   :members:
 
 .. autoclass:: LineInfo
+   :members:
 
 .. autoclass:: RenderedText
    :members: line_count, save
@@ -30,7 +33,7 @@ Font Management
 .. autofunction:: register_font
 
 .. autoclass:: FontRegistration
-   :members: close, path, closed
+   :members: close, path, closed, __enter__, __exit__
 
 .. autofunction:: list_fonts
 

@@ -8,7 +8,7 @@
     <a href="https://pypi.org/project/manimpango/"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/ManimPango.svg?style=flat"></a>
     <a href='https://manimpango.readthedocs.io/en/latest/?badge=latest'><img src='https://readthedocs.org/projects/manimpango/badge/?version=latest' alt='Documentation Status' /></a>
     <br>
-    <img src="https://github.com/ManimCommunity/manimpango/workflows/Build%20Wheels/badge.svg">
+    <img src="https://github.com/ManimCommunity/manimpango/actions/workflows/build.yml/badge.svg" alt="Build status">
 </p>
 
 **ManimPango** is a C binding for [Pango](https://pango.gnome.org/) using [Cython](https://cython.org/), which is internally used in [Manim](https://www.manim.community) to render (non-LaTeX) text.
@@ -24,6 +24,21 @@ pip install manimpango
 ```
 
 For **Linux Users**, there are no Wheels. You must have a C compiler as well as **Pango** and its dependencies along with the **Pango** development headers. See [BUILDING](#BUILDING) for more information.
+
+The [quick start](https://manimpango.manim.community/en/latest/quickstart.html)
+and [API reference](https://manimpango.manim.community/en/latest/reference.html)
+cover the complete interface.  A minimal plain-text render is:
+
+```python
+import manimpango
+
+result = manimpango.render(
+    "Hello, world!",
+    size=24,
+    spans=(manimpango.TextSpan(0, 5, weight=manimpango.Weight.BOLD),),
+)
+result.save("hello.svg")
+```
 
 ## WORKFLOW SETUP / CONTRIBUTING
 

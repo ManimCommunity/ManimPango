@@ -50,7 +50,8 @@ Result Metadata
 ``render()`` and ``render_markup()`` return a frozen, slotted
 :class:`~manimpango.RenderedText`.  Geometry is always expressed in SVG
 user-space units, not pixels or raw Pango units.  The former synthetic
-line-spacing value and mutable underscore-backed fields have been removed.
+line-spacing *metadata value* and mutable underscore-backed fields have been
+removed; ``line_spacing=`` remains a Pango layout multiplier.
 
 .. code-block:: python
 

@@ -16,6 +16,9 @@ install them with `Homebrew <https://brew.sh/>`_::
 
 The Windows and macOS wheels bundle their native dependencies. Source builds
 on Windows need Pango 1.56 or newer to register private font files at runtime.
+Linux has no binary wheels at present, so installation there builds from
+source and requires a C compiler, ``pkg-config``, and the Pango development
+headers.
 
 Rendering Plain Text
 --------------------
@@ -87,7 +90,9 @@ Variable Fonts
 
 ``weight`` accepts a :class:`~manimpango.Weight` member or an integer from
 1 through 1000.  Use ``variations`` for OpenType axes; axis tags contain
-exactly four ASCII characters.
+exactly four ASCII characters.  Visible variation-axis effects currently
+require Pango's fontconfig backend (normally Linux); macOS and Windows do not
+apply them with their default backends.
 
 .. code-block:: python
 

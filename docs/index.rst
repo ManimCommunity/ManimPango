@@ -5,9 +5,11 @@ ManimPango is a Python library that provides bindings to `Pango
 <https://pango.gnome.org/>`_ for rendering text to SVG.  It is the text
 rendering backend used by `Manim <https://www.manim.community/>`_.
 
-Version 2.0 is a complete rewrite with a simplified API — a single
-:func:`~manimpango.render` function replaces the previous collection of
-utility classes and functions.
+The public API provides separate plain-text and Pango-markup rendering
+functions, structured spans for plain-text styling, immutable layout metadata,
+and explicit custom-font lifetimes.  Start with the :doc:`quickstart`, or read
+the :doc:`1.0 release notes <changelog>` when migrating from an earlier
+release.
 
 .. toctree::
    :maxdepth: 2
@@ -16,6 +18,7 @@ utility classes and functions.
    quickstart
    reference
    migration
+   changelog
    RELEASE
 
 Indices and tables
