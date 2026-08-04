@@ -76,6 +76,34 @@ def test_public_exception_hierarchy_is_package_specific():
     assert issubclass(manimpango.FontRegistrationError, manimpango.FontError)
 
 
+@pytest.mark.parametrize(
+    ("entry_point", "arguments"),
+    [
+        (manimpango.render, ("text",)),
+        (manimpango.render_markup, ("<b>text</b>",)),
+    ],
+)
+def test_native_render_failures_raise_render_error(monkeypatch, entry_point, arguments):
+    native_error = RuntimeError("Cairo error: out of memory")
+
+    def fail_render(*args, **options):
+        raise native_error
+
+    monkeypatch.setattr(manimpango._render, "render", fail_render)
+
+    with pytest.raises(manimpango.RenderError, match="Cairo error") as error:
+        entry_point(*arguments)
+
+    assert error.value.__cause__ is native_error
+
+
+def test_validation_errors_are_not_translated_to_render_error():
+    with pytest.raises(ValueError) as error:
+        manimpango.render("text", size=0)
+
+    assert not isinstance(error.value, manimpango.RenderError)
+
+
 def test_render_markup_is_a_separate_entry_point_and_invalid_markup_raises_markup_error():
     assert callable(manimpango.render_markup)
     with pytest.raises((manimpango.MarkupError, ValueError)):

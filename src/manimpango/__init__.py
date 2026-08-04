@@ -65,8 +65,12 @@ class FontRegistration:
 
     Instances are returned by :func:`register_font`.  Closing one handle does
     not affect other handles for the same normalized path; native unregistration
-    occurs only after the final handle closes.  Unclosed handles intentionally
-    remain active until process exit.
+    occurs only after the final handle closes.  Use the handle as a context
+    manager when the font is needed only for a bounded operation.  Unclosed
+    handles intentionally remain active until process exit.
+
+    Do not instantiate this class directly; obtain it from
+    :func:`register_font`.
     """
 
     __slots__ = ("_closed", "_path")
@@ -86,7 +90,13 @@ class FontRegistration:
         return self._closed
 
     def close(self) -> None:
-        """Release this handle's registration reference, idempotently."""
+        """Release this handle's registration reference, idempotently.
+
+        The font remains available while another handle for the same path is
+        open.  The final close removes it from subsequent renderer-owned font
+        maps and can raise :class:`FontRegistrationError` if the native
+        backend cannot complete that transition.
+        """
         with _FONT_REGISTRATION_LOCK:
             if self._closed:
                 return
@@ -131,12 +141,29 @@ class FontRegistration:
 
 
 def get_version_info() -> dict[str, str]:
-    """Return versions of ManimPango and its linked dependencies."""
+    """Return version strings for ManimPango and its linked libraries.
+
+    Returns
+    -------
+    dict[str, str]
+        A mapping with the stable keys ``"manimpango"``, ``"pango"``, and
+        ``"cairo"``.
+    """
     return _render.get_version_info()
 
 
 def validate_markup(markup: str) -> str:
-    """Return an empty string for valid Pango markup, otherwise an error."""
+    """Validate a Pango markup string without rendering it.
+
+    Returns an empty string when ``markup`` is valid.  Otherwise returns the
+    diagnostic supplied by Pango; :func:`render_markup` turns that diagnostic
+    into :class:`MarkupError`.
+
+    Raises
+    ------
+    TypeError
+        If ``markup`` is not a string.
+    """
     if not isinstance(markup, str):
         raise TypeError("markup must be a string")
     return _render.validate_markup(markup)
@@ -146,7 +173,21 @@ def register_font(font_path: str | Path) -> FontRegistration:
     """Register a font file and return an explicit lifetime handle.
 
     Each call returns a distinct handle.  The file path is expanded and
-    resolved strictly before entering the native backend.
+    resolved strictly before entering the native backend.  The font becomes
+    visible to this renderer's font map immediately and remains available
+    until the final handle for that normalized path is closed.
+
+    Use the returned handle as a context manager for temporary registrations.
+    Multiple handles for the same file are reference-counted, so closing one
+    cannot remove a font still used by another.
+
+    Raises
+    ------
+    FontNotFoundError
+        If the path does not exist.
+    FontRegistrationError
+        If the path is not a regular file or the native backend rejects the
+        registration.
     """
     try:
         normalized_path = Path(font_path).expanduser().resolve(strict=True)
@@ -183,7 +224,11 @@ def register_font(font_path: str | Path) -> FontRegistration:
 
 
 def list_fonts() -> list[str]:
-    """Return font family names currently known to the native backend."""
+    """Return sorted unique family names visible to the renderer's font map.
+
+    The result includes currently registered custom fonts and is a snapshot;
+    closing a :class:`FontRegistration` can change later calls.
+    """
     return _render.list_fonts()
 
 
@@ -265,6 +310,15 @@ def _native_options(
     }
 
 
+def _render_native(text: str, **options: object) -> RenderedText:
+    """Call the native renderer and translate backend render failures."""
+    try:
+        return _render.render(text, **options)
+    except (MemoryError, RuntimeError) as error:
+        message = str(error) or "native renderer failed"
+        raise RenderError(message) from error
+
+
 def render(
     text: str,
     *,
@@ -281,7 +335,61 @@ def render(
     indent: float = 0.0,
     disable_ligatures: bool = False,
 ) -> RenderedText:
-    """Render plain text with structured spans in one native layout."""
+    """Render literal plain text to SVG and structured layout metadata.
+
+    ``text`` is never interpreted as markup.  Use :func:`render_markup` for
+    Pango markup, or use ``spans`` to style ranges of plain text in the same
+    native layout.
+
+    Parameters
+    ----------
+    text
+        Literal Unicode text to render.
+    spans
+        :class:`TextSpan` instances for half-open code-point ranges of
+        ``text``.  Compatible overlaps compose; conflicting values raise
+        :class:`ValueError`.
+    font
+        Font family name, or ``None`` for Pango's default family.  To use a
+        font file that is not installed system-wide, register it first with
+        :func:`register_font`.
+    size
+        Positive absolute font size in SVG user-space units.
+    weight, style
+        Base :class:`Weight`/integer and :class:`Style` for text not
+        overridden by a span.
+    variations
+        Mapping of four-ASCII-character OpenType variation-axis tags to
+        finite numeric values.
+    width
+        Positive wrapping width in SVG user-space units, or ``None`` for no
+        width constraint.
+    alignment
+        Horizontal alignment within ``width``.
+    line_spacing
+        Positive Pango line-spacing multiplier, or ``None`` for Pango's
+        default line spacing.
+    justify
+        Whether Pango justifies wrapped lines.
+    indent
+        Pango indentation in SVG user-space units; negative values create a
+        hanging indentation.
+    disable_ligatures
+        Disable Pango's standard, discretionary, contextual, and historical
+        ligature features (``liga``, ``dlig``, ``clig``, and ``hlig``).
+
+    Returns
+    -------
+    RenderedText
+        SVG output plus viewport, bounds, baseline, and per-line metadata.
+
+    Raises
+    ------
+    TypeError, ValueError
+        If an option or span is invalid.
+    RenderError
+        If Pango or Cairo fails while creating the native render result.
+    """
     _validate_options(
         text,
         font=font,
@@ -297,8 +405,8 @@ def render(
         disable_ligatures=disable_ligatures,
     )
     native_spans = normalize_spans(spans, text)
-    return _render.render(
-        text,
+    return _render_native(
+        text=text,
         is_markup=False,
         spans=native_spans,
         **_native_options(
@@ -332,7 +440,38 @@ def render_markup(
     indent: float = 0.0,
     disable_ligatures: bool = False,
 ) -> RenderedText:
-    """Render Pango markup through the native markup pipeline."""
+    """Render Pango markup to SVG and structured layout metadata.
+
+    ``markup`` is parsed by Pango; do not pass markup to :func:`render`.
+    The layout options have the same meanings as in :func:`render`, except
+    range styling is expressed in markup rather than with ``TextSpan``.
+    Line offsets in the returned :class:`RenderedText` refer to Pango's
+    parsed text, not character offsets in the markup source.
+
+    Parameters
+    ----------
+    markup
+        A Unicode string using Pango markup.
+
+    Notes
+    -----
+    All remaining options have the same contracts as in :func:`render`;
+    markup expresses range styling instead of accepting ``TextSpan`` objects.
+
+    Returns
+    -------
+    RenderedText
+        SVG output plus viewport, bounds, baseline, and per-line metadata.
+
+    Raises
+    ------
+    MarkupError
+        If Pango rejects ``markup``.
+    TypeError, ValueError
+        If an option is invalid.
+    RenderError
+        If Pango or Cairo fails while creating the native render result.
+    """
     _validate_options(
         markup,
         font=font,
@@ -350,8 +489,8 @@ def render_markup(
     markup_error = validate_markup(markup)
     if markup_error:
         raise MarkupError(f"Invalid Pango markup: {markup_error}")
-    return _render.render(
-        markup,
+    return _render_native(
+        text=markup,
         is_markup=True,
         **_native_options(
             font=font,
@@ -367,13 +506,3 @@ def render_markup(
             disable_ligatures=disable_ligatures,
         ),
     )
-
-
-def pango_version() -> str:
-    """Return the linked Pango version (compatibility helper)."""
-    return get_version_info()["pango"]
-
-
-def cairo_version() -> str:
-    """Return the linked Cairo version (compatibility helper)."""
-    return get_version_info()["cairo"]

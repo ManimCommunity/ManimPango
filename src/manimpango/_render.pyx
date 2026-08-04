@@ -502,6 +502,9 @@ cpdef object _render_to_svg(
     cdef int final_width, final_height, final_baseline, line_count
     cdef int viewport_left, viewport_top, viewport_right, viewport_bottom
     cdef int viewport_width, viewport_height
+    cdef int layout_ink_x, layout_ink_y, layout_ink_width, layout_ink_height
+    cdef int layout_logical_x, layout_logical_y
+    cdef int layout_logical_width, layout_logical_height
     cdef bytes text_bytes
     cdef bytearray svg_bytes = bytearray()
     cdef bytes rendered_text_bytes
@@ -548,6 +551,14 @@ cpdef object _render_to_svg(
         # Layout and iterator extents are Pango units.  Keep the viewport in
         # the same units until the Cairo surface and public metadata boundary.
         pango_layout_get_extents(layout, &ink_rect, &logical_rect)
+        layout_ink_x = ink_rect.x
+        layout_ink_y = ink_rect.y
+        layout_ink_width = ink_rect.width
+        layout_ink_height = ink_rect.height
+        layout_logical_x = logical_rect.x
+        layout_logical_y = logical_rect.y
+        layout_logical_width = logical_rect.width
+        layout_logical_height = logical_rect.height
         viewport_left = logical_rect.x
         if ink_rect.x < viewport_left:
             viewport_left = ink_rect.x
@@ -689,14 +700,16 @@ cpdef object _render_to_svg(
         ),
         lines=tuple(lines),
         ink_bounds=Bounds(
-            0.0, 0.0,
-            pango_units_to_double(viewport_width),
-            pango_units_to_double(viewport_height),
+            pango_units_to_double(layout_ink_x - viewport_left),
+            pango_units_to_double(layout_ink_y - viewport_top),
+            pango_units_to_double(layout_ink_width),
+            pango_units_to_double(layout_ink_height),
         ),
         logical_bounds=Bounds(
-            0.0, 0.0,
-            pango_units_to_double(viewport_width),
-            pango_units_to_double(viewport_height),
+            pango_units_to_double(layout_logical_x - viewport_left),
+            pango_units_to_double(layout_logical_y - viewport_top),
+            pango_units_to_double(layout_logical_width),
+            pango_units_to_double(layout_logical_height),
         ),
     )
 

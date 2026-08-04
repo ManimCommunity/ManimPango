@@ -38,6 +38,18 @@ def test_empty_text_has_one_empty_line_and_a_valid_nonnegative_viewport():
     assert result.height >= 0.0
 
 
+def test_ink_and_logical_bounds_preserve_distinct_pango_extents():
+    result = manimpango.render("   ", size=36.0)
+
+    # Whitespace participates in the logical layout but has no ink.  This is
+    # independent of the selected fallback font and catches returning the
+    # SVG viewport for both metadata fields.
+    assert result.ink_bounds.width == 0.0
+    assert result.ink_bounds.height == 0.0
+    assert result.logical_bounds.width > 0.0
+    assert result.logical_bounds.height > 0.0
+
+
 def test_lines_report_actual_text_and_code_point_offsets():
     text = "é\n漢"
     result = manimpango.render(text)

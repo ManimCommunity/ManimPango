@@ -38,15 +38,3 @@ class TestVersionInfo:
         parts = info["pango"].split(".")
         major, minor = int(parts[0]), int(parts[1])
         assert (major, minor) >= (1, 44)
-
-
-class TestBackwardsCompatVersionFunctions:
-    def test_pango_version(self):
-        v = manimpango.pango_version()
-        assert isinstance(v, str)
-        assert v == manimpango.get_version_info()["pango"]
-
-    def test_cairo_version(self):
-        v = manimpango.cairo_version()
-        assert isinstance(v, str)
-        assert v == manimpango.get_version_info()["cairo"]
