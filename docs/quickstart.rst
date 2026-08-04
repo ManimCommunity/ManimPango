@@ -45,23 +45,52 @@ Both rendering functions return a
 It keeps the SVG document and the layout result together, so callers can
 choose whether to keep the SVG in memory, save it, or inspect its geometry.
 
+The basic result contract is executable and independent of the host's font
+metrics:
+
+.. doctest::
+
+    >>> import manimpango
+    >>> result = manimpango.render("Hello, world!", size=24.0)
+    >>> type(result).__name__
+    'RenderedText'
+    >>> result.line_count
+    1
+    >>> isinstance(result.svg, str) and result.width > 0 and result.height > 0
+    True
+
+For example, one macOS/Pango installation produces the following selected
+values.  The exact numbers vary with the selected font and native backend;
+the relationships and SVG user-space units do not.
+
+.. code-block:: pycon
+
+    >>> round(result.width, 1), round(result.height, 1), round(result.baseline, 1)
+    (173.0, 32.0, 24.0)
+    >>> result.ink_bounds
+    Bounds(x=0.515625, y=2.0625, width=169.109375, height=26.5)
+    >>> result.logical_bounds
+    Bounds(x=0.0, y=0.0, width=173.0, height=32.0)
+
+``width`` and ``height`` are the rendered SVG viewport dimensions, and
+``baseline`` is the first line's baseline position.  ``ink_bounds`` is tight
+to glyph drawing, so it excludes the side bearings and whitespace visible in
+``logical_bounds``.  All of these values, as well as font ``size`` and an
+optional layout ``width``, are ``float`` values in SVG user-space units—not
+raw Pango units or device pixels.  An SVG consumer may subsequently scale the
+document.
+
+The complete SVG is available without another render operation, and may be
+written only when a file is needed:
+
 .. code-block:: python
 
-    result = manimpango.render("Hello, world!", size=24.0)
-
-    # The complete SVG document as a Unicode string.
-    print(result.svg)
-
-    # The rendered viewport and first-line baseline in SVG user-space units.
-    print(result.width, result.height, result.baseline)
-
-    # Persist the same SVG when a file is needed.
+    svg = result.svg
     result.save("hello.svg")
 
 ``RenderedText`` is immutable and ``result.lines`` is a tuple.  Its
-``ink_bounds`` describe the area touched by glyph drawing, while
-``logical_bounds`` include layout advances such as whitespace.  The following
-section shows how to inspect individual lines.
+``lines`` describe the parsed text, code-point ranges, bounds, and baselines
+for individual lines.  The following section shows how to inspect them.
 
 Rendering Markup
 ----------------
