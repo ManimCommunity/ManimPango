@@ -108,3 +108,11 @@ class RenderedText:
     def __str__(self) -> str:
         """Return SVG text for compatibility with string-oriented callers."""
         return self.svg
+
+    def __repr__(self) -> str:
+        """Return a concise summary without embedding the SVG document."""
+        return (
+            "RenderedText("
+            f"width={self.width!r}, height={self.height!r}, "
+            f"baseline={self.baseline!r}, line_count={self.line_count})"
+        )

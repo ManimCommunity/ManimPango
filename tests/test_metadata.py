@@ -29,6 +29,16 @@ def test_result_metadata_uses_public_fields_and_real_missing_attributes_raise():
         result.wdith
 
 
+def test_result_repr_is_concise_and_omits_svg_contents():
+    result = manimpango.render("metadata")
+
+    representation = repr(result)
+
+    assert representation.startswith("RenderedText(")
+    assert f"line_count={result.line_count}" in representation
+    assert result.svg not in representation
+
+
 def test_empty_text_has_one_empty_line_and_a_valid_nonnegative_viewport():
     result = manimpango.render("")
 

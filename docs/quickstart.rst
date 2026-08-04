@@ -52,8 +52,8 @@ metrics:
 
     >>> import manimpango
     >>> result = manimpango.render("Hello, world!", size=24.0)
-    >>> type(result).__name__
-    'RenderedText'
+    >>> isinstance(result, manimpango.RenderedText)
+    True
     >>> result.line_count
     1
     >>> isinstance(result.svg, str) and result.width > 0 and result.height > 0
@@ -65,6 +65,8 @@ the relationships and SVG user-space units do not.
 
 .. code-block:: pycon
 
+    >>> result
+    RenderedText(width=173.0, height=32.0, baseline=24.0, line_count=1)
     >>> round(result.width, 1), round(result.height, 1), round(result.baseline, 1)
     (173.0, 32.0, 24.0)
     >>> result.ink_bounds
