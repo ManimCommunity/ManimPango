@@ -37,6 +37,32 @@ Use :func:`~manimpango.render` for plain text.  It returns a
 ``save()`` writes to an existing parent directory; it does not create missing
 directories.
 
+Understanding ``RenderedText``
+------------------------------
+
+Both rendering functions return a
+:class:`~manimpango.RenderedText` object rather than writing a temporary file.
+It keeps the SVG document and the layout result together, so callers can
+choose whether to keep the SVG in memory, save it, or inspect its geometry.
+
+.. code-block:: python
+
+    result = manimpango.render("Hello, world!", size=24.0)
+
+    # The complete SVG document as a Unicode string.
+    print(result.svg)
+
+    # The rendered viewport and first-line baseline in SVG user-space units.
+    print(result.width, result.height, result.baseline)
+
+    # Persist the same SVG when a file is needed.
+    result.save("hello.svg")
+
+``RenderedText`` is immutable and ``result.lines`` is a tuple.  Its
+``ink_bounds`` describe the area touched by glyph drawing, while
+``logical_bounds`` include layout advances such as whitespace.  The following
+section shows how to inspect individual lines.
+
 Rendering Markup
 ----------------
 
@@ -68,8 +94,8 @@ slices.  Spans and markup are deliberately separate APIs.
         ),
     )
 
-Layout Metadata
----------------
+Inspecting Layout Metadata
+--------------------------
 
 All geometry exposed by ManimPango is a ``float`` in SVG user-space units.
 ``Bounds`` records an ``x``, ``y``, ``width``, and ``height`` in that same
