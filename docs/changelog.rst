@@ -1,13 +1,15 @@
-Release notes: 1.0
-==================
+Changelog
+=========
+
+1.0
+---
+
+Architecture and breaking changes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ManimPango 1.0 is a hard break from the 0.6.x API: callers should migrate
-rather than expect a compatibility layer.  This page summarizes the design
-and migration surface for review; the :doc:`reference` is the authoritative
-API contract, and the :doc:`migration` guide contains runnable replacements.
-
-Design overview
----------------
+rather than expect a compatibility layer.  This section summarizes the design
+surface for review; the :doc:`reference` is the authoritative API contract.
 
 The public API separates user-facing validation and immutable result models
 from the native Pango and Cairo implementation.  Rendering follows one layout
@@ -28,8 +30,7 @@ pipeline:
 This division keeps generic text rendering in ManimPango while leaving
 Manim-specific text selection and object integration to Manim.
 
-Public API changes
-------------------
+**Public API.**
 
 ``render()`` accepts plain text only.  It has keyword-only options and returns
 an in-memory result instead of requiring an output path.  Use
@@ -49,8 +50,7 @@ Custom fonts have explicit ownership.  A registration remains active until its
 handle is closed; use the handle as a context manager for scoped registration.
 Repeated registrations of the same normalized path are reference-counted.
 
-Breaking changes from 0.6.x
----------------------------
+**Breaking changes from 0.6.x.**
 
 .. list-table::
    :header-rows: 1
@@ -78,15 +78,7 @@ Breaking changes from 0.6.x
 ``RenderedText.save(path)`` is the explicit opt-in for writing SVG.  It writes
 UTF-8 content to an existing parent directory and propagates filesystem errors.
 
-Migration
----------
-
-Read the :doc:`migration` guide first when updating a 0.6.x caller.  For new
-code, use the :doc:`quickstart` and then the :doc:`reference` for parameter,
-result, and exception contracts.
-
-Scope
------
+**Scope.**
 
 Version 1.0 intentionally does not provide:
 
@@ -100,3 +92,64 @@ Version 1.0 intentionally does not provide:
 These boundaries keep the package focused on a small, testable SVG text
 rendering interface.  Future work can build on that interface without changing
 its core contracts.
+
+Migration
+~~~~~~~~~
+
+``render()`` accepts plain text only.  Use ``render_markup()`` for raw Pango
+markup; plain and markup rendering are separate entry points.  Use
+``TextSpan`` objects with ``render()`` for range styling.
+
+.. code-block:: python
+
+    # Plain text with structured styling.
+    result = manimpango.render(
+        "Hello world",
+        spans=(
+            manimpango.TextSpan(0, 5, foreground="#3366cc"),
+            manimpango.TextSpan(6, 11, style=manimpango.Style.ITALIC),
+        ),
+    )
+
+    # Raw Pango markup uses a different entry point.
+    marked = manimpango.render_markup("<b>Hello</b> <i>world</i>")
+
+``TextSpan.start`` and ``TextSpan.end`` are half-open Python code-point
+offsets.  Overlapping spans compose when they affect different attributes;
+conflicting values for the same attribute raise ``ValueError``.
+
+Both rendering functions return a frozen, slotted
+:class:`~manimpango.RenderedText`.  Geometry is always expressed in SVG
+user-space units, not pixels or raw Pango units.  The former synthetic
+line-spacing *metadata value* and mutable underscore-backed fields have been
+removed; ``line_spacing=`` remains a Pango layout multiplier.
+
+.. code-block:: python
+
+    result = manimpango.render("one\ntwo", width=200.0)
+
+    print(result.width, result.height, result.baseline)
+    print(result.ink_bounds, result.logical_bounds)
+    for line in result.lines:
+        # Ranges exclude newline separators.
+        print(line.text, line.start, line.end, line.bounds, line.baseline)
+
+``result.lines`` is a tuple of :class:`~manimpango.LineInfo` instances.
+For markup, line ranges refer to parsed text rather than the markup source.
+Both layout bounds and per-line bounds use the same transformed coordinate
+system as the SVG.
+
+``RenderedText.save(path)`` writes UTF-8 SVG to ``path``.  The parent
+directory must already exist; missing parents raise ``FileNotFoundError``.
+
+Custom-font registration has explicit ownership:
+
+.. code-block:: python
+
+    with manimpango.register_font("path/to/font.ttf") as registration:
+        result = manimpango.render("Example", font="My Font")
+
+    assert registration.closed
+
+Missing files raise :class:`~manimpango.FontNotFoundError`; other backend
+registration failures raise :class:`~manimpango.FontRegistrationError`.

@@ -17,7 +17,6 @@ release.
 
    quickstart
    reference
-   migration
    changelog
    RELEASE
 
