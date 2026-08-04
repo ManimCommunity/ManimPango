@@ -19,8 +19,6 @@ if host_machine.system() == 'linux'
     font_backend_deps += [dependency('fontconfig')]
 elif host_machine.system() == 'darwin'
     font_backend_deps += [dependency('appleframeworks', modules: ['CoreFoundation', 'CoreText'])]
-elif host_machine.system() == 'windows'
-    font_backend_deps += [dependency('pangowin32')]
 endif
 
 # Include directory for local .pxd files

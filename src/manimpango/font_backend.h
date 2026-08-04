@@ -1,13 +1,14 @@
 #ifndef MANIMPANGO_FONT_BACKEND_H
 #define MANIMPANGO_FONT_BACKEND_H
 
+#include <stddef.h>
+
 /*
  * Register a font for this process.  On failure, *error receives a newly
  * allocated UTF-8 message which the caller must release with g_free().
  */
 int manimpango_register_font(const char *utf8_path, char **error);
 int manimpango_unregister_font(const char *utf8_path, char **error);
-void manimpango_invalidate_font_backend(void);
-int manimpango_load_font_into_default_map(const char *utf8_path, char **error);
+void *manimpango_build_font_map(const char *const *utf8_paths, size_t count, char **error);
 
 #endif

@@ -10,6 +10,7 @@ import tempfile
 import os
 
 from manimpango._render cimport *
+from manimpango._fonts cimport acquire_font_map
 from manimpango._text import Bounds, LineInfo, RenderedText
 from manimpango.enums import Style, Weight, Alignment
 
@@ -38,6 +39,29 @@ def get_version_info() -> dict[str, str]:
 cdef str _get_manimpango_version():
     from importlib.metadata import version
     return version("ManimPango")
+
+
+cdef PangoLayout* _create_managed_layout(cairo_t* cr):
+    """Create a layout from the process-managed font map, never Pango's default."""
+    cdef PangoFontMap* fontmap = acquire_font_map()
+    cdef PangoContext* context = NULL
+    cdef PangoLayout* layout = NULL
+
+    if fontmap == NULL:
+        raise MemoryError("Failed to acquire managed Pango font map")
+    try:
+        context = pango_font_map_create_context(fontmap)
+        if context == NULL:
+            raise MemoryError("Failed to create Pango context")
+        pango_cairo_update_context(cr, context)
+        layout = pango_layout_new(context)
+        if layout == NULL:
+            raise MemoryError("Failed to create Pango layout")
+        return layout
+    finally:
+        if context != NULL:
+            g_object_unref(context)
+        g_object_unref(fontmap)
 
 
 cpdef str validate_markup(str markup):
@@ -356,7 +380,7 @@ cpdef object _render_to_svg(
     text_bytes = text.encode('utf-8')
 
     # === Measure pass ===
-    # Need a real surface for pango_cairo_create_layout to work;
+    # Need a real surface to update the explicitly managed Pango context;
     # a minimal image surface is cheapest.
     surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 1, 1)
     if surface == NULL:
@@ -368,7 +392,7 @@ cpdef object _render_to_svg(
         raise MemoryError("Failed to create Cairo context")
 
     try:
-        layout = pango_cairo_create_layout(cr)
+        layout = _create_managed_layout(cr)
         if layout == NULL:
             raise MemoryError("Failed to create Pango layout")
 
@@ -437,7 +461,7 @@ cpdef object _render_to_svg(
             raise MemoryError("Failed to create Cairo context")
 
         try:
-            layout = pango_cairo_create_layout(cr)
+            layout = _create_managed_layout(cr)
             if layout == NULL:
                 raise MemoryError("Failed to create Pango layout")
 

@@ -1,5 +1,6 @@
 """Cython declarations for font management."""
 
+from libc.stddef cimport size_t
 
 cdef extern from "pango/pango.h":
     ctypedef struct PangoFontMap:
@@ -13,17 +14,17 @@ cdef extern from "pango/pango.h":
 
 cdef extern from "pango/pangocairo.h":
     PangoFontMap* pango_cairo_font_map_new()
-    PangoFontMap* pango_cairo_font_map_get_default()
-    void pango_cairo_font_map_set_default(PangoFontMap* fontmap)
 
 
 cdef extern from "font_backend.h":
     int manimpango_register_font(const char* utf8_path, char** error)
     int manimpango_unregister_font(const char* utf8_path, char** error)
-    void manimpango_invalidate_font_backend()
-    int manimpango_load_font_into_default_map(const char* utf8_path, char** error)
+    void* manimpango_build_font_map(const char* const* utf8_paths, size_t count, char** error)
+
+cdef PangoFontMap* acquire_font_map() except NULL
 
 
 cdef extern from *:
+    void* g_object_ref(void* object)
     void g_object_unref(void* object)
     void g_free(void* mem)

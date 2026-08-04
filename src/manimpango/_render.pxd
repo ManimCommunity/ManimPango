@@ -194,6 +194,8 @@ cdef extern from "pango/pango.h":
 
     # Font map
     void pango_font_map_list_families(PangoFontMap* fontmap, PangoFontFamily*** families, int* n_families)
+    PangoContext* pango_font_map_create_context(PangoFontMap* fontmap)
+    PangoLayout* pango_layout_new(PangoContext* context)
 
     # Markup parsing
     gboolean pango_parse_markup(
@@ -239,7 +241,6 @@ cdef extern from "pango/pango-layout.h":
 
 
 cdef extern from "pango/pangocairo.h":
-    PangoLayout* pango_cairo_create_layout(cairo_t* cr)
     void pango_cairo_show_layout(cairo_t* cr, PangoLayout* layout)
+    void pango_cairo_update_context(cairo_t* cr, PangoContext* context)
     void pango_cairo_update_layout(cairo_t* cr, PangoLayout* layout)
-    PangoFontMap* pango_cairo_font_map_new()

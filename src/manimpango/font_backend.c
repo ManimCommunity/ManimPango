@@ -1,6 +1,7 @@
 #include "font_backend.h"
 
 #include <glib.h>
+#include <pango/pangocairo.h>
 #include <string.h>
 
 #ifdef __APPLE__
@@ -8,8 +9,6 @@
 #include <CoreText/CoreText.h>
 #elif defined(_WIN32)
 #include <windows.h>
-#include <pango/pangocairo.h>
-#include <pango/pangowin32.h>
 #elif defined(__linux__)
 #include <fontconfig/fontconfig.h>
 #endif
@@ -21,6 +20,7 @@ set_error(char **error, const char *message)
         *error = g_strdup(message);
     }
 }
+
 
 #ifdef __APPLE__
 static void
@@ -226,47 +226,50 @@ manimpango_unregister_font(const char *utf8_path, char **error)
 #endif
 }
 
-void
-manimpango_invalidate_font_backend(void)
+void *
+manimpango_build_font_map(const char *const *utf8_paths, size_t count, char **error)
 {
-#ifdef _WIN32
-    /* PangoWin32 caches the process font enumeration independently from the
-     * PangoCairo default map.  AddFontResourceExW does not notify that cache;
-     * discard it after every private-font mutation before creating a new map. */
-    pango_win32_shutdown_display();
-#endif
-}
+    PangoFontMap *new_map;
+    size_t i;
 
-int
-manimpango_load_font_into_default_map(const char *utf8_path, char **error)
-{
+#if defined(_WIN32) && PANGO_VERSION_CHECK(1, 56, 0)
+    GError *gerror = NULL;
+#endif
+
     if (error != NULL) {
         *error = NULL;
     }
-#ifdef _WIN32
-    PangoFontMap *fontmap;
-    GError *gerror = NULL;
-
-    fontmap = pango_cairo_font_map_get_default();
-    if (fontmap == NULL) {
-        set_error(error, "could not create Pango's default Cairo font map");
-        return 0;
+    new_map = pango_cairo_font_map_new();
+    if (new_map == NULL) {
+        set_error(error, "could not create the managed Pango Cairo font map");
+        return NULL;
     }
-    if (!pango_font_map_add_font_file(fontmap, utf8_path, &gerror)) {
-        if (error != NULL && gerror != NULL) {
-            *error = g_strdup(gerror->message);
-        } else {
-            set_error(error, "Pango could not load the registered font file");
+    for (i = 0; i < count; i++) {
+#if defined(_WIN32) && PANGO_VERSION_CHECK(1, 56, 0)
+        if (!pango_font_map_add_font_file(new_map, utf8_paths[i], &gerror)) {
+            if (error != NULL && gerror != NULL) {
+                *error = g_strdup(gerror->message);
+            } else {
+                set_error(error, "Pango could not load a registered font file");
+            }
+            if (gerror != NULL) {
+                g_error_free(gerror);
+            }
+            g_object_unref(new_map);
+            return NULL;
         }
-        if (gerror != NULL) {
-            g_error_free(gerror);
-        }
-        return 0;
-    }
-    return 1;
+#elif defined(_WIN32)
+        /* PangoWin32 needs the 1.56 DirectWrite font-map API to keep private
+         * files usable after its process-wide DirectWrite cache is initialized. */
+        set_error(error, "Windows private fonts require Pango 1.56 or newer");
+        g_object_unref(new_map);
+        return NULL;
 #else
-    (void)utf8_path;
-    set_error(error, "Pango default-map font loading is only required on Windows");
-    return 0;
+        /* Native Fontconfig/CoreText registration is visible to a newly
+         * created map on older supported Pango versions. */
+        (void)utf8_paths[i];
 #endif
+    }
+
+    return new_map;
 }
