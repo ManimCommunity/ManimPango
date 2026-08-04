@@ -4,49 +4,37 @@ Release Procedure
 This is the **maintainer** note on how to release ManimPango.
 All versioning follows `Semantic Versioning 2.0.0 <https://semver.org/>`_.
 
-1. Check whether the test suite passes on the main branch.
+1. Ensure the main branch is green and the intended changes are merged.
 
-2. Revert any changes that are not working, and verify that milestone PRs
-   are merged.
+2. Update the ``1.0`` entry in ``docs/changelog.rst`` and bump the
+   authoritative version in ``meson.build``. ``pyproject.toml`` deliberately
+   reads the installed version dynamically from the build system.
 
-3. Check whether the `Wheels Build`_ against the main branch works as
-   expected.
+3. Open and merge the release-preparation pull request. Confirm CI passes on
+   its merge commit.
 
-4. Clone the repository locally.
-
-5. Bump the authoritative version in ``meson.build``. ``pyproject.toml``
-   deliberately reads the installed version dynamically from the build system.
-
-6. Commit the changes as ``Release v<version>``.
-
-7. Create a signed tag locally:
+4. Create a signed, annotated tag for that commit and push it:
 
    .. code-block:: sh
 
       git tag -s v<version-number>
+      git push origin v<version-number>
 
    .. note::
 
-      The ``-s`` flag signs the tag with GPG so that users can verify it.
-      GitHub shows unsigned tags as "unverified".
+      ``-s`` signs the tag with GPG so its provenance is visible to users.
 
-   .. important::
+5. Create and publish a GitHub release from the tag. Do not save it as a
+   draft: the ``release: created`` workflow event starts the package build and
+   publication.
 
-      Include the changelog in the tag message. A GitHub Action creates a
-      draft `release`_ with the changelog — you can copy it into the tag.
+6. Monitor the `Wheels Build`_ workflow. It builds the supported wheels and
+   source distribution, publishes them to `PyPI`_, and attaches the artifacts
+   to the GitHub release only after every build succeeds.
 
-8. Push the tag to the remote.
+7. In a fresh virtual environment, install the published package and run a
+   small rendering smoke test on each platform for which a wheel was released.
 
-9. Go to `GitHub`_ and `draft a new release`_ using the tag you just pushed.
-
-   .. important::
-
-      Draft a **new** release rather than publishing a previously created
-      draft — this is needed to trigger the wheels build workflow.
-
-10. Verify that CI uploads wheels and the ``.tar.gz`` to `PyPI`_.
-
-11. Test the uploaded ``.tar.gz`` in a fresh virtual environment.
 
 Build System
 ------------
@@ -64,7 +52,4 @@ Minimum requirements:
 - Cython ≥ 3.0.0
 
 .. _Wheels Build: https://github.com/ManimCommunity/ManimPango/actions?query=workflow%3A%22Build+Wheels%22
-.. _GitHub: https://github.com
-.. _draft a new release: https://docs.github.com/en/free-pro-team@latest/github/administering-a-repository/managing-releases-in-a-repository#creating-a-release
 .. _PyPI: https://pypi.org/project/manimpango/
-.. _release: https://github.com/ManimCommunity/ManimPango/releases

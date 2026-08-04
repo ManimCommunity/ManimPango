@@ -6,7 +6,7 @@
     <a href="https://pypi.org/project/manimpango/"><img alt="PyPI - Downloads" src="https://img.shields.io/pypi/dm/manimpango"></a>
     <a href="https://choosealicense.com/licenses/mit/"><img alt="PyPI - License" src="https://img.shields.io/pypi/l/manimpango"></a>
     <a href="https://pypi.org/project/manimpango/"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/ManimPango.svg?style=flat"></a>
-    <a href='https://manimpango.readthedocs.io/en/latest/?badge=latest'><img src='https://readthedocs.org/projects/manimpango/badge/?version=latest' alt='Documentation Status' /></a>
+    <a href="https://manimpango.manim.community/"><img src="https://img.shields.io/badge/docs-ManimPango-58C4DC" alt="Documentation"></a>
     <br>
     <img src="https://github.com/ManimCommunity/manimpango/actions/workflows/build.yml/badge.svg" alt="Build status">
 </p>
@@ -25,8 +25,8 @@ pip install manimpango
 
 For **Linux Users**, there are no Wheels. You must have a C compiler as well as **Pango** and its dependencies along with the **Pango** development headers. See [BUILDING](#BUILDING) for more information.
 
-The [quick start](https://manimpango.manim.community/en/latest/quickstart.html)
-and [API reference](https://manimpango.manim.community/en/latest/reference.html)
+The [quick start](https://manimpango.manim.community/quickstart.html)
+and [API reference](https://manimpango.manim.community/reference.html)
 cover the complete interface.  A minimal plain-text render is:
 
 ```python

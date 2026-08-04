@@ -24,7 +24,7 @@ classifiers = [
 
 [project.urls]
 Homepage = "https://github.com/ManimCommunity/ManimPango"
-Documentation = "https://manimpango.readthedocs.io/"
+Documentation = "https://manimpango.manim.community/"
 Repository = "https://github.com/ManimCommunity/ManimPango"
 Issues = "https://github.com/ManimCommunity/ManimPango/issues"
 
