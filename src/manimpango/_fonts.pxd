@@ -16,14 +16,11 @@ cdef extern from "pango/pangocairo.h":
     void pango_cairo_font_map_set_default(PangoFontMap* fontmap)
 
 
-cdef extern from "fontconfig/fontconfig.h":
-    # FontConfig types
-    ctypedef unsigned char FcChar8
-
-    # FontConfig functions
-    bint FcConfigAppFontAddFile(void* config, const FcChar8* file)
-    void FcConfigAppFontClear(void* config)
+cdef extern from "font_backend.h":
+    int manimpango_register_font(const char* utf8_path, char** error)
+    int manimpango_unregister_font(const char* utf8_path, char** error)
 
 
 cdef extern from *:
     void g_object_unref(void* object)
+    void g_free(void* mem)

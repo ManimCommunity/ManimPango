@@ -9,7 +9,7 @@ from xml.parsers.expat import ParserCreate
 import pytest
 
 import manimpango
-from manimpango import Alignment, Style, Weight
+from manimpango import Alignment, Bounds, MarkupError, Style, Weight
 from manimpango._text import LineInfo, RenderedText
 
 FONT_DIR = Path(__file__).parent / "fonts"
@@ -26,14 +26,25 @@ def assert_valid_svg(svg: str) -> None:
 def assert_valid_result(result: RenderedText) -> None:
     """Assert basic invariants of a RenderedText."""
     assert isinstance(result, RenderedText)
+    assert isinstance(result.width, float)
+    assert isinstance(result.height, float)
+    assert isinstance(result.baseline, float)
     assert result.width > 0
     assert result.height > 0
     assert result.baseline > 0
     assert result.line_count >= 1
+    assert isinstance(result.lines, tuple)
     assert len(result.lines) == result.line_count
+    assert isinstance(result.ink_bounds, Bounds)
+    assert isinstance(result.logical_bounds, Bounds)
     assert isinstance(result.svg, str)
     assert len(result.svg) > 0
     assert_valid_svg(result.svg)
+
+
+def assert_svg_has_visible_drawing(svg: str) -> None:
+    """Cairo SVG glyph output uses definitions plus ``<use>`` operations."""
+    assert "<use" in svg or "<path" in svg, "nonempty text must draw glyphs"
 
 
 # ── Basic rendering ─────────────────────────────────────────────────────
@@ -84,43 +95,45 @@ class TestRenderBasic:
 
 class TestRenderMarkup:
     def test_bold_markup(self):
-        result = manimpango.render("<b>Bold</b>", is_markup=True)
+        result = manimpango.render_markup("<b>Bold</b>")
         assert_valid_result(result)
+        assert result.lines[0].text == "Bold"
 
     def test_italic_markup(self):
-        result = manimpango.render("<i>Italic</i>", is_markup=True)
+        result = manimpango.render_markup("<i>Italic</i>")
         assert_valid_result(result)
 
     def test_color_markup(self):
-        result = manimpango.render(
+        result = manimpango.render_markup(
             "<span color='red'>Red</span> and <span color='blue'>Blue</span>",
-            is_markup=True,
         )
         assert_valid_result(result)
+        assert result.lines[0].text == "Red and Blue"
 
     def test_nested_markup(self):
-        result = manimpango.render(
+        result = manimpango.render_markup(
             "<b><i>Bold Italic</i></b>",
-            is_markup=True,
         )
         assert_valid_result(result)
 
-    def test_invalid_markup_raises_valueerror(self):
-        with pytest.raises(ValueError, match="[Mm]arkup"):
-            manimpango.render("<b>unclosed", is_markup=True)
+    def test_invalid_markup_raises_markup_error(self):
+        with pytest.raises(MarkupError, match="[Mm]arkup"):
+            manimpango.render_markup("<b>unclosed")
 
     def test_invalid_markup_unmatched_tag(self):
-        with pytest.raises(ValueError):
-            manimpango.render("<b><i>mismatched</b></i>", is_markup=True)
+        with pytest.raises(MarkupError):
+            manimpango.render_markup("<b><i>mismatched</b></i>")
 
     def test_markup_with_ampersand(self):
-        result = manimpango.render("A &amp; B", is_markup=True)
+        result = manimpango.render_markup("A &amp; B")
         assert_valid_result(result)
+        assert result.lines[0].text == "A & B"
 
     def test_plain_text_with_angle_brackets(self):
         """Plain text mode should NOT interpret markup."""
-        result = manimpango.render("<b>not bold</b>", is_markup=False)
+        result = manimpango.render("<b>not bold</b>")
         assert_valid_result(result)
+        assert result.lines[0].text == "<b>not bold</b>"
 
 
 # ── Font parameters ──────────────────────────────────────────────────────
@@ -211,6 +224,27 @@ class TestRenderLayout:
         result = manimpango.render("fi fl ffi", disable_ligatures=True)
         assert_valid_result(result)
 
+    @pytest.mark.parametrize("alignment", [Alignment.CENTER, Alignment.RIGHT])
+    def test_wide_layout_alignment_keeps_short_text_visible(self, alignment):
+        result = manimpango.render("Test", width=200, alignment=alignment)
+
+        assert_svg_has_visible_drawing(result.svg)
+
+    def test_plain_special_characters_with_ligatures_disabled_remain_plain_text(self):
+        result = manimpango.render("A & B < C", disable_ligatures=True)
+
+        assert result.width > 0
+        assert_svg_has_visible_drawing(result.svg)
+
+    def test_markup_with_ligatures_disabled_remains_valid(self):
+        result = manimpango.render_markup(
+            "<b>A &amp; B</b>",
+            disable_ligatures=True,
+        )
+
+        assert result.width > 0
+        assert_svg_has_visible_drawing(result.svg)
+
 
 # ── Variable fonts ───────────────────────────────────────────────────────
 
@@ -246,10 +280,8 @@ class TestVariableFonts:
     @pytest.fixture(autouse=True)
     def register_variable_font(self):
         """Ensure the variable font is properly registered for testing."""
-        font_path = str(FONT_DIR / "AdobeVFPrototype.ttf")
-        manimpango.register_font(font_path)
-        yield
-        manimpango.unregister_font(font_path)
+        with manimpango.register_font(FONT_DIR / "AdobeVFPrototype.ttf") as registration:
+            yield registration
 
     def test_variations_dict(self):
         result = manimpango.render(
@@ -333,7 +365,7 @@ class TestRenderedText:
 
     def test_baseline(self):
         result = manimpango.render("Test")
-        assert isinstance(result.baseline, int)
+        assert isinstance(result.baseline, float)
         assert result.baseline > 0
 
     def test_line_count(self):
@@ -345,25 +377,18 @@ class TestRenderedText:
         assert len(result.lines) == 2
         for line in result.lines:
             assert isinstance(line, LineInfo)
-            assert isinstance(line.start_index, int)
-            assert isinstance(line.width, float)
-            assert isinstance(line.height, float)
+            assert isinstance(line.start, int)
+            assert isinstance(line.end, int)
+            assert isinstance(line.bounds, Bounds)
+            assert isinstance(line.baseline, float)
 
     def test_line_start_indices(self):
         result = manimpango.render("ABC\nDEF\nGHI")
-        assert result.lines[0].start_index == 0
-        # "ABC\n" is 4 bytes, so line 2 starts at 4
-        assert result.lines[1].start_index == 4
-        # "ABC\nDEF\n" is 8 bytes, so line 3 starts at 8
-        assert result.lines[2].start_index == 8
-
-    def test_line_height(self):
-        result = manimpango.render("Test")
-        assert result.line_height > 0
-
-    def test_line_height_multiline(self):
-        result = manimpango.render("A\nB\nC")
-        assert result.line_height > 0
+        assert [(line.start, line.end) for line in result.lines] == [
+            (0, 3),
+            (4, 7),
+            (8, 11),
+        ]
 
     def test_str_returns_svg(self):
         result = manimpango.render("Test")
@@ -373,7 +398,6 @@ class TestRenderedText:
         result = manimpango.render("Test")
         r = repr(result)
         assert "RenderedText" in r
-        assert "line(s)" in r
         assert "baseline=" in r
 
     def test_save(self, tmp_path):
@@ -383,11 +407,11 @@ class TestRenderedText:
         assert out.exists()
         assert out.read_text() == result.svg
 
-    def test_save_creates_parents(self, tmp_path):
+    def test_save_requires_existing_parent(self, tmp_path):
         out = tmp_path / "a" / "b" / "c" / "test.svg"
         result = manimpango.render("Hello")
-        result.save(str(out))
-        assert out.exists()
+        with pytest.raises(FileNotFoundError):
+            result.save(str(out))
 
     def test_save_pathlib(self, tmp_path):
         out = tmp_path / "test.svg"

@@ -1,120 +1,114 @@
 #!python
 # cython: language_level=3
 
-"""Font registration and management for ManimPango."""
+"""Native font registration and font-family enumeration."""
 
 from __future__ import annotations
 
-import cython
-
-import os
 import sys
-from dataclasses import dataclass
-from pathlib import Path
+import threading
 
 from manimpango._fonts cimport *
 
 
-@dataclass(frozen=True)
-class RegisteredFont:
-    """A class to represent a registered font file."""
-    path: str
-    platform: str
+# The public API owns registration reference counts.  This set records only
+# paths for which this extension currently owns an actual backend registration.
+# It is also needed to rebuild Fontconfig's all-or-nothing app-font set.
+_backend_lock = threading.RLock()
+_active_paths: set[str] = set()
 
 
-# Global set of registered fonts
-registered_fonts: set[RegisteredFont] = set()
+cdef void _raise_backend_error(char* error) except *:
+    cdef str detail
+    if error == NULL:
+        raise RuntimeError("font backend operation failed without an error message")
+    try:
+        detail = (<bytes>error).decode("utf-8", "replace")
+    finally:
+        g_free(error)
+    raise RuntimeError(detail)
+
+
+cdef void _invalidate_pango_font_map():
+    """Discard the cached Cairo font map after a process-global mutation."""
+    pango_cairo_font_map_set_default(NULL)
 
 
 cpdef bint register_font(str font_path):
-    """Register a font file so Pango can use it for rendering."""
-    path = Path(font_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Font file not found: {font_path}")
+    """Perform one native registration for ``font_path``.
 
-    abs_path = os.fspath(path.resolve())
+    Reference counts deliberately live in the public Python layer, so a call
+    for an already active path is a no-op rather than a second backend handle.
+    """
+    cdef bytes path_bytes = font_path.encode("utf-8")
+    cdef char* error = NULL
+    cdef int success
 
-    if sys.platform == "linux":
-        platform = "fontconfig"
-    elif sys.platform == "darwin":
-        platform = "macos"
-    elif sys.platform == "win32":
-        platform = "win32"
-    else:
-        raise RuntimeError(f"Unsupported platform: {sys.platform}")
-
-    font = RegisteredFont(abs_path, platform)
-
-    if font in registered_fonts:
-        return True
-
-    cdef bytes path_bytes = abs_path.encode('utf-8')
-    cdef bint success = FcConfigAppFontAddFile(NULL, <const FcChar8*><const char*>path_bytes)
-
-    if success:
-        registered_fonts.add(font)
-        # Invalidate Pango's cached font map so it picks up the new
-        # fontconfig configuration.  Passing NULL causes the old default
-        # map to be released; a fresh one is created on next use.
-        pango_cairo_font_map_set_default(NULL)
-
-    return success
+    with _backend_lock:
+        if font_path in _active_paths:
+            return True
+        success = manimpango_register_font(<const char*>path_bytes, &error)
+        if not success:
+            _raise_backend_error(error)
+        _active_paths.add(font_path)
+        _invalidate_pango_font_map()
+    return True
 
 
 cpdef bint unregister_font(str font_path):
-    """Unregister a previously registered font."""
-    path = Path(font_path)
-    abs_path = os.fspath(path.resolve())
+    """Remove one native registration after its final public handle closes."""
+    cdef bytes path_bytes = font_path.encode("utf-8")
+    cdef bytes active_path_bytes
+    cdef char* error = NULL
+    cdef int success
+    cdef str active_path
 
-    if sys.platform == "linux":
-        platform = "fontconfig"
-    elif sys.platform == "darwin":
-        platform = "macos"
-    elif sys.platform == "win32":
-        platform = "win32"
-    else:
-        return False
+    with _backend_lock:
+        if font_path not in _active_paths:
+            return True
 
-    font = RegisteredFont(abs_path, platform)
-
-    if font not in registered_fonts:
-        return True
-
-    # On Linux/macOS (fontconfig), we can't easily unregister individual fonts
-    # Just clear all app fonts
-    FcConfigAppFontClear(NULL)
-    registered_fonts.discard(font)
-    # Invalidate Pango's cached font map so it no longer serves stale
-    # font data from the cleared fontconfig configuration.
-    pango_cairo_font_map_set_default(NULL)
+        # On Fontconfig this clears every application font.  Re-add the paths
+        # still active while holding the same lock, so closing one handle never
+        # drops a different registered family.
+        success = manimpango_unregister_font(<const char*>path_bytes, &error)
+        if not success:
+            _raise_backend_error(error)
+        _active_paths.remove(font_path)
+        if sys.platform.startswith("linux"):
+            for active_path in sorted(_active_paths):
+                active_path_bytes = active_path.encode("utf-8")
+                error = NULL
+                success = manimpango_register_font(<const char*>active_path_bytes, &error)
+                if not success:
+                    _raise_backend_error(error)
+        _invalidate_pango_font_map()
     return True
 
 
 cpdef list list_fonts():
-    """List all font family names available to Pango."""
+    """Return unique UTF-8 family names known to a fresh Pango font map."""
     cdef PangoFontMap* fontmap = NULL
     cdef PangoFontFamily** families = NULL
     cdef int n_families = 0
+    cdef int i
+    cdef const char* name_ptr
+    cdef set family_names = set()
 
-    fontmap = pango_cairo_font_map_new()
-    if fontmap == NULL:
-        raise MemoryError("Failed to create PangoFontMap")
+    with _backend_lock:
+        fontmap = pango_cairo_font_map_new()
+        if fontmap == NULL:
+            raise MemoryError("Failed to create PangoFontMap")
+        try:
+            pango_font_map_list_families(fontmap, &families, &n_families)
+            for i in range(n_families):
+                name_ptr = pango_font_family_get_name(families[i])
+                if name_ptr != NULL:
+                    family_names.add((<bytes>name_ptr).decode("utf-8", "replace"))
+        finally:
+            # Pango transfers the GList-style pointer array to the caller.
+            if families != NULL:
+                g_free(families)
+            if fontmap != NULL:
+                g_object_unref(fontmap)
 
-    try:
-        pango_font_map_list_families(fontmap, &families, &n_families)
-
-        if families == NULL or n_families == 0:
-            raise MemoryError("Failed to get font families")
-
-        family_list = []
-        for i in range(n_families):
-            name_ptr = pango_font_family_get_name(families[i])
-            if name_ptr != NULL:
-                family_list.append(name_ptr.decode('utf-8'))
-
-    finally:
-        if fontmap != NULL:
-            g_object_unref(fontmap)
-
-    family_list.sort()
-    return family_list
+    return sorted(family_names)

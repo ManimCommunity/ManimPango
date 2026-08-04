@@ -9,6 +9,7 @@ cdef extern from "glib.h":
     ctypedef int gint
     ctypedef unsigned int guint
     ctypedef unsigned int guint32
+    ctypedef unsigned short guint16
     ctypedef void* gpointer
 
     ctypedef struct GSList:
@@ -92,6 +93,18 @@ cdef extern from "pango/pango.h":
         pass
     ctypedef struct PangoFontFamily:
         pass
+    ctypedef struct PangoLayoutIter:
+        pass
+    ctypedef struct PangoAttrList:
+        pass
+    ctypedef struct PangoAttribute:
+        const void* klass
+        guint start_index
+        guint end_index
+    ctypedef struct PangoColor:
+        guint16 red
+        guint16 green
+        guint16 blue
 
     ctypedef struct PangoRectangle:
         int x
@@ -142,15 +155,40 @@ cdef extern from "pango/pango.h":
     void pango_layout_set_height(PangoLayout* layout, int height)
     void pango_layout_set_markup(PangoLayout* layout, const char* markup, int length)
     void pango_layout_set_text(PangoLayout* layout, const char* text, int length)
+    const char* pango_layout_get_text(PangoLayout* layout)
+    void pango_layout_set_attributes(PangoLayout* layout, PangoAttrList* attrs)
     void pango_layout_set_font_description(PangoLayout* layout, const PangoFontDescription* desc)
     void pango_layout_set_alignment(PangoLayout* layout, PangoAlignment alignment)
     void pango_layout_set_justify(PangoLayout* layout, gboolean justify)
     void pango_layout_set_indent(PangoLayout* layout, int indent)
     void pango_layout_set_line_spacing(PangoLayout* layout, float factor)
 
+    # Text attributes
+    PangoAttrList* pango_attr_list_new()
+    void pango_attr_list_unref(PangoAttrList* list)
+    void pango_attr_list_insert(PangoAttrList* list, PangoAttribute* attr)
+    PangoAttribute* pango_attr_family_new(const char* family)
+    PangoAttribute* pango_attr_foreground_new(guint16 red, guint16 green, guint16 blue)
+    PangoAttribute* pango_attr_size_new_absolute(int size)
+    PangoAttribute* pango_attr_style_new(PangoStyle style)
+    PangoAttribute* pango_attr_weight_new(PangoWeight weight)
+    PangoAttribute* pango_attr_font_desc_new(const PangoFontDescription* desc)
+    PangoAttribute* pango_attr_font_features_new(const char* features)
+    gboolean pango_color_parse(PangoColor* color, const char* spec)
+
     # Layout queries
     void pango_layout_get_size(PangoLayout* layout, int* width, int* height)
     void pango_layout_get_pixel_size(PangoLayout* layout, int* width, int* height)
+    void pango_layout_get_pixel_extents(
+        PangoLayout* layout,
+        PangoRectangle* ink_rect,
+        PangoRectangle* logical_rect,
+    )
+    void pango_layout_get_extents(
+        PangoLayout* layout,
+        PangoRectangle* ink_rect,
+        PangoRectangle* logical_rect,
+    )
     int pango_layout_get_baseline(PangoLayout* layout)
     int pango_layout_get_line_count(PangoLayout* layout)
 
@@ -162,7 +200,7 @@ cdef extern from "pango/pango.h":
         const char* markup_text,
         int length,
         guint32 accel_marker,
-        void* attr_list,
+        PangoAttrList** attr_list,
         char** text,
         guint32* accel_char,
         GError** error,
@@ -183,6 +221,16 @@ cdef extern from "pango/pango-layout.h":
         guint resolved_dir
 
     PangoLayoutLine* pango_layout_get_line(PangoLayout* layout, int line)
+    PangoLayoutIter* pango_layout_get_iter(PangoLayout* layout)
+    void pango_layout_iter_free(PangoLayoutIter* iter)
+    PangoLayoutLine* pango_layout_iter_get_line_readonly(PangoLayoutIter* iter)
+    void pango_layout_iter_get_line_extents(
+        PangoLayoutIter* iter,
+        PangoRectangle* ink_rect,
+        PangoRectangle* logical_rect,
+    )
+    int pango_layout_iter_get_baseline(PangoLayoutIter* iter)
+    gboolean pango_layout_iter_next_line(PangoLayoutIter* iter)
     void pango_layout_line_get_pixel_extents(
         PangoLayoutLine* line,
         PangoRectangle* ink_rect,

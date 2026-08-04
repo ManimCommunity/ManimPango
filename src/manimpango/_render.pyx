@@ -10,7 +10,7 @@ import tempfile
 import os
 
 from manimpango._render cimport *
-from manimpango._text import RenderedText, LineInfo
+from manimpango._text import Bounds, LineInfo, RenderedText
 from manimpango.enums import Style, Weight, Alignment
 
 
@@ -139,6 +139,179 @@ cdef tuple _measure_layout(PangoLayout* layout):
     return (<float>width, <float>height, baseline)
 
 
+cdef void _insert_ranged_attribute(
+    PangoAttrList* attrs,
+    PangoAttribute* attribute,
+    int start,
+    int end,
+) except *:
+    """Set a validated UTF-8 byte range and transfer ``attribute`` to attrs."""
+    if attribute == NULL:
+        raise MemoryError("Failed to create Pango text attribute")
+    attribute.start_index = <guint>start
+    attribute.end_index = <guint>end
+    pango_attr_list_insert(attrs, attribute)
+
+
+cdef void _add_span_attributes(
+    PangoAttrList* attrs,
+    object spans,
+    int text_length,
+) except *:
+    """Attach normalized structured-span attributes to one Pango attribute list."""
+    cdef object span
+    cdef object value
+    cdef int start, end, style_value, weight_value
+    cdef bytes encoded
+    cdef bytes feature_string
+    cdef bytes variation_string
+    cdef PangoColor color
+    cdef PangoFontDescription* variation_desc
+
+    for span in spans:
+        start = span["start"]
+        end = span["end"]
+        if start < 0 or end < start or end > text_length:
+            raise ValueError("normalized span bounds must be valid UTF-8 byte offsets")
+
+        if "font" in span:
+            encoded = span["font"].encode("utf-8")
+            _insert_ranged_attribute(
+                attrs, pango_attr_family_new(<const char*>encoded), start, end
+            )
+        if "size" in span:
+            _insert_ranged_attribute(
+                attrs,
+                pango_attr_size_new_absolute(pango_units_from_double(span["size"])),
+                start,
+                end,
+            )
+        if "weight" in span:
+            weight_value = span["weight"]
+            _insert_ranged_attribute(
+                attrs, pango_attr_weight_new(<PangoWeight>weight_value), start, end
+            )
+        if "style" in span:
+            value = span["style"]
+            style_value = value.value if hasattr(value, "value") else value
+            _insert_ranged_attribute(
+                attrs, pango_attr_style_new(<PangoStyle>style_value), start, end
+            )
+        if "foreground" in span:
+            encoded = span["foreground"].encode("utf-8")
+            if not pango_color_parse(&color, <const char*>encoded):
+                raise ValueError(f"Invalid Pango foreground color: {span['foreground']}")
+            _insert_ranged_attribute(
+                attrs,
+                pango_attr_foreground_new(color.red, color.green, color.blue),
+                start,
+                end,
+            )
+        if "features" in span:
+            feature_string = ",".join(
+                f"{tag}={int(enabled)}"
+                for tag, enabled in span["features"].items()
+            ).encode("ascii")
+            _insert_ranged_attribute(
+                attrs,
+                pango_attr_font_features_new(<const char*>feature_string),
+                start,
+                end,
+            )
+        if "variations" in span:
+            variation_string = ",".join(
+                f"{tag}={axis_value}"
+                for tag, axis_value in span["variations"].items()
+            ).encode("ascii")
+            variation_desc = pango_font_description_new()
+            if variation_desc == NULL:
+                raise MemoryError("Failed to create Pango variation description")
+            try:
+                pango_font_description_set_variations(
+                    variation_desc, <const char*>variation_string
+                )
+                _insert_ranged_attribute(
+                    attrs,
+                    pango_attr_font_desc_new(variation_desc),
+                    start,
+                    end,
+                )
+            finally:
+                pango_font_description_free(variation_desc)
+
+
+cdef void _set_layout_text_and_attributes(
+    PangoLayout* layout,
+    bytes source,
+    bint is_markup,
+    bint disable_ligatures,
+    object spans,
+) except *:
+    """Set one layout's plain text and its Pango attributes.
+
+    Markup is parsed explicitly rather than passed to ``pango_layout_set_markup``
+    so both markup and plain text follow the same text-plus-attributes pipeline.
+    This also lets ligature settings be expressed as an attribute, avoiding
+    generated markup around unescaped plain text.
+    """
+    cdef PangoAttrList* attrs = NULL
+    cdef PangoAttribute* features = NULL
+    cdef char* parsed_text = NULL
+    cdef GError* err = NULL
+    cdef guint32 accel_char = 0
+    cdef bint parsed
+    cdef str message
+
+    if is_markup:
+        parsed = pango_parse_markup(
+            <const char*>source,
+            -1,
+            0,
+            &attrs,
+            &parsed_text,
+            &accel_char,
+            &err,
+        )
+        if not parsed:
+            if err != NULL:
+                message = err.message.decode("utf-8", "replace")
+                g_error_free(err)
+            else:
+                message = "Unknown error"
+            if attrs != NULL:
+                pango_attr_list_unref(attrs)
+            if parsed_text != NULL:
+                g_free(parsed_text)
+            raise ValueError(f"Invalid Pango markup: {message}")
+
+        # pango_parse_markup returns an allocated, NUL-terminated UTF-8 string.
+        pango_layout_set_text(layout, <const char*>parsed_text, -1)
+        g_free(parsed_text)
+        parsed_text = NULL
+    else:
+        pango_layout_set_text(layout, <const char*>source, -1)
+
+    if disable_ligatures or spans:
+        if attrs == NULL:
+            attrs = pango_attr_list_new()
+            if attrs == NULL:
+                raise MemoryError("Failed to create Pango attribute list")
+
+    if spans:
+        _add_span_attributes(attrs, spans, len(source))
+
+    if disable_ligatures:
+        features = pango_attr_font_features_new(b"liga=0,dlig=0,clig=0,hlig=0")
+        if features == NULL:
+            pango_attr_list_unref(attrs)
+            raise MemoryError("Failed to create Pango ligature attribute")
+        pango_attr_list_insert(attrs, features)
+
+    if attrs != NULL:
+        pango_layout_set_attributes(layout, attrs)
+        pango_attr_list_unref(attrs)
+
+
 cpdef object _render_to_svg(
     text,
     is_markup,
@@ -153,6 +326,7 @@ cpdef object _render_to_svg(
     justify,
     indent,
     disable_ligatures,
+    spans,
 ):
     """Render text to SVG."""
     # All cdef declarations at the top
@@ -160,29 +334,26 @@ cpdef object _render_to_svg(
     cdef cairo_t* cr = NULL
     cdef PangoLayout* layout = NULL
     cdef PangoFontDescription* font_desc = NULL
+    cdef PangoLayoutIter* layout_iter = NULL
     cdef cairo_status_t status
 
     cdef double surface_width, surface_height
     cdef int final_width, final_height, final_baseline, line_count
-    cdef str text_to_render
+    cdef int viewport_left, viewport_top, viewport_right, viewport_bottom
+    cdef int viewport_width, viewport_height
     cdef bytes text_bytes
     cdef bytes tmp_path_bytes
+    cdef bytes rendered_text_bytes
+    cdef str rendered_text
+    cdef int next_start_index, end_index
+    cdef double baseline_svg
 
     cdef list lines
     cdef int i
     cdef PangoLayoutLine* line
     cdef PangoRectangle ink_rect, logical_rect
 
-    # Build the text/markup string with ligature disabling if needed
-    if disable_ligatures and not is_markup:
-        text_to_render = f"<span font_features='liga=0,dlig=0,clig=0,hlig=0'>{text}</span>"
-        is_markup = True
-    elif disable_ligatures and is_markup:
-        text_to_render = f"<span font_features='liga=0,dlig=0,clig=0,hlig=0'>{text}</span>"
-    else:
-        text_to_render = text
-
-    text_bytes = text_to_render.encode('utf-8')
+    text_bytes = text.encode('utf-8')
 
     # === Measure pass ===
     # Need a real surface for pango_cairo_create_layout to work;
@@ -208,14 +379,30 @@ cpdef object _render_to_svg(
 
         _set_layout_options(layout, width, alignment, line_spacing, justify, indent)
 
-        if is_markup:
-            pango_layout_set_markup(layout, <const char*>text_bytes, -1)
-        else:
-            pango_layout_set_text(layout, <const char*>text_bytes, -1)
+        _set_layout_text_and_attributes(
+            layout, text_bytes, is_markup, disable_ligatures, spans
+        )
 
         final_width, final_height, final_baseline = _measure_layout(layout)
-        surface_width = final_width + 2
-        surface_height = final_height + 2
+        # Layout and iterator extents are Pango units.  Keep the viewport in
+        # the same units until the Cairo surface and public metadata boundary.
+        pango_layout_get_extents(layout, &ink_rect, &logical_rect)
+        viewport_left = logical_rect.x
+        if ink_rect.x < viewport_left:
+            viewport_left = ink_rect.x
+        viewport_top = logical_rect.y
+        if ink_rect.y < viewport_top:
+            viewport_top = ink_rect.y
+        viewport_right = logical_rect.x + logical_rect.width
+        if ink_rect.x + ink_rect.width > viewport_right:
+            viewport_right = ink_rect.x + ink_rect.width
+        viewport_bottom = logical_rect.y + logical_rect.height
+        if ink_rect.y + ink_rect.height > viewport_bottom:
+            viewport_bottom = ink_rect.y + ink_rect.height
+        viewport_width = viewport_right - viewport_left
+        viewport_height = viewport_bottom - viewport_top
+        surface_width = pango_units_to_double(viewport_width)
+        surface_height = pango_units_to_double(viewport_height)
 
     finally:
         if layout != NULL:
@@ -261,40 +448,71 @@ cpdef object _render_to_svg(
 
             _set_layout_options(layout, width, alignment, line_spacing, justify, indent)
 
-            if is_markup:
-                pango_layout_set_markup(layout, <const char*>text_bytes, -1)
-            else:
-                pango_layout_set_text(layout, <const char*>text_bytes, -1)
+            _set_layout_text_and_attributes(
+                layout, text_bytes, is_markup, disable_ligatures, spans
+            )
 
-            cairo_move_to(cr, 1, 1)
+            cairo_move_to(
+                cr,
+                -pango_units_to_double(viewport_left),
+                -pango_units_to_double(viewport_top),
+            )
             pango_cairo_update_layout(cr, layout)
             pango_cairo_show_layout(cr, layout)
 
             final_width, final_height, final_baseline = _measure_layout(layout)
             line_count = pango_layout_get_line_count(layout)
+            rendered_text_bytes = <bytes>pango_layout_get_text(layout)
+            rendered_text = rendered_text_bytes.decode("utf-8")
+            baseline_svg = (
+                pango_units_to_double(final_baseline)
+                - pango_units_to_double(viewport_top)
+            )
 
-            # Extract line info
             lines = []
+            layout_iter = pango_layout_get_iter(layout)
+            if layout_iter == NULL:
+                raise MemoryError("Failed to create Pango layout iterator")
             for i in range(line_count):
-                line = pango_layout_get_line(layout, i)
+                line = pango_layout_iter_get_line_readonly(layout_iter)
                 if line == NULL:
                     continue
-                pango_layout_line_get_pixel_extents(line, &ink_rect, &logical_rect)
-                info = LineInfo(
-                    text="",
-                    start_index=line.start_index,
-                    width=<float>logical_rect.width,
-                    height=<float>logical_rect.height,
-                    baseline=0,
-                    y_offset=logical_rect.y,
+                pango_layout_iter_get_line_extents(
+                    layout_iter, &ink_rect, &logical_rect
                 )
-                lines.append(info)
-
-            # Update baseline
-            for info in lines:
-                info._baseline = final_baseline - info.y_offset
+                if i + 1 < line_count:
+                    next_start_index = pango_layout_get_line(layout, i + 1).start_index
+                else:
+                    next_start_index = len(rendered_text_bytes)
+                end_index = next_start_index
+                line_text = rendered_text_bytes[line.start_index:end_index].decode("utf-8")
+                if line_text.endswith("\n"):
+                    line_text = line_text[:-1]
+                    end_index -= 1
+                lines.append(LineInfo(
+                    text=line_text,
+                    start=len(rendered_text_bytes[:line.start_index].decode("utf-8")),
+                    end=len(rendered_text_bytes[:end_index].decode("utf-8")),
+                    bounds=Bounds(
+                        pango_units_to_double(logical_rect.x - viewport_left),
+                        pango_units_to_double(logical_rect.y - viewport_top),
+                        pango_units_to_double(logical_rect.width),
+                        pango_units_to_double(logical_rect.height),
+                    ),
+                    baseline=(
+                        pango_units_to_double(
+                            pango_layout_iter_get_baseline(layout_iter)
+                        )
+                        - pango_units_to_double(viewport_top)
+                    ),
+                ))
+                if i + 1 < line_count:
+                    pango_layout_iter_next_line(layout_iter)
 
         finally:
+            if layout_iter != NULL:
+                pango_layout_iter_free(layout_iter)
+                layout_iter = NULL
             if layout != NULL:
                 g_object_unref(layout)
             if cr != NULL:
@@ -310,12 +528,24 @@ cpdef object _render_to_svg(
             os.unlink(tmp_path)
 
     return RenderedText(
-        _svg=svg_content,
-        _width=<float>final_width,
-        _height=<float>final_height,
-        _baseline=final_baseline,
-        _line_count=line_count,
-        _lines=lines,
+        svg=svg_content,
+        width=pango_units_to_double(viewport_width),
+        height=pango_units_to_double(viewport_height),
+        baseline=(
+            pango_units_to_double(final_baseline)
+            - pango_units_to_double(viewport_top)
+        ),
+        lines=tuple(lines),
+        ink_bounds=Bounds(
+            0.0, 0.0,
+            pango_units_to_double(viewport_width),
+            pango_units_to_double(viewport_height),
+        ),
+        logical_bounds=Bounds(
+            0.0, 0.0,
+            pango_units_to_double(viewport_width),
+            pango_units_to_double(viewport_height),
+        ),
     )
 
 
@@ -334,6 +564,7 @@ def render(
     justify=False,
     indent=0.0,
     disable_ligatures=False,
+    spans=(),
 ):
     """Render text to SVG."""
     # Convert weight to int if it's a Weight enum
@@ -357,11 +588,6 @@ def render(
     if line_spacing is not None:
         spacing = line_spacing
 
-    if is_markup:
-        error = validate_markup(text)
-        if error:
-            raise ValueError(f"Invalid Pango markup: {error}")
-
     return _render_to_svg(
         text=text,
         is_markup=is_markup,
@@ -376,4 +602,5 @@ def render(
         justify=justify,
         indent=indent,
         disable_ligatures=disable_ligatures,
+        spans=spans,
     )
