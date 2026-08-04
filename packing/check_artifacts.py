@@ -7,7 +7,6 @@ import tarfile
 import zipfile
 from pathlib import Path
 
-
 REQUIRED_NOTICE_PATHS = ("LICENSE", "packing/LICENSE.bin")
 
 
