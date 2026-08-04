@@ -47,6 +47,7 @@ cdef extern from "cairo.h":
     ) noexcept
 
     cairo_t* cairo_create(cairo_surface_t* target)
+    cairo_status_t cairo_status(cairo_t* cr)
     void cairo_move_to(cairo_t* cr, double x, double y)
     void cairo_destroy(cairo_t* cr)
     void cairo_surface_destroy(cairo_surface_t* surface)

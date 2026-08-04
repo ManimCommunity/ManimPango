@@ -22,6 +22,7 @@ cdef object _managed_font_paths = None
 cdef PangoFontMap* _inactive_fontmap = NULL
 cdef object _inactive_font_paths = None
 cdef unsigned long _fontmap_creations = 0
+cdef unsigned long _markup_parse_calls = 0
 _fontmap_lock = threading.RLock()
 
 
@@ -34,6 +35,14 @@ cdef cairo_status_t _write_svg_bytes(
         return CAIRO_STATUS_SUCCESS
     except Exception:
         return CAIRO_STATUS_NO_MEMORY
+
+
+cdef void _check_cairo_status(cairo_status_t status) except *:
+    """Raise the renderer's native failure type for a Cairo status value."""
+    if status != CAIRO_STATUS_SUCCESS:
+        raise RuntimeError(
+            f"Cairo error: {cairo_status_to_string(status).decode()}"
+        )
 
 
 cdef int _advance_utf8_code_point_offset(
@@ -168,6 +177,11 @@ cpdef unsigned int _font_map_cached_count():
     return count
 
 
+cpdef unsigned long _markup_parse_count():
+    """Return native markup-parser calls for private regression tests."""
+    return _markup_parse_calls
+
+
 cdef PangoFontMap* _acquire_managed_font_map() except NULL:
     _refresh_managed_font_map()
     with _fontmap_lock:
@@ -229,7 +243,10 @@ cpdef str validate_markup(str markup):
     cdef bint res
     cdef str message
 
+    global _markup_parse_calls
+
     markup_bytes = markup.encode('utf-8')
+    _markup_parse_calls += 1
     res = pango_parse_markup(
         <const char*>markup_bytes,
         -1,
@@ -269,24 +286,30 @@ cdef PangoFontDescription* _build_font_description(
     if desc == NULL:
         raise MemoryError("Failed to create PangoFontDescription")
 
-    # Public sizes are SVG user-space units, as are span sizes. The
-    # non-absolute Pango setter treats its value as points at the context DPI.
-    pango_font_description_set_absolute_size(
-        desc, pango_units_from_double(size)
-    )
+    try:
+        # Public sizes are SVG user-space units, as are span sizes. The
+        # non-absolute Pango setter treats its value as points at the context DPI.
+        pango_font_description_set_absolute_size(
+            desc, pango_units_from_double(size)
+        )
 
-    if font is not None and len(font) > 0:
-        font_bytes = font.encode('utf-8')
-        pango_font_description_set_family(desc, <const char*>font_bytes)
+        if font is not None and len(font) > 0:
+            font_bytes = font.encode('utf-8')
+            pango_font_description_set_family(desc, <const char*>font_bytes)
 
-    pango_font_description_set_weight(desc, <PangoWeight>weight)
-    pango_font_description_set_style(desc, <PangoStyle>style)
+        pango_font_description_set_weight(desc, <PangoWeight>weight)
+        pango_font_description_set_style(desc, <PangoStyle>style)
 
-    if variations is not None and len(variations) > 0:
-        variations_bytes = variations.encode('utf-8')
-        pango_font_description_set_variations(desc, <const char*>variations_bytes)
+        if variations is not None and len(variations) > 0:
+            variations_bytes = variations.encode('utf-8')
+            pango_font_description_set_variations(
+                desc, <const char*>variations_bytes
+            )
 
-    return desc
+        return desc
+    except Exception:
+        pango_font_description_free(desc)
+        raise
 
 
 cdef _set_layout_options(
@@ -424,18 +447,17 @@ cdef void _add_span_attributes(
                 pango_font_description_free(variation_desc)
 
 
-cdef void _set_layout_text_and_attributes(
-    PangoLayout* layout,
+cdef bytes _prepare_layout_text_and_attributes(
     bytes source,
     bint is_markup,
     bint disable_ligatures,
     object spans,
+    PangoAttrList** prepared_attrs,
 ) except *:
-    """Set one layout's plain text and its Pango attributes.
+    """Prepare text plus attributes once for both renderer layouts.
 
     Markup is parsed explicitly rather than delegated to Pango's combined
-    markup-layout API, so both markup and plain text follow the same
-    text-plus-attributes pipeline.
+    markup-layout API, so both markup and plain text use the same pipeline.
     This also lets ligature settings be expressed as an attribute, avoiding
     generated markup around unescaped plain text.
     """
@@ -445,38 +467,35 @@ cdef void _set_layout_text_and_attributes(
     cdef GError* err = NULL
     cdef guint32 accel_char = 0
     cdef bint parsed
+    cdef bytes prepared_text
     cdef str message
 
-    if is_markup:
-        parsed = pango_parse_markup(
-            <const char*>source,
-            -1,
-            0,
-            &attrs,
-            &parsed_text,
-            &accel_char,
-            &err,
-        )
-        if not parsed:
-            if err != NULL:
-                message = err.message.decode("utf-8", "replace")
-                g_error_free(err)
-            else:
-                message = "Unknown error"
-            if attrs != NULL:
-                pango_attr_list_unref(attrs)
-            if parsed_text != NULL:
-                g_free(parsed_text)
-            raise ValueError(f"Invalid Pango markup: {message}")
-
-        # pango_parse_markup returns an allocated, NUL-terminated UTF-8 string.
-        pango_layout_set_text(layout, <const char*>parsed_text, -1)
-        g_free(parsed_text)
-        parsed_text = NULL
-    else:
-        pango_layout_set_text(layout, <const char*>source, -1)
+    global _markup_parse_calls
 
     try:
+        if is_markup:
+            _markup_parse_calls += 1
+            parsed = pango_parse_markup(
+                <const char*>source,
+                -1,
+                0,
+                &attrs,
+                &parsed_text,
+                &accel_char,
+                &err,
+            )
+            if not parsed:
+                if err != NULL:
+                    message = err.message.decode("utf-8", "replace")
+                else:
+                    message = "Unknown error"
+                raise ValueError(f"Invalid Pango markup: {message}")
+
+            # pango_parse_markup returns an allocated, NUL-terminated UTF-8 string.
+            prepared_text = <bytes>parsed_text
+        else:
+            prepared_text = source
+
         if disable_ligatures or spans:
             if attrs == NULL:
                 attrs = pango_attr_list_new()
@@ -498,11 +517,27 @@ cdef void _set_layout_text_and_attributes(
                 raise MemoryError("Failed to create Pango ligature attribute")
             pango_attr_list_insert(attrs, features)
 
-        if attrs != NULL:
-            pango_layout_set_attributes(layout, attrs)
+        prepared_attrs[0] = attrs
+        attrs = NULL
+        return prepared_text
     finally:
+        if err != NULL:
+            g_error_free(err)
+        if parsed_text != NULL:
+            g_free(parsed_text)
         if attrs != NULL:
             pango_attr_list_unref(attrs)
+
+
+cdef void _apply_layout_text_and_attributes(
+    PangoLayout* layout,
+    bytes text,
+    PangoAttrList* attrs,
+):
+    """Apply prepared state; each layout retains its own attribute reference."""
+    pango_layout_set_text(layout, <const char*>text, -1)
+    if attrs != NULL:
+        pango_layout_set_attributes(layout, attrs)
 
 
 cpdef object _render_to_svg(
@@ -527,8 +562,8 @@ cpdef object _render_to_svg(
     cdef cairo_t* cr = NULL
     cdef PangoLayout* layout = NULL
     cdef PangoFontDescription* font_desc = NULL
+    cdef PangoAttrList* prepared_attrs = NULL
     cdef PangoLayoutIter* layout_iter = NULL
-    cdef cairo_status_t status
 
     cdef double surface_width, surface_height
     cdef int final_width, final_height, final_baseline, line_count
@@ -537,7 +572,7 @@ cpdef object _render_to_svg(
     cdef int layout_ink_x, layout_ink_y, layout_ink_width, layout_ink_height
     cdef int layout_logical_x, layout_logical_y
     cdef int layout_logical_width, layout_logical_height
-    cdef bytes text_bytes
+    cdef bytes text_bytes, prepared_text
     cdef bytearray svg_bytes = bytearray()
     cdef bytes rendered_text_bytes, line_bytes
     cdef int next_start_index, end_index, terminator_length
@@ -553,19 +588,31 @@ cpdef object _render_to_svg(
 
     text_bytes = text.encode('utf-8')
 
-    # === Measure pass ===
-    # Need a real surface to update the explicitly managed Pango context;
-    # a minimal image surface is cheapest.
-    surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 1, 1)
-    if surface == NULL:
-        raise MemoryError("Failed to create Cairo image surface for measuring")
-
-    cr = cairo_create(surface)
-    if cr == NULL:
-        cairo_surface_destroy(surface)
-        raise MemoryError("Failed to create Cairo context")
+    # Parse markup and construct all attributes once. Each layout retains its
+    # own reference when the prepared list is applied, so this outer owner can
+    # release its reference after both passes have completed.
+    prepared_text = _prepare_layout_text_and_attributes(
+        text_bytes,
+        is_markup,
+        disable_ligatures,
+        spans,
+        &prepared_attrs,
+    )
 
     try:
+        # === Measure pass ===
+        # Need a real surface to update the explicitly managed Pango context;
+        # a minimal image surface is cheapest.
+        surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 1, 1)
+        if surface == NULL:
+            raise MemoryError("Failed to create Cairo image surface for measuring")
+        _check_cairo_status(cairo_surface_status(surface))
+
+        cr = cairo_create(surface)
+        if cr == NULL:
+            raise MemoryError("Failed to create Cairo context")
+        _check_cairo_status(cairo_status(cr))
+
         layout = _create_managed_layout(cr)
         if layout == NULL:
             raise MemoryError("Failed to create Pango layout")
@@ -576,10 +623,7 @@ cpdef object _render_to_svg(
         font_desc = NULL
 
         _set_layout_options(layout, width, alignment, line_spacing, justify, indent)
-
-        _set_layout_text_and_attributes(
-            layout, text_bytes, is_markup, disable_ligatures, spans
-        )
+        _apply_layout_text_and_attributes(layout, prepared_text, prepared_attrs)
 
         final_width, final_height, final_baseline = _measure_layout(layout)
         # Layout and iterator extents are Pango units.  Keep the viewport in
@@ -610,36 +654,26 @@ cpdef object _render_to_svg(
         surface_width = pango_units_to_double(viewport_width)
         surface_height = pango_units_to_double(viewport_height)
 
-    finally:
-        if layout != NULL:
-            g_object_unref(layout)
-            layout = NULL
-        if cr != NULL:
-            cairo_destroy(cr)
-            cr = NULL
-        if surface != NULL:
-            cairo_surface_destroy(surface)
-            surface = NULL
-
-    # === Render pass ===
-    surface = cairo_svg_surface_create_for_stream(
-        _write_svg_bytes, <void*>svg_bytes, surface_width, surface_height
-    )
-
-    if surface == NULL:
-        raise MemoryError("Failed to create SVG surface")
-
-    status = cairo_surface_status(surface)
-    if status != CAIRO_STATUS_SUCCESS:
+        g_object_unref(layout)
+        layout = NULL
+        cairo_destroy(cr)
+        cr = NULL
         cairo_surface_destroy(surface)
-        raise RuntimeError(f"Cairo error: {cairo_status_to_string(status).decode()}")
+        surface = NULL
 
-    cr = cairo_create(surface)
-    if cr == NULL:
-        cairo_surface_destroy(surface)
-        raise MemoryError("Failed to create Cairo context")
+        # === Render pass ===
+        surface = cairo_svg_surface_create_for_stream(
+            _write_svg_bytes, <void*>svg_bytes, surface_width, surface_height
+        )
+        if surface == NULL:
+            raise MemoryError("Failed to create SVG surface")
+        _check_cairo_status(cairo_surface_status(surface))
 
-    try:
+        cr = cairo_create(surface)
+        if cr == NULL:
+            raise MemoryError("Failed to create Cairo context")
+        _check_cairo_status(cairo_status(cr))
+
         layout = _create_managed_layout(cr)
         if layout == NULL:
             raise MemoryError("Failed to create Pango layout")
@@ -650,10 +684,7 @@ cpdef object _render_to_svg(
         font_desc = NULL
 
         _set_layout_options(layout, width, alignment, line_spacing, justify, indent)
-
-        _set_layout_text_and_attributes(
-            layout, text_bytes, is_markup, disable_ligatures, spans
-        )
+        _apply_layout_text_and_attributes(layout, prepared_text, prepared_attrs)
 
         cairo_move_to(
             cr,
@@ -662,6 +693,7 @@ cpdef object _render_to_svg(
         )
         pango_cairo_update_layout(cr, layout)
         pango_cairo_show_layout(cr, layout)
+        _check_cairo_status(cairo_status(cr))
 
         final_width, final_height, final_baseline = _measure_layout(layout)
         line_count = pango_layout_get_line_count(layout)
@@ -735,9 +767,7 @@ cpdef object _render_to_svg(
                 pango_layout_iter_next_line(layout_iter)
 
         cairo_surface_finish(surface)
-        status = cairo_surface_status(surface)
-        if status != CAIRO_STATUS_SUCCESS:
-            raise RuntimeError(f"Cairo error: {cairo_status_to_string(status).decode()}")
+        _check_cairo_status(cairo_surface_status(surface))
         svg_content = bytes(svg_bytes).decode("utf-8")
     finally:
         if layout_iter != NULL:
@@ -745,10 +775,14 @@ cpdef object _render_to_svg(
             layout_iter = NULL
         if layout != NULL:
             g_object_unref(layout)
+        if font_desc != NULL:
+            pango_font_description_free(font_desc)
         if cr != NULL:
             cairo_destroy(cr)
         if surface != NULL:
             cairo_surface_destroy(surface)
+        if prepared_attrs != NULL:
+            pango_attr_list_unref(prepared_attrs)
 
     return RenderedText(
         svg=svg_content,

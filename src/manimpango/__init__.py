@@ -515,23 +515,27 @@ def render_markup(
         disable_ligatures=disable_ligatures,
         reject_nul_text=False,
     )
-    markup_error = validate_markup(markup)
-    if markup_error:
-        raise MarkupError(f"Invalid Pango markup: {markup_error}")
-    return _render_native(
-        text=markup,
-        is_markup=True,
-        **_native_options(
-            font=font,
-            size=size,
-            weight=weight,
-            style=style,
-            variations=variations,
-            width=width,
-            alignment=alignment,
-            line_spacing=line_spacing,
-            justify=justify,
-            indent=indent,
-            disable_ligatures=disable_ligatures,
-        ),
-    )
+    if "\0" in markup:
+        raise MarkupError(
+            "Invalid Pango markup: markup must not contain NUL characters"
+        )
+    try:
+        return _render_native(
+            text=markup,
+            is_markup=True,
+            **_native_options(
+                font=font,
+                size=size,
+                weight=weight,
+                style=style,
+                variations=variations,
+                width=width,
+                alignment=alignment,
+                line_spacing=line_spacing,
+                justify=justify,
+                indent=indent,
+                disable_ligatures=disable_ligatures,
+            ),
+        )
+    except ValueError as error:
+        raise MarkupError(str(error)) from error

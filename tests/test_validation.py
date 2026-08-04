@@ -128,6 +128,15 @@ def test_render_markup_is_a_separate_entry_point_and_invalid_markup_raises_marku
         manimpango.render_markup("<b>unclosed")
 
 
+def test_render_markup_parses_successful_markup_once():
+    before = manimpango._render._markup_parse_count()
+
+    result = manimpango.render_markup("<b>one parse</b>")
+
+    assert result.lines[0].text == "one parse"
+    assert manimpango._render._markup_parse_count() == before + 1
+
+
 @pytest.mark.parametrize(
     "markup", ["\0<b>text</b>", "<b>text</b>\0<b>bad", "<b>text</b>\0"]
 )
@@ -146,7 +155,9 @@ def test_render_markup_turns_embedded_nul_diagnostic_into_markup_error(markup):
 
 
 def test_invalid_markup_does_not_emit_native_warnings_to_stderr(capfd):
+    before = manimpango._render._markup_parse_count()
     with pytest.raises((manimpango.MarkupError, ValueError)):
         manimpango.render_markup("<b>unclosed")
 
+    assert manimpango._render._markup_parse_count() == before + 1
     assert capfd.readouterr().err == ""
