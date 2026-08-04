@@ -3,11 +3,10 @@ name: Build Wheels
 on:
   push:
     branches: [main, rewrite-v2]
-    tags: ["v*"]
   pull_request:
     branches: [main, rewrite-v2]
   release:
-    types: [created]
+    types: [published]
 
 jobs:
   build-wheels:

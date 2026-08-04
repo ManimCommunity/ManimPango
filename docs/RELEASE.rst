@@ -13,26 +13,16 @@ All versioning follows `Semantic Versioning 2.0.0 <https://semver.org/>`_.
 3. Open and merge the release-preparation pull request. Confirm CI passes on
    its merge commit.
 
-4. Create a signed, annotated tag for that commit and push it:
+4. Create and publish a GitHub release targeting that merge commit. In the
+   release form, create the ``v<version-number>`` tag; GitHub creates and
+   pushes it as part of publishing the release. Draft releases are inert;
+   publishing the release starts the package build and publication.
 
-   .. code-block:: sh
-
-      git tag -s v<version-number>
-      git push origin v<version-number>
-
-   .. note::
-
-      ``-s`` signs the tag with GPG so its provenance is visible to users.
-
-5. Create and publish a GitHub release from the tag. Do not save it as a
-   draft: the ``release: created`` workflow event starts the package build and
-   publication.
-
-6. Monitor the `Wheels Build`_ workflow. It builds the supported wheels and
+5. Monitor the `Wheels Build`_ workflow. It builds the supported wheels and
    source distribution, publishes them to `PyPI`_, and attaches the artifacts
    to the GitHub release only after every build succeeds.
 
-7. In a fresh virtual environment, install the published package and run a
+6. In a fresh virtual environment, install the published package and run a
    small rendering smoke test on each platform for which a wheel was released.
 
 

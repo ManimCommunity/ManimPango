@@ -3,7 +3,6 @@ name: Tests
 on:
   push:
     branches: [main, rewrite-v2]
-    tags: ["v*"]
   pull_request:
     branches: [main, rewrite-v2]
 
