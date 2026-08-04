@@ -148,8 +148,12 @@ Variable Fonts
 ``weight`` accepts a :class:`~manimpango.Weight` member or an integer from
 1 through 1000.  Use ``variations`` for OpenType axes; axis tags contain
 exactly four ASCII characters.  Visible variation-axis effects currently
-require Pango's fontconfig backend (normally Linux); macOS and Windows do not
-apply them with their default backends.
+depend on both the requested axis and Pango's active font backend.  The
+standard ``wght`` axis is supported by the current Linux/fontconfig and
+macOS/CoreText backends.  Other axes are less portable: for example, the
+``CNTR`` axis of the bundled test font currently requires the fontconfig
+backend (normally Linux).  Test variation-dependent output on every platform
+you support.
 
 .. code-block:: python
 

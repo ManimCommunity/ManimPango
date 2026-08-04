@@ -6,8 +6,8 @@ from manimpango.enums import Alignment, Style, Weight
 class TestStyle:
     def test_values(self):
         assert Style.NORMAL.value == 0
-        assert Style.ITALIC.value == 1
-        assert Style.OBLIQUE.value == 2
+        assert Style.OBLIQUE.value == 1
+        assert Style.ITALIC.value == 2
 
     def test_members(self):
         assert len(Style) == 3

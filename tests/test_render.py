@@ -259,24 +259,11 @@ class TestVariableFonts:
       - wght: 200–900 (weight)
       - CNTR: 0–100  (contrast)
 
-    Note on ``variations=`` parameter and Pango backends:
-
-    ``pango_font_description_set_variations()`` only produces visible
-    results with the PangoFT2/fontconfig backend (default on Linux).
-
-    On macOS, the PangoCoreText backend stores the variations string
-    in the font key and passes it to ``cairo_font_options_set_variations()``,
-    but the underlying ``CTFontCreateWithFontDescriptor()`` call does not
-    apply them (Pango source: ``pangocoretext-fontmap.c`` line ~1601
-    explicitly warns "variations are ignored" in ``reload_font``).  Cairo's
-    Quartz font backend also does not read the variations option.
-
-    The ``weight=`` parameter works on all platforms because Pango maps it
-    through each backend's native font matching (CoreText understands weight
-    natively).
-
-    On macOS with Homebrew Pango, setting ``PANGOCAIRO_BACKEND=fc`` forces
-    the fontconfig backend and makes ``variations=`` work.
+    Variation behavior is axis- and backend-specific.  The fixture's
+    ``wght`` axis is applied by the current default Linux/fontconfig and
+    macOS/CoreText backends.  Its ``CNTR`` axis is currently applied by the
+    fontconfig backend only; the default macOS and Windows backends do not
+    visibly change it.
     """
 
     FONT_NAME = "Adobe Variable Font Prototype"
@@ -314,8 +301,10 @@ class TestVariableFonts:
         assert_valid_result(result)
 
     @pytest.mark.xfail(
-        sys.platform != "linux",
-        reason="Font variations are not supported on non-fontconfig backends (macOS CoreText, Windows)",
+        sys.platform == "win32",
+        strict=True,
+        reason="Pango's default Windows backend does not currently apply "
+        "the Adobe fixture's wght variation axis",
     )
     def test_variations_wght_produces_different_svg(self):
         """Changing the wght axis via variations= produces different glyphs."""
@@ -335,7 +324,9 @@ class TestVariableFonts:
 
     @pytest.mark.xfail(
         sys.platform != "linux",
-        reason="Font variations are not supported on non-fontconfig backends (macOS CoreText, Windows)",
+        strict=True,
+        reason="Pango's default non-fontconfig backends do not currently "
+        "apply the Adobe fixture's CNTR variation axis",
     )
     def test_variations_cntr_produces_different_svg(self):
         """Changing the CNTR axis via variations= produces different glyphs."""

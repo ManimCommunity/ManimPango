@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import dataclasses
+from pathlib import Path
 
 import pytest
 
 import manimpango
+
+FONT_DIR = Path(__file__).parent / "fonts"
 
 
 def text_span(**kwargs):
@@ -73,3 +76,21 @@ def test_disjoint_span_attributes_compose():
     )
 
     assert result.width > 0
+
+
+@pytest.mark.parametrize("style", [manimpango.Style.ITALIC, manimpango.Style.OBLIQUE])
+def test_top_level_and_span_styles_use_the_same_pango_slant(style):
+    """Both public styling paths must preserve the Pango ``Style`` value."""
+    text = "Hamburgefons"
+    with manimpango.register_font(FONT_DIR / "AdobeVFPrototype.ttf"):
+        common = {"font": "Adobe Variable Font Prototype"}
+        normal = manimpango.render(text, **common)
+        top_level = manimpango.render(text, style=style, **common)
+        span = manimpango.render(
+            text,
+            spans=(text_span(start=0, end=len(text), style=style),),
+            **common,
+        )
+
+    assert top_level.svg != normal.svg
+    assert span.svg == top_level.svg

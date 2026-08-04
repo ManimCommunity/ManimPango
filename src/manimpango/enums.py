@@ -18,14 +18,14 @@ class Style(Enum):
     NORMAL
         The font is upright.
     ITALIC
-        The font is slanted in a roman style.
+        The font uses its italic face when available.
     OBLIQUE
-        The font is slanted in an italic style.
+        The font is slanted from its upright face when available.
     """
 
     NORMAL = 0
-    ITALIC = 1
-    OBLIQUE = 2
+    OBLIQUE = 1
+    ITALIC = 2
 
 
 class Weight(int, Enum):

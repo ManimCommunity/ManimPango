@@ -104,8 +104,8 @@ cdef extern from "pango/pango.h":
     # Enums
     ctypedef enum PangoStyle:
         PANGO_STYLE_NORMAL
-        PANGO_STYLE_ITALIC
         PANGO_STYLE_OBLIQUE
+        PANGO_STYLE_ITALIC
 
     ctypedef enum PangoWeight:
         PANGO_WEIGHT_THIN = 100
