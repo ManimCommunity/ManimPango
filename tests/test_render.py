@@ -259,11 +259,12 @@ class TestVariableFonts:
       - wght: 200–900 (weight)
       - CNTR: 0–100  (contrast)
 
-    Variation behavior is axis- and backend-specific.  The fixture's
-    ``wght`` axis currently changes output on Linux, macOS, and Windows.
-    Its ``CNTR`` axis currently changes output on Linux and Windows, but not
-    through the current macOS Pango/CoreText/Cairo stack.  This is a
-    fixture-and-renderer observation, not a general CoreText limitation.
+    ManimPango forwards variation settings to Pango, while visible effects
+    remain axis-, font-, and backend-specific.  The fixture's ``wght`` axis
+    currently changes output on Linux, macOS, and Windows.  Its ``CNTR`` axis
+    currently changes output on Linux and Windows, but not through the
+    current macOS Pango/CoreText/Cairo stack.  This is a fixture-and-renderer
+    observation, not a general CoreText limitation.
     """
 
     FONT_NAME = "Adobe Variable Font Prototype"

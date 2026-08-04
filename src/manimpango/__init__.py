@@ -360,7 +360,8 @@ def render(
         overridden by a span.
     variations
         Mapping of four-ASCII-character OpenType variation-axis tags to
-        finite numeric values.
+        finite numeric values.  Settings are forwarded to Pango; visible
+        effects depend on the selected font, axis, and renderer backend.
     width
         Positive wrapping width in SVG user-space units, or ``None`` for no
         width constraint.

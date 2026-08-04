@@ -41,7 +41,8 @@ class TextSpan:
         boolean values.  Boolean values are converted to ``0`` or ``1``.
     variations
         Mapping of four-ASCII-character OpenType variation-axis tags to
-        finite numeric values.
+        finite numeric values.  Settings are forwarded to Pango; visible
+        effects depend on the selected font, axis, and renderer backend.
     """
 
     start: int
