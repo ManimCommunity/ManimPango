@@ -32,6 +32,7 @@ cdef void _raise_backend_error(char* error) except *:
 cdef void _invalidate_pango_font_map():
     """Discard the cached Cairo font map after a process-global mutation."""
     pango_cairo_font_map_set_default(NULL)
+    manimpango_invalidate_font_backend()
 
 
 cpdef bint register_font(str font_path):

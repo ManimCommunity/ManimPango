@@ -57,8 +57,11 @@ jobs:
           printf '%s\n' 'C:\cibw\vendor\bin' >> "$GITHUB_PATH"
           printf '%s\n' 'PKG_CONFIG_PATH=C:\cibw\vendor\lib\pkgconfig' >> "$GITHUB_ENV"
 
-      - name: Sync the locked development environment
-        run: uv sync --locked --group dev
+      - name: Install locked development dependencies
+        run: uv sync --locked --group dev --no-install-project
+
+      - name: Install editable project without build isolation
+        run: uv pip install --no-build-isolation --editable .
 
       - name: Run tests
-        run: uv run pytest
+        run: uv run --no-sync pytest

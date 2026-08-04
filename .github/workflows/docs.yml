@@ -29,11 +29,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libpango1.0-dev libcairo2-dev pkg-config
 
-      - name: Sync the locked development environment
-        run: uv sync --locked --group dev
+      - name: Install locked development dependencies
+        run: uv sync --locked --group dev --no-install-project
+
+      - name: Install editable project without build isolation
+        run: uv pip install --no-build-isolation --editable .
 
       - name: Install documentation dependencies
         run: uv pip install -r docs/requirements.txt
 
       - name: Build documentation strictly
-        run: uv run sphinx-build -W --keep-going -b html docs docs/_build/html
+        run: uv run --no-sync sphinx-build -W --keep-going -b html docs docs/_build/html

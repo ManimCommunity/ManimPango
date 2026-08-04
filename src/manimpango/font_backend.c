@@ -8,6 +8,7 @@
 #include <CoreText/CoreText.h>
 #elif defined(_WIN32)
 #include <windows.h>
+#include <pango/pangowin32.h>
 #elif defined(__linux__)
 #include <fontconfig/fontconfig.h>
 #endif
@@ -221,5 +222,16 @@ manimpango_unregister_font(const char *utf8_path, char **error)
 #else
     set_error(error, "font unregistration is unsupported on this platform");
     return 0;
+#endif
+}
+
+void
+manimpango_invalidate_font_backend(void)
+{
+#ifdef _WIN32
+    /* PangoWin32 caches the process font enumeration independently from the
+     * PangoCairo default map.  AddFontResourceExW does not notify that cache;
+     * discard it after every private-font mutation before creating a new map. */
+    pango_win32_shutdown_display();
 #endif
 }
