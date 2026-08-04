@@ -15,6 +15,18 @@ def test_render_rejects_non_string_text_before_native_rendering(text):
         manimpango.render(text)
 
 
+@pytest.mark.parametrize("text", ["\0text", "text\0suffix", "text\0"])
+def test_render_rejects_embedded_nul_literal_text(text):
+    with pytest.raises(ValueError, match="NUL"):
+        manimpango.render(text)
+
+
+@pytest.mark.parametrize("font", ["\0family", "family\0suffix", "family\0"])
+def test_render_rejects_embedded_nul_font_family(font):
+    with pytest.raises(ValueError, match="NUL"):
+        manimpango.render("text", font=font)
+
+
 @pytest.mark.parametrize("size", [0, -1, math.inf, -math.inf, math.nan])
 def test_render_rejects_non_positive_or_non_finite_sizes(size):
     with pytest.raises(ValueError):
@@ -66,6 +78,12 @@ def test_render_validates_opentype_axis_tags_and_values(variations):
         manimpango.render("text", variations=variations)
 
 
+@pytest.mark.parametrize("tag", ["wg\0t", "wg\nt", "wg\tt", "wg\x1ft"])
+def test_render_rejects_control_characters_in_variation_tags(tag):
+    with pytest.raises(ValueError, match="printable ASCII"):
+        manimpango.render("text", variations={tag: 500})
+
+
 def test_public_exception_hierarchy_is_package_specific():
     assert issubclass(manimpango.RenderError, manimpango.ManimPangoError)
     assert issubclass(manimpango.MarkupError, (ValueError, manimpango.ManimPangoError))
@@ -108,6 +126,23 @@ def test_render_markup_is_a_separate_entry_point_and_invalid_markup_raises_marku
     assert callable(manimpango.render_markup)
     with pytest.raises((manimpango.MarkupError, ValueError)):
         manimpango.render_markup("<b>unclosed")
+
+
+@pytest.mark.parametrize(
+    "markup", ["\0<b>text</b>", "<b>text</b>\0<b>bad", "<b>text</b>\0"]
+)
+def test_validate_markup_reports_embedded_nul_deterministically(markup):
+    assert (
+        manimpango.validate_markup(markup) == "markup must not contain NUL characters"
+    )
+
+
+@pytest.mark.parametrize(
+    "markup", ["\0<b>text</b>", "<b>text</b>\0<b>bad", "<b>text</b>\0"]
+)
+def test_render_markup_turns_embedded_nul_diagnostic_into_markup_error(markup):
+    with pytest.raises(manimpango.MarkupError, match="NUL"):
+        manimpango.render_markup(markup)
 
 
 def test_invalid_markup_does_not_emit_native_warnings_to_stderr(capfd):

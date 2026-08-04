@@ -155,9 +155,10 @@ def get_version_info() -> dict[str, str]:
 def validate_markup(markup: str) -> str:
     """Validate a Pango markup string without rendering it.
 
-    Returns an empty string when ``markup`` is valid.  Otherwise returns the
-    diagnostic supplied by Pango; :func:`render_markup` turns that diagnostic
-    into :class:`MarkupError`.
+    Returns an empty string when ``markup`` is valid. Otherwise returns a
+    diagnostic explaining why it is invalid. :func:`render_markup` turns that
+    diagnostic into :class:`MarkupError`. Embedded NUL characters are
+    rejected before Pango parses the source.
 
     Raises
     ------
@@ -166,6 +167,8 @@ def validate_markup(markup: str) -> str:
     """
     if not isinstance(markup, str):
         raise TypeError("markup must be a string")
+    if "\0" in markup:
+        return "markup must not contain NUL characters"
     return _render.validate_markup(markup)
 
 
@@ -253,11 +256,16 @@ def _validate_options(
     justify: bool,
     indent: float,
     disable_ligatures: bool,
+    reject_nul_text: bool = True,
 ) -> None:
     if not isinstance(text, str):
         raise TypeError("text must be a string")
+    if reject_nul_text and "\0" in text:
+        raise ValueError("text must not contain NUL characters")
     if font is not None and not isinstance(font, str):
         raise TypeError("font must be a string or None")
+    if font is not None and "\0" in font:
+        raise ValueError("font must not contain NUL characters")
     _finite(size, "size", positive=True)
     if (
         isinstance(weight, bool)
@@ -344,22 +352,22 @@ def render(
     Parameters
     ----------
     text
-        Literal Unicode text to render.
+        Literal Unicode text to render, without embedded NUL characters.
     spans
         :class:`TextSpan` instances for half-open code-point ranges of
         ``text``.  Compatible overlaps compose; conflicting values raise
         :class:`ValueError`.
     font
-        Font family name, or ``None`` for Pango's default family.  To use a
-        font file that is not installed system-wide, register it first with
-        :func:`register_font`.
+        Font family name without embedded NUL characters, or ``None`` for
+        Pango's default family. To use a font file that is not installed
+        system-wide, register it first with :func:`register_font`.
     size
         Positive absolute font size in SVG user-space units.
     weight, style
         Base :class:`Weight`/integer and :class:`Style` for text not
         overridden by a span.
     variations
-        Mapping of four-ASCII-character OpenType variation-axis tags to
+        Mapping of four-printable-ASCII-character OpenType variation-axis tags to
         finite numeric values.  Settings are forwarded to Pango; visible
         effects depend on the selected font, axis, and renderer backend.
     width
@@ -454,7 +462,7 @@ def render_markup(
     Parameters
     ----------
     markup
-        A Unicode string using Pango markup.
+        A Unicode string using Pango markup, without embedded NUL characters.
 
     Notes
     -----
@@ -488,6 +496,7 @@ def render_markup(
         justify=justify,
         indent=indent,
         disable_ligatures=disable_ligatures,
+        reject_nul_text=False,
     )
     markup_error = validate_markup(markup)
     if markup_error:

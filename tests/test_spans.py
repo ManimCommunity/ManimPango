@@ -35,6 +35,30 @@ def test_span_offsets_are_half_open_python_code_point_offsets():
     assert result.lines[0].text[span.start : span.end] == "é"
 
 
+@pytest.mark.parametrize("font", ["\0family", "family\0suffix", "family\0"])
+def test_span_font_rejects_embedded_nul(font):
+    span = text_span(start=0, end=1, font=font)
+
+    with pytest.raises(ValueError, match="NUL"):
+        manimpango.render("a", spans=(span,))
+
+
+@pytest.mark.parametrize("foreground", ["\0red", "red\0suffix", "red\0"])
+def test_span_foreground_rejects_embedded_nul(foreground):
+    span = text_span(start=0, end=1, foreground=foreground)
+
+    with pytest.raises(ValueError, match="NUL"):
+        manimpango.render("a", spans=(span,))
+
+
+@pytest.mark.parametrize("tag", ["liga\0", "liga\n", "liga\t", "lig\x1f"])
+def test_span_features_reject_control_character_tags(tag):
+    span = text_span(start=0, end=1, features={tag: True})
+
+    with pytest.raises(ValueError, match="printable ASCII"):
+        manimpango.render("a", spans=(span,))
+
+
 def test_spans_preserve_plain_special_characters_without_markup_escaping():
     text = "A & B < C"
     result = manimpango.render(

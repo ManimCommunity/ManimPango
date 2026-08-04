@@ -25,8 +25,8 @@ class TextSpan:
         Python code-point offsets satisfying ``0 <= start <= end <= len(text)``.
         The range includes ``start`` and excludes ``end``, matching slicing.
     font
-        Font family name for the range, or ``None`` to inherit the render
-        call's font.
+        Font family name without embedded NUL characters for the range, or
+        ``None`` to inherit the render call's font.
     size
         Positive absolute size in SVG user-space units, or ``None`` to
         inherit the render call's size.
@@ -35,15 +35,16 @@ class TextSpan:
     style
         A :class:`~manimpango.Style` member.
     foreground
-        A Pango foreground-color specification, such as ``"#3366cc"``.
+        A Pango foreground-color specification without embedded NUL
+        characters, such as ``"#3366cc"``.
     features
-        Mapping of four-ASCII-character OpenType feature tags to integer or
+        Mapping of four-printable-ASCII-character OpenType feature tags to integer or
         boolean values.  Boolean values are converted to ``0`` or ``1``.
         When :func:`manimpango.render` is called with
         ``disable_ligatures=True``, that setting overrides values for its
         ligature-related tags.
     variations
-        Mapping of four-ASCII-character OpenType variation-axis tags to
+        Mapping of four-printable-ASCII-character OpenType variation-axis tags to
         finite numeric values.  Settings are forwarded to Pango; visible
         effects depend on the selected font, axis, and renderer backend.
     """
@@ -71,8 +72,14 @@ def _require_finite_number(
 
 
 def _validate_tag(tag: object, name: str) -> str:
-    if not isinstance(tag, str) or len(tag) != 4 or not tag.isascii():
-        raise ValueError(f"{name} keys must be four-character ASCII OpenType tags")
+    if (
+        not isinstance(tag, str)
+        or len(tag) != 4
+        or any(not 0x20 <= ord(character) <= 0x7E for character in tag)
+    ):
+        raise ValueError(
+            f"{name} keys must be four-character printable ASCII OpenType tags"
+        )
     return tag
 
 
@@ -119,6 +126,8 @@ def validate_spans(spans: Sequence[TextSpan], text: str) -> tuple[TextSpan, ...]
             )
         if span.font is not None and not isinstance(span.font, str):
             raise TypeError("TextSpan.font must be a string or None")
+        if span.font is not None and "\0" in span.font:
+            raise ValueError("TextSpan.font must not contain NUL characters")
         if span.size is not None:
             _require_finite_number(span.size, "TextSpan.size", positive=True)
         if span.weight is not None:
@@ -127,6 +136,8 @@ def validate_spans(spans: Sequence[TextSpan], text: str) -> tuple[TextSpan, ...]
             raise TypeError("TextSpan.style must be a Style or None")
         if span.foreground is not None and not isinstance(span.foreground, str):
             raise TypeError("TextSpan.foreground must be a string or None")
+        if span.foreground is not None and "\0" in span.foreground:
+            raise ValueError("TextSpan.foreground must not contain NUL characters")
         if span.features is not None:
             if not isinstance(span.features, Mapping):
                 raise TypeError("TextSpan.features must be a mapping or None")
