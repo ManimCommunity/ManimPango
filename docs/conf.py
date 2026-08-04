@@ -16,16 +16,16 @@
 # sys.path.insert(0, os.path.abspath(".."))
 
 
+from importlib.metadata import version as distribution_version
 from pathlib import Path
 
 # -- Project information -----------------------------------------------------
-from pkg_resources import get_distribution
 
 project = "ManimPango"
 copyright = "2021, The Manim Community Dev Team"
 author = "The Manim Community Dev Team"
 
-release = get_distribution("ManimPango").version
+release = distribution_version("ManimPango")
 version = ".".join(release.split(".")[:2])
 
 
