@@ -35,6 +35,29 @@ cdef void _invalidate_pango_font_map():
     manimpango_invalidate_font_backend()
 
 
+cdef void _populate_windows_default_map() except *:
+    """Load active private files into Pango 1.56's default Win32 map."""
+    cdef bytes path_bytes
+    cdef char* error = NULL
+    cdef int success
+    cdef str active_path
+
+    if sys.platform != "win32":
+        return
+    for active_path in sorted(_active_paths):
+        path_bytes = active_path.encode("utf-8")
+        error = NULL
+        success = manimpango_load_font_into_default_map(
+            <const char*>path_bytes, &error
+        )
+        if not success:
+            _raise_backend_error(error)
+
+
+cdef bint _uses_default_font_map():
+    return sys.platform == "win32"
+
+
 cpdef bint register_font(str font_path):
     """Perform one native registration for ``font_path``.
 
@@ -53,6 +76,7 @@ cpdef bint register_font(str font_path):
             _raise_backend_error(error)
         _active_paths.add(font_path)
         _invalidate_pango_font_map()
+        _populate_windows_default_map()
     return True
 
 
@@ -83,6 +107,7 @@ cpdef bint unregister_font(str font_path):
                 if not success:
                     _raise_backend_error(error)
         _invalidate_pango_font_map()
+        _populate_windows_default_map()
     return True
 
 
@@ -94,9 +119,16 @@ cpdef list list_fonts():
     cdef int i
     cdef const char* name_ptr
     cdef set family_names = set()
+    cdef bint owns_fontmap = False
 
     with _backend_lock:
-        fontmap = pango_cairo_font_map_new()
+        if _uses_default_font_map():
+            # Rendering also uses PangoCairo's default map; on Windows this
+            # is the map populated with the active private font files.
+            fontmap = pango_cairo_font_map_get_default()
+        else:
+            fontmap = pango_cairo_font_map_new()
+            owns_fontmap = True
         if fontmap == NULL:
             raise MemoryError("Failed to create PangoFontMap")
         try:
@@ -109,7 +141,7 @@ cpdef list list_fonts():
             # Pango transfers the GList-style pointer array to the caller.
             if families != NULL:
                 g_free(families)
-            if fontmap != NULL:
+            if owns_fontmap and fontmap != NULL:
                 g_object_unref(fontmap)
 
     return sorted(family_names)

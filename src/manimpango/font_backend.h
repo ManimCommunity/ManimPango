@@ -8,5 +8,6 @@
 int manimpango_register_font(const char *utf8_path, char **error);
 int manimpango_unregister_font(const char *utf8_path, char **error);
 void manimpango_invalidate_font_backend(void);
+int manimpango_load_font_into_default_map(const char *utf8_path, char **error);
 
 #endif

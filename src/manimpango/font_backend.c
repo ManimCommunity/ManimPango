@@ -8,6 +8,7 @@
 #include <CoreText/CoreText.h>
 #elif defined(_WIN32)
 #include <windows.h>
+#include <pango/pangocairo.h>
 #include <pango/pangowin32.h>
 #elif defined(__linux__)
 #include <fontconfig/fontconfig.h>
@@ -233,5 +234,39 @@ manimpango_invalidate_font_backend(void)
      * PangoCairo default map.  AddFontResourceExW does not notify that cache;
      * discard it after every private-font mutation before creating a new map. */
     pango_win32_shutdown_display();
+#endif
+}
+
+int
+manimpango_load_font_into_default_map(const char *utf8_path, char **error)
+{
+    if (error != NULL) {
+        *error = NULL;
+    }
+#ifdef _WIN32
+    PangoFontMap *fontmap;
+    GError *gerror = NULL;
+
+    fontmap = pango_cairo_font_map_get_default();
+    if (fontmap == NULL) {
+        set_error(error, "could not create Pango's default Cairo font map");
+        return 0;
+    }
+    if (!pango_font_map_add_font_file(fontmap, utf8_path, &gerror)) {
+        if (error != NULL && gerror != NULL) {
+            *error = g_strdup(gerror->message);
+        } else {
+            set_error(error, "Pango could not load the registered font file");
+        }
+        if (gerror != NULL) {
+            g_error_free(gerror);
+        }
+        return 0;
+    }
+    return 1;
+#else
+    (void)utf8_path;
+    set_error(error, "Pango default-map font loading is only required on Windows");
+    return 0;
 #endif
 }
