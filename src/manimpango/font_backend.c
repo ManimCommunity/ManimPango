@@ -11,6 +11,7 @@
 #include <windows.h>
 #elif defined(__linux__)
 #include <fontconfig/fontconfig.h>
+#include <pango/pangofc-fontmap.h>
 #endif
 
 static void
@@ -182,10 +183,11 @@ manimpango_register_font(const char *utf8_path, char **error)
     }
     return 1;
 #elif defined(__linux__)
-    if (!FcConfigAppFontAddFile(NULL, (const FcChar8 *)utf8_path)) {
-        set_error(error, "Fontconfig rejected the font file");
-        return 0;
-    }
+    /* Linux registrations are materialized into a renderer-private
+     * Fontconfig configuration in manimpango_build_font_map().  Touching the
+     * process default configuration here would make one renderer's lifetime
+     * affect application fonts owned by unrelated libraries. */
+    (void)utf8_path;
     return 1;
 #else
     set_error(error, "font registration is unsupported on this platform");
@@ -216,9 +218,7 @@ manimpango_unregister_font(const char *utf8_path, char **error)
     }
     return 1;
 #elif defined(__linux__)
-    /* Fontconfig has no per-file app-font removal API.  The Cython layer
-     * atomically rebuilds the current application-font set after this call. */
-    FcConfigAppFontClear(NULL);
+    /* See manimpango_register_font(): Linux font state belongs to the map. */
     return 1;
 #else
     set_error(error, "font unregistration is unsupported on this platform");
@@ -244,6 +244,40 @@ manimpango_build_font_map(const char *const *utf8_paths, size_t count, char **er
         set_error(error, "could not create the managed Pango Cairo font map");
         return NULL;
     }
+#if defined(__linux__)
+    {
+        FcConfig *config = FcConfigCreate();
+
+        if (config == NULL) {
+            set_error(error, "could not create a private Fontconfig configuration");
+            g_object_unref(new_map);
+            return NULL;
+        }
+        /* NULL loads the same default configuration files that FcInit uses,
+         * but into this independent configuration.  Build its system-font
+         * database before adding our transient application fonts. */
+        if (!FcConfigParseAndLoad(config, NULL, FcTrue) ||
+            !FcConfigBuildFonts(config)) {
+            set_error(error, "could not load the private Fontconfig configuration");
+            FcConfigDestroy(config);
+            g_object_unref(new_map);
+            return NULL;
+        }
+        for (i = 0; i < count; i++) {
+            if (!FcConfigAppFontAddFile(config, (const FcChar8 *)utf8_paths[i])) {
+                set_error(error, "Fontconfig rejected the font file");
+                FcConfigDestroy(config);
+                g_object_unref(new_map);
+                return NULL;
+            }
+        }
+        /* On Linux PangoCairo's map is a PangoFcFontMap.  The setter retains
+         * its own config reference, so release our construction reference. */
+        pango_fc_font_map_set_config(PANGO_FC_FONT_MAP(new_map), config);
+        FcConfigDestroy(config);
+        return new_map;
+    }
+#endif
     for (i = 0; i < count; i++) {
 #if defined(_WIN32) && PANGO_VERSION_CHECK(1, 56, 0)
         if (!pango_font_map_add_font_file(new_map, utf8_paths[i], &gerror)) {
