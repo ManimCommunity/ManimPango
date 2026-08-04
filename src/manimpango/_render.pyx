@@ -462,7 +462,13 @@ cdef void _set_layout_text_and_attributes(
         _add_span_attributes(attrs, spans, len(source))
 
     if disable_ligatures:
-        features = pango_attr_font_features_new(b"liga=0,dlig=0,clig=0,hlig=0")
+        # Insert this after parsed markup and structured spans.  Pango's
+        # insertion semantics replace overlapping attributes of the same
+        # type, so this global setting deliberately takes precedence over a
+        # local ``font_features`` attribute.
+        features = pango_attr_font_features_new(
+            b"liga=0,dlig=0,clig=0,hlig=0,calt=0"
+        )
         if features == NULL:
             pango_attr_list_unref(attrs)
             raise MemoryError("Failed to create Pango ligature attribute")

@@ -248,6 +248,27 @@ class TestRenderLayout:
         assert result.width > 0
         assert_svg_has_visible_drawing(result.svg)
 
+    def test_disable_ligatures_overrides_markup_font_features(self):
+        """The global option must also override Pango markup attributes."""
+        text = "-> != ==="
+        markup = f'<span font_features="calt=1">{text}</span>'
+        with manimpango.register_font(FONT_DIR / "FiraCode-Regular.ttf"):
+            common = {"font": "Fira Code"}
+            enabled = manimpango.render_markup(markup, **common)
+            disabled = manimpango.render_markup(
+                markup,
+                disable_ligatures=True,
+                **common,
+            )
+            plain_disabled = manimpango.render(
+                text,
+                disable_ligatures=True,
+                **common,
+            )
+
+        assert enabled.svg != disabled.svg
+        assert disabled.svg == plain_disabled.svg
+
 
 # ── Variable fonts ───────────────────────────────────────────────────────
 

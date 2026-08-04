@@ -2,5 +2,10 @@ MaShanZheng-Regular.ttf from https://fonts.google.com/specimen/Ma+Shan+Zheng
 BungeeColor-Regular_colr_Windows.ttf, from https://github.com/djrrb/bungee
 AdobeVFPrototype.ttf, from https://github.com/adobe-fonts/adobe-variable-font-prototype
 BungeeOutline-Regular.ttf, from https://fonts.google.com/specimen/Bungee+Outline
+FiraCode-Regular.ttf is the unmodified `ttf/FiraCode-Regular.ttf` file from
+https://github.com/tonsky/FiraCode/releases/download/6.2/Fira_Code_v6.2.zip
+(SHA-256: 5992ab9640e2df491b2f609467b1de60e8bc39b2c28db184342a0592d98f6117).
+Its copyright notice and full SIL Open Font License v1.1 are in
+FiraCode-OFL-1.1.txt.
 
 All of the above fonts are published under the SIL Open Font License (OFL) v1.1 (http://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL), which allows you to copy, modify, and redistribute them if you need to.

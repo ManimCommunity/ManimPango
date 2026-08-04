@@ -47,6 +47,25 @@ def test_spans_preserve_plain_special_characters_without_markup_escaping():
     assert result.lines[0].text == text
 
 
+def test_disable_ligatures_overrides_conflicting_span_features():
+    """The global option must win over a span that enables Fira Code calt."""
+    text = "-> != ==="
+    span = text_span(start=0, end=len(text), features={"calt": True})
+    with manimpango.register_font(FONT_DIR / "FiraCode-Regular.ttf"):
+        common = {"font": "Fira Code"}
+        enabled = manimpango.render(text, spans=(span,), **common)
+        disabled = manimpango.render(text, disable_ligatures=True, **common)
+        overridden = manimpango.render(
+            text,
+            spans=(span,),
+            disable_ligatures=True,
+            **common,
+        )
+
+    assert enabled.svg != disabled.svg
+    assert overridden.svg == disabled.svg
+
+
 @pytest.mark.parametrize(
     "start,end",
     [(-1, 1), (0, 4), (2, 1), (1.0, 2)],

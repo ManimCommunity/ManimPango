@@ -376,8 +376,10 @@ def render(
         Pango indentation in SVG user-space units; negative values create a
         hanging indentation.
     disable_ligatures
-        Disable Pango's standard, discretionary, contextual, and historical
-        ligature features (``liga``, ``dlig``, ``clig``, and ``hlig``).
+        Disable Pango's standard, discretionary, contextual, historical, and
+        contextual-alternate features (``liga``, ``dlig``, ``clig``,
+        ``hlig``, and ``calt``).  This setting takes precedence over
+        conflicting feature declarations in ``spans`` or markup.
 
     Returns
     -------

@@ -39,6 +39,9 @@ class TextSpan:
     features
         Mapping of four-ASCII-character OpenType feature tags to integer or
         boolean values.  Boolean values are converted to ``0`` or ``1``.
+        When :func:`manimpango.render` is called with
+        ``disable_ligatures=True``, that setting overrides values for its
+        ligature-related tags.
     variations
         Mapping of four-ASCII-character OpenType variation-axis tags to
         finite numeric values.  Settings are forwarded to Pango; visible
