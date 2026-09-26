@@ -8,6 +8,11 @@ from .utils import *
 
 include "utils.pxi"
 
+_GLYPH_POSITION_WARNING = (
+    "Pango versions older than 1.44 cannot disable glyph-position rounding. "
+    "Text spacing may be less consistent, especially at small font sizes."
+)
+
 class TextSetting:
     """Formatting for slices of a :class:`manim.mobject.svg.text_mobject.Text` object."""
     def __init__(
@@ -80,7 +85,10 @@ def text2svg(
         cairo_surface_destroy(surface)
         raise MemoryError("Pango.Layout can't be created from Cairo Context.")
 
-    set_round_glyph_positions(layout, False)
+    ret = set_round_glyph_positions(layout, False)
+    if not ret:
+        warnings.warn(_GLYPH_POSITION_WARNING)
+
     fontmap = pango_context_get_font_map (pango_layout_get_context (layout));
 
     for font_item in registered_fonts:
@@ -245,7 +253,10 @@ class MarkupUtils:
             cairo_surface_destroy(surface)
             raise MemoryError("Pango.Layout can't be created from Cairo Context.")
 
-        set_round_glyph_positions(layout, False)
+        ret = set_round_glyph_positions(layout, False)
+        if not ret:
+            warnings.warn(_GLYPH_POSITION_WARNING)
+
         fontmap = pango_context_get_font_map (pango_layout_get_context (layout));
 
         for font_item in registered_fonts:
