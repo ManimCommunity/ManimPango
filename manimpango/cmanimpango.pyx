@@ -75,16 +75,17 @@ def text2svg(
     last_line_num = 0
 
     layout = pango_cairo_create_layout(cr)
+    if layout == NULL:
+        cairo_destroy(cr)
+        cairo_surface_destroy(surface)
+        raise MemoryError("Pango.Layout can't be created from Cairo Context.")
+
+    set_round_glyph_positions(layout, False)
     fontmap = pango_context_get_font_map (pango_layout_get_context (layout));
 
     for font_item in registered_fonts:
         if font_item.type == 'win32':
             add_to_fontmap(fontmap, font_item.path)
-
-    if layout == NULL:
-        cairo_destroy(cr)
-        cairo_surface_destroy(surface)
-        raise MemoryError("Pango.Layout can't be created from Cairo Context.")
 
     if pango_width is None:
         pango_layout_set_width(layout, pango_units_from_double(width))
@@ -244,6 +245,7 @@ class MarkupUtils:
             cairo_surface_destroy(surface)
             raise MemoryError("Pango.Layout can't be created from Cairo Context.")
 
+        set_round_glyph_positions(layout, False)
         fontmap = pango_context_get_font_map (pango_layout_get_context (layout));
 
         for font_item in registered_fonts:
