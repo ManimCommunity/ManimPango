@@ -24,10 +24,10 @@ jobs:
           - os: windows-2022
             platform_id: win32
             architecture: x86
-          - os: macos-13
+          - os: macos-15-intel
             platform_id: macosx_x86_64
             architecture: x64
-          - os: macos-14
+          - os: macos-15
             platform_id: macosx_arm64
             architecture: arm64
     env:
