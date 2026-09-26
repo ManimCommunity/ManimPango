@@ -8,6 +8,11 @@ from .utils import *
 
 include "utils.pxi"
 
+_GLYPH_POSITION_WARNING = (
+    "Pango versions older than 1.44 cannot disable glyph-position rounding. "
+    "Text spacing may be less consistent, especially at small font sizes."
+)
+
 class TextSetting:
     """Formatting for slices of a :class:`manim.mobject.svg.text_mobject.Text` object."""
     def __init__(
@@ -75,16 +80,20 @@ def text2svg(
     last_line_num = 0
 
     layout = pango_cairo_create_layout(cr)
+    if layout == NULL:
+        cairo_destroy(cr)
+        cairo_surface_destroy(surface)
+        raise MemoryError("Pango.Layout can't be created from Cairo Context.")
+
+    ret = set_round_glyph_positions(layout, False)
+    if not ret:
+        warnings.warn(_GLYPH_POSITION_WARNING)
+
     fontmap = pango_context_get_font_map (pango_layout_get_context (layout));
 
     for font_item in registered_fonts:
         if font_item.type == 'win32':
             add_to_fontmap(fontmap, font_item.path)
-
-    if layout == NULL:
-        cairo_destroy(cr)
-        cairo_surface_destroy(surface)
-        raise MemoryError("Pango.Layout can't be created from Cairo Context.")
 
     if pango_width is None:
         pango_layout_set_width(layout, pango_units_from_double(width))
@@ -243,6 +252,10 @@ class MarkupUtils:
             cairo_destroy(context)
             cairo_surface_destroy(surface)
             raise MemoryError("Pango.Layout can't be created from Cairo Context.")
+
+        ret = set_round_glyph_positions(layout, False)
+        if not ret:
+            warnings.warn(_GLYPH_POSITION_WARNING)
 
         fontmap = pango_context_get_font_map (pango_layout_get_context (layout));
 

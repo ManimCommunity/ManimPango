@@ -159,8 +159,14 @@ cdef extern from *:
           pango_layout_set_line_spacing(layout, spacing);
           return 1;
         }
+        int set_round_glyph_positions(PangoLayout *layout, gboolean r)
+        {
+          pango_context_set_round_glyph_positions(pango_layout_get_context(layout), r);
+          return 1;
+        }
     #else
         int set_line_width(PangoLayout *layout,float spacing){return 0;}
+        int set_round_glyph_positions(PangoLayout *layout, gboolean r){return 0;}
     #endif
 
     #if _WIN32 && PANGO_VERSION_CHECK(1,52,0)
@@ -182,10 +188,11 @@ cdef extern from *:
     """
     # The above docs string is C which is used to
     # check for the Pango Version there at run time.
-    # pango_layout_set_line_spacing is only avaiable only for
+    # pango_layout_set_line_spacing, pango_context_set_round_glyph_positions is only avaiable only for
     # pango>=1.44.0 but we support pango>=1.30.0 that why this
     # conditionals.
     bint set_line_width(PangoLayout *layout,float spacing)
+    bint set_round_glyph_positions(PangoLayout *layout, gboolean r)
 
     # only for windows and 1.52.0+
     gboolean font_map_add_font_file(PangoFontMap *font_map,
