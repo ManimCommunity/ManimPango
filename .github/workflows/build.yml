@@ -31,7 +31,7 @@ jobs:
             platform_id: macosx_arm64
             architecture: arm64
     env:
-      CIBW_BUILD: cp39-${{ matrix.platform_id }} cp310-${{ matrix.platform_id }} cp311-${{ matrix.platform_id }} cp312-${{ matrix.platform_id }} cp313-${{ matrix.platform_id }} cp314-${{ matrix.platform_id }}
+      CIBW_BUILD: cp39-${{ matrix.platform_id }} cp310-${{ matrix.platform_id }} cp311-${{ matrix.platform_id }} cp312-${{ matrix.platform_id }} cp313-${{ matrix.platform_id }} cp314-${{ matrix.platform_id }} cp315-${{ matrix.platform_id }}
       CIBW_SKIP: pp* cp38*
       CIBW_BEFORE_BUILD_MACOS: "python packing/download_pango_macos.py ${{ matrix.architecture }}"
       CIBW_BEFORE_BUILD_WINDOWS: "python packing/download_dlls.py"
