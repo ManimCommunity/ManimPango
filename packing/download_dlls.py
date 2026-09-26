@@ -10,7 +10,7 @@ import zipfile
 from pathlib import Path
 from urllib.request import urlretrieve as download
 
-PANGO_VERSION = "1.56.4-v2"
+PANGO_VERSION = "1.58.2"
 
 
 def get_platform():
@@ -77,7 +77,7 @@ for i in pc_files.glob("*.pc"):
 logging.info("Getting pkg-config")
 download(
     url="https://github.com/naveen521kk/pango-build"
-    f"/releases/download/v{PANGO_VERSION}/pkgconf-windows.zip",
+    f"/releases/download/v{PANGO_VERSION}/pkgconf-v{PANGO_VERSION}-windows.zip",
     filename=download_file,
 )
 with zipfile.ZipFile(
