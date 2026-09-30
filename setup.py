@@ -44,7 +44,7 @@ MANIMPANGO_VERSION = get_version()
 MINIMUM_PANGO_VERSION = "1.30.0"
 DEBUG = False
 
-if sys.platform == "win32" and sys.version_info >= (3, 15):
+if sys.platform == "win32" and sys.version_info >= (3, 16):
     import atexit
 
     atexit.register(
@@ -266,19 +266,18 @@ setup(
     zip_safe=False,
     long_description_content_type="text/markdown",
     packages=["manimpango"],
-    python_requires=">=3.8",
+    python_requires=">=3.10",
     platforms=["Linux", "macOS", "Windows"],
     keywords=["cython", "pango", "cairo", "manim"],
     license="MIT",
     classifiers=[
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
         "Programming Language :: Python :: 3.14",
+        "Programming Language :: Python :: 3.15",
         "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Cython",

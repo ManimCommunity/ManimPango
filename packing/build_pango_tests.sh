@@ -2,7 +2,7 @@
 # build and install pango
 set -e
 
-PANGO_VERSION=1.56.4
+PANGO_VERSION=1.58.2
 
 FILE_PATH=$PWD
 PREFIX="$HOME/pangoprefix"
