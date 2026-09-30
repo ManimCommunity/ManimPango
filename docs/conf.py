@@ -22,7 +22,7 @@ from pathlib import Path
 # -- Project information -----------------------------------------------------
 
 project = "ManimPango"
-copyright = "2021, The Manim Community Dev Team"
+copyright = "2026, The Manim Community Dev Team"
 author = "The Manim Community Dev Team"
 
 release = distribution_version("ManimPango")
