@@ -44,7 +44,8 @@ cpdef bint _fc_unregister_font(set registered_fonts, str font_path):
     return True
 
 
-IF UNAME_SYSNAME == "Linux":
+# Linux, the BSDs and other Unix-like systems use fontconfig directly.
+IF UNAME_SYSNAME != "Windows" and UNAME_SYSNAME != "Darwin":
     _register_font = _fc_register_font
     _unregister_font = _fc_unregister_font
 
