@@ -95,9 +95,7 @@ def test_warning(font_file, font_name):
     assert "Pango-WARNING **" not in captured, "Looks like Pango raised a warning?"
 
 
-@pytest.mark.skipif(
-    FONTCONFIG, reason="unsupported api for fontconfig"
-)
+@pytest.mark.skipif(FONTCONFIG, reason="unsupported api for fontconfig")
 @pytest.mark.parametrize("font_name", font_lists_dict)
 @pytest.mark.skipif(sys.platform.startswith("darwin"), reason="always returns true")
 def test_fail_just_unregister(font_name):
@@ -131,9 +129,7 @@ def test_simple_fonts_render(tmpdir):
     assert Path(filename).exists()
 
 
-@pytest.mark.skipif(
-    not FONTCONFIG, reason="unsupported api other than fontconfig"
-)
+@pytest.mark.skipif(not FONTCONFIG, reason="unsupported api other than fontconfig")
 def test_both_fc_and_register_font_are_same():
     assert (
         manimpango._register_font._fc_register_font
