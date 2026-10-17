@@ -14,6 +14,9 @@ import manimpango
 from . import FONT_DIR
 from ._manim import MarkupText
 
+# Platforms other than Windows and macOS register fonts through fontconfig.
+FONTCONFIG = not sys.platform.startswith(("win32", "darwin"))
+
 
 @contextmanager
 def register_font(font_file: Path):
@@ -92,9 +95,7 @@ def test_warning(font_file, font_name):
     assert "Pango-WARNING **" not in captured, "Looks like Pango raised a warning?"
 
 
-@pytest.mark.skipif(
-    sys.platform.startswith("linux"), reason="unsupported api for linux"
-)
+@pytest.mark.skipif(FONTCONFIG, reason="unsupported api for fontconfig")
 @pytest.mark.parametrize("font_name", font_lists_dict)
 @pytest.mark.skipif(sys.platform.startswith("darwin"), reason="always returns true")
 def test_fail_just_unregister(font_name):
@@ -128,9 +129,7 @@ def test_simple_fonts_render(tmpdir):
     assert Path(filename).exists()
 
 
-@pytest.mark.skipif(
-    not sys.platform.startswith("linux"), reason="unsupported api other than linux"
-)
+@pytest.mark.skipif(not FONTCONFIG, reason="unsupported api other than fontconfig")
 def test_both_fc_and_register_font_are_same():
     assert (
         manimpango._register_font._fc_register_font
